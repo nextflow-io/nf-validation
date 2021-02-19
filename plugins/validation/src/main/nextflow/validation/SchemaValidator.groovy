@@ -1,5 +1,6 @@
 package nextflow.validation
 
+
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -10,89 +11,91 @@ import org.json.JSONObject
 import org.json.JSONTokener
 
 @Slf4j
-class NfcoreSchema {
+class SchemaValidator {
+
+    static final List<String> nf_params = [
+            // Options for base `nextflow` command
+            'bg',
+            'c',
+            'C',
+            'config',
+            'd',
+            'D',
+            'dockerize',
+            'h',
+            'log',
+            'q',
+            'quiet',
+            'syslog',
+            'v',
+            'version',
+
+            // Options for `nextflow run` command
+            'ansi',
+            'ansi-log',
+            'bg',
+            'bucket-dir',
+            'c',
+            'cache',
+            'config',
+            'dsl2',
+            'dump-channels',
+            'dump-hashes',
+            'E',
+            'entry',
+            'latest',
+            'lib',
+            'main-script',
+            'N',
+            'name',
+            'offline',
+            'params-file',
+            'pi',
+            'plugins',
+            'poll-interval',
+            'pool-size',
+            'profile',
+            'ps',
+            'qs',
+            'queue-size',
+            'r',
+            'resume',
+            'revision',
+            'stdin',
+            'stub',
+            'stub-run',
+            'test',
+            'w',
+            'with-charliecloud',
+            'with-conda',
+            'with-dag',
+            'with-docker',
+            'with-mpi',
+            'with-notification',
+            'with-podman',
+            'with-report',
+            'with-singularity',
+            'with-timeline',
+            'with-tower',
+            'with-trace',
+            'with-weblog',
+            'without-docker',
+            'without-podman',
+            'work-dir'
+    ]
+
     /*
     * Function to loop over all parameters defined in schema and check
     * whether the given paremeters adhere to the specificiations
     */
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    private static ArrayList validateParameters(params, jsonSchema) {
+    void validateParameters(Map params, json) {
         def has_error = false
         //=====================================================================//
         // Check for nextflow core params and unexpected params
-        def json = new File(jsonSchema).text
         def Map schemaParams = (Map) new JsonSlurper().parseText(json).get('definitions')
         def specifiedParamKeys = params.keySet()
-        def nf_params = [
-                // Options for base `nextflow` command
-                'bg',
-                'c',
-                'C',
-                'config',
-                'd',
-                'D',
-                'dockerize',
-                'h',
-                'log',
-                'q',
-                'quiet',
-                'syslog',
-                'v',
-                'version',
 
-                // Options for `nextflow run` command
-                'ansi',
-                'ansi-log',
-                'bg',
-                'bucket-dir',
-                'c',
-                'cache',
-                'config',
-                'dsl2',
-                'dump-channels',
-                'dump-hashes',
-                'E',
-                'entry',
-                'latest',
-                'lib',
-                'main-script',
-                'N',
-                'name',
-                'offline',
-                'params-file',
-                'pi',
-                'plugins',
-                'poll-interval',
-                'pool-size',
-                'profile',
-                'ps',
-                'qs',
-                'queue-size',
-                'r',
-                'resume',
-                'revision',
-                'stdin',
-                'stub',
-                'stub-run',
-                'test',
-                'w',
-                'with-charliecloud',
-                'with-conda',
-                'with-dag',
-                'with-docker',
-                'with-mpi',
-                'with-notification',
-                'with-podman',
-                'with-report',
-                'with-singularity',
-                'with-timeline',
-                'with-tower',
-                'with-trace',
-                'with-weblog',
-                'without-docker',
-                'without-podman',
-                'work-dir'
-        ]
         def unexpectedParams = []
 
         // Collect expected parameters from the schema
@@ -110,7 +113,7 @@ class NfcoreSchema {
                 has_error = true
             }
             // unexpected params
-            def params_ignore = params.schema_ignore_params.split(',') + 'schema_ignore_params'
+            def params_ignore = params.schema_ignore_params ? params.schema_ignore_params.split(',') + 'schema_ignore_params' : []
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam)) {
                 unexpectedParams.push(specifiedParam)
             }
@@ -118,8 +121,7 @@ class NfcoreSchema {
 
         //=====================================================================//
         // Validate parameters against the schema
-        InputStream inputStream = new File(jsonSchema).newInputStream()
-        JSONObject rawSchema = new JSONObject(new JSONTokener(inputStream))
+        JSONObject rawSchema = new JSONObject(new JSONTokener(json))
         Schema schema = SchemaLoader.load(rawSchema)
 
         // Clean the parameters
@@ -132,7 +134,8 @@ class NfcoreSchema {
         // Validate
         try {
             schema.validate(paramsJSON)
-        } catch (ValidationException e) {
+        }
+        catch (ValidationException e) {
             println ""
             log.error 'ERROR: Validation of pipeline parameters failed!'
             JSONObject exceptionJSON = e.toJSON()
@@ -150,10 +153,10 @@ class NfcoreSchema {
         }
 
         if(has_error){
-            System.exit(1)
+            // 
+            //System.exit(1)
         }
 
-        return unexpectedParams
     }
 
     // Loop over nested exceptions and print the causingException

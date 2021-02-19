@@ -13,9 +13,15 @@ import nextflow.trace.TraceObserver
 @CompileStatic
 class ValidationObserver implements TraceObserver {
 
+    public static final String SCHEMA_NAME = 'nextflow_schema.json'
+
     @Override
     void onFlowCreate(Session session) {
-       // TODO  
+        final params = (Map) session.config.params
+        final schema = session.baseDir.resolve(SCHEMA_NAME)
+        if( schema.exists() ) {
+            new SchemaValidator().validateParameters(params, schema.text)
+        }
     }
 
 }

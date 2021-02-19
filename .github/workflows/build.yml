@@ -1,0 +1,52 @@
+name: nf-validator CI
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build:
+    name: Build nf-validator
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: [8, 11]
+
+    steps:
+      - name: Environment
+        run: env | sort
+
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+          submodules: true
+
+      - name: Setup Java ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{matrix.java_version}}
+          architecture: x64
+
+      - name: Compile
+        run: ./gradlew assemble
+
+      - name: Tests
+        run: ./gradlew check
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+
+      - name: Publish
+        if: failure()
+        run: bash pub-tests.sh github
+        env:
+          TEST_JDK: ${{ matrix.java_version }}
+          NXF_AWS_ACCESS: ${{ secrets.NXF_AWS_ACCESS }}
+          NXF_AWS_SECRET: ${{ secrets.NXF_AWS_SECRET }}

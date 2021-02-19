@@ -1,6 +1,6 @@
 package nextflow.validation
 
-
+import groovy.transform.CompileStatic
 import nextflow.Session
 import nextflow.trace.TraceObserver
 import nextflow.trace.TraceObserverFactory
@@ -9,10 +9,13 @@ import nextflow.trace.TraceObserverFactory
  *
  * @author Paolo Di Tommaso <paolo.ditommaso@gmail.com>
  */
+@CompileStatic
 class ValidationFactory implements TraceObserverFactory {
 
     @Override
     Collection<TraceObserver> create(Session session) {
-        return [new ValidationObserver()]
+        final result = new ArrayList()
+        result << new ValidationObserver()
+        return result
     }
 }

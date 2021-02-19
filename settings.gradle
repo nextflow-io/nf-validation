@@ -8,3 +8,5 @@
  */
 
 rootProject.name = 'nf-validation'
+include 'plugins'
+include('plugins:validation')
