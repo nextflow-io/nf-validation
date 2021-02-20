@@ -17,10 +17,40 @@ class SchemaValidatorTest extends Specification {
         validator.validateParameters(params,  SCHEMA)
 
         then:
-        noExceptionThrown()
+        !validator.hasErrors()
+        !validator.hasWarnings()
+
     }
 
+    def 'should found unexpected params' () {
+        given:
+        def validator = new SchemaValidator()
 
+        when:
+        def params = [xyz: '/some/path']
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasWarnings()
+        validator.warnings == ['* --xyz: /some/path']
+        and:
+        !validator.hasErrors()
+    }
+
+    def 'should find validation errors' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [outdir: 10]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasErrors()
+        validator.errors == [ '* --outdir: expected type: String, found: Integer (10)' ]
+        and:
+        !validator.hasWarnings()
+    }
 
     static String SCHEMA = '''
             {

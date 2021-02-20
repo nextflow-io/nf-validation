@@ -1,19 +1,15 @@
 package nextflow.validation
 
-
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
-import org.everit.json.schema.Schema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.JSONObject
 import org.json.JSONTokener
 
-@Slf4j
 class SchemaValidator {
 
-    static final List<String> nf_params = [
+    static final List<String> NF_OPTIONS = [
             // Options for base `nextflow` command
             'bg',
             'c',
@@ -84,19 +80,31 @@ class SchemaValidator {
             'work-dir'
     ]
 
+    private List<String> errors = []
+    private List<String> warnings = []
+
+    boolean hasErrors() { errors.size()>0 }
+    List<String> getErrors() { errors }
+
+    boolean hasWarnings() { warnings.size()>0 }
+    List<String> getWarnings() { warnings }
+
     /*
     * Function to loop over all parameters defined in schema and check
     * whether the given paremeters adhere to the specificiations
     */
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    void validateParameters(Map params, json) {
-        def has_error = false
+    void validateParameters(Map params, String json) {
+
+        // Clean the parameters
+        def cleanedParams = cleanParameters(params)
+        // Convert to JSONObject
+        def paramsJSON = new JSONObject(new JsonBuilder(cleanedParams).toString())
+
         //=====================================================================//
         // Check for nextflow core params and unexpected params
         def Map schemaParams = (Map) new JsonSlurper().parseText(json).get('definitions')
         def specifiedParamKeys = params.keySet()
-
-        def unexpectedParams = []
 
         // Collect expected parameters from the schema
         def expectedParams = []
@@ -108,79 +116,53 @@ class SchemaValidator {
 
         for (specifiedParam in specifiedParamKeys) {
             // nextflow params
-            if (nf_params.contains(specifiedParam)) {
-                log.error "ERROR: You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'"
-                has_error = true
+            if (NF_OPTIONS.contains(specifiedParam)) {
+                errors << "You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'".toString()
             }
             // unexpected params
             def params_ignore = params.schema_ignore_params ? params.schema_ignore_params.split(',') + 'schema_ignore_params' : []
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam)) {
-                unexpectedParams.push(specifiedParam)
+                warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
             }
         }
 
         //=====================================================================//
         // Validate parameters against the schema
-        JSONObject rawSchema = new JSONObject(new JSONTokener(json))
-        Schema schema = SchemaLoader.load(rawSchema)
-
-        // Clean the parameters
-        def cleanedParams = cleanParameters(params)
-
-        // Convert to JSONObject
-        def jsonParams = new JsonBuilder(cleanedParams)
-        JSONObject paramsJSON = new JSONObject(jsonParams.toString())
+        final rawSchema = new JSONObject(new JSONTokener(json))
+        final schema = SchemaLoader.load(rawSchema)
 
         // Validate
         try {
             schema.validate(paramsJSON)
         }
         catch (ValidationException e) {
-            println ""
-            log.error 'ERROR: Validation of pipeline parameters failed!'
             JSONObject exceptionJSON = e.toJSON()
-            printExceptions(exceptionJSON, paramsJSON, log)
-            if (unexpectedParams.size() > 0){
-                println ""
-                def warn_msg = 'Found unexpected parameters:'
-                for (unexpectedParam in unexpectedParams){
-                    warn_msg = warn_msg + "\n* --${unexpectedParam}: ${paramsJSON[unexpectedParam].toString()}"
-                }
-                log.warn warn_msg
-            }
-            println ""
-            has_error = true
+            collectErrors(exceptionJSON, paramsJSON)
         }
-
-        if(has_error){
-            // 
-            //System.exit(1)
-        }
-
     }
 
     // Loop over nested exceptions and print the causingException
-    private static void printExceptions(exJSON, paramsJSON, log) {
+    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON) {
         def causingExceptions = exJSON['causingExceptions']
         if (causingExceptions.length() == 0) {
             def m = exJSON['message'] =~ /required key \[([^\]]+)\] not found/
             // Missing required param
             if(m.matches()){
-                log.error "* Missing required parameter: --${m[0][1]}"
+                errors << "* Missing required parameter: --${m[0][1]}".toString()
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
-                log.error "* ${exJSON['message']}"
+                errors << "* ${exJSON['message']}".toString()
             }
             // Error with specific param
             else {
                 def param = exJSON['pointerToViolation'] - ~/^#\//
                 def param_val = paramsJSON[param].toString()
-                log.error "* --${param}: ${exJSON['message']} (${param_val})"
+                errors << "* --${param}: ${exJSON['message']} (${param_val})".toString()
             }
         }
         for (ex in causingExceptions) {
-            printExceptions(ex, paramsJSON, log)
+            collectErrors(ex, paramsJSON)
         }
     }
 

@@ -5,14 +5,17 @@ based on [nf-core JSON schema](https://nf-co.re/pipeline_schema_builder).
 
 ## Get started 
 
-So far, not so much you can do it. To compile use the following command: 
+To compile and run the tests use the following command: 
 
 
 ```
-./gradlew compileGroovy
+./gradlew check
 ```      
 
 
+## Launch it with Nextflow 
+
+[WORK IN PROGRESS]
 
 To test with Nextflow for development purpose:
 
