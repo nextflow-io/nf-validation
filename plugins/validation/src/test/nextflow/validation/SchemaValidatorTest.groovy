@@ -104,6 +104,34 @@ class SchemaValidatorTest extends Specification {
         !validator.hasErrors()
     }
 
+    def 'should fail because of incorrect integer' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [max_cpus: 1.2]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasErrors()
+        validator.errors == [ '* --max_cpus: expected type: Integer, found: BigDecimal (1.2)' ]
+        !validator.hasWarnings()
+    }
+
+    def 'should fail because of wrong pattern' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [max_memory: '10']
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasErrors()
+        validator.errors == [ '* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)' ]
+        !validator.hasWarnings()
+    }
+
     static String SCHEMA = '''
             {
               "$schema": "http://json-schema.org/draft-07/schema",
