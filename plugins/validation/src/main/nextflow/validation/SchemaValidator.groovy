@@ -91,9 +91,8 @@ class SchemaValidator {
 
     /*
     * Function to loop over all parameters defined in schema and check
-    * whether the given paremeters adhere to the specificiations
+    * whether the given parameters adhere to the specifications
     */
-    /* groovylint-disable-next-line UnusedPrivateMethodParameter */
     void validateParameters(Map params, String json) {
 
         // Clean the parameters

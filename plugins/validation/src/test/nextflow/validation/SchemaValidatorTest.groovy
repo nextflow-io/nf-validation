@@ -52,6 +52,58 @@ class SchemaValidatorTest extends Specification {
         !validator.hasWarnings()
     }
 
+    def 'should correctly validate duration and memory objects' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [max_memory: 10.GB, max_time: 10.d]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        !validator.hasErrors()
+        !validator.hasWarnings()
+    }
+
+    def 'should find validation errors for enum' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [publish_dir_mode: "incorrect"]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasErrors()
+        validator.errors == [ '* --publish_dir_mode: incorrect is not a valid enum value (incorrect)' ]
+    }
+
+    def 'correct validation of integers' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [max_cpus: 12]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        !validator.hasErrors()
+        !validator.hasWarnings()
+    }
+
+    def 'correct validation of numbers' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [generic_number: 0.43]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        !validator.hasWarnings()
+        !validator.hasErrors()
+    }
+
     static String SCHEMA = '''
             {
               "$schema": "http://json-schema.org/draft-07/schema",
@@ -99,7 +151,28 @@ class SchemaValidatorTest extends Specification {
                   "fa_icon": "fas fa-file-import",
                   "description": "Less common options for the pipeline, typically set in a config file.",
                   "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\\n\\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
-                  "properties": {}
+                  "properties": {
+                    "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": [
+                        "symlink",
+                        "rellink",
+                        "link",
+                        "copy",
+                        "copyNoFollow",
+                        "move"
+                    ]
+                    },
+                    "generic_number": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "A random number for testing purposes"
+                    }
+                  }
                 },
                 "max_job_request_options": {
                   "title": "Max job request options",
@@ -107,7 +180,34 @@ class SchemaValidatorTest extends Specification {
                   "fa_icon": "fab fa-acquisitions-incorporated",
                   "description": "Set the top limit for requested resources for any single job.",
                   "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\\n\\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
-                  "properties": {}
+                  "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "description": "Maximum number of CPUs that can be requested for any single job.",
+                    "default": 16,
+                    "fa_icon": "fas fa-microchip",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
+                },
+                "max_memory": {
+                    "type": "string",
+                    "description": "Maximum amount of memory that can be requested for any single job.",
+                    "default": "128.GB",
+                    "fa_icon": "fas fa-memory",
+                    "pattern": "^[\\\\d\\\\.]+\\\\s*.(K|M|G|T)?B$",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
+                },
+                "max_time": {
+                    "type": "string",
+                    "description": "Maximum amount of time that can be requested for any single job.",
+                    "default": "240.h",
+                    "fa_icon": "far fa-clock",
+                    "hidden": true,
+                    "pattern": "^[\\\\d\\\\.]+\\\\.*(s|m|h|d)$",
+                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                }
+               }   
                 },
                 "institutional_config_options": {
                   "title": "Institutional config options",
