@@ -2,6 +2,8 @@ package nextflow.validation
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import nextflow.util.Duration
+import nextflow.util.MemoryUnit
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.JSONObject
@@ -173,15 +175,15 @@ class SchemaValidator {
                 new_params.remove(p.key)
             }
             // Cast MemoryUnit to String
-            if (p['value'].getClass() == nextflow.util.MemoryUnit) {
+            if (p['value'] instanceof MemoryUnit) {
                 new_params.replace(p.key, p['value'].toString())
             }
             // Cast Duration to String
-            if (p['value'].getClass() == nextflow.util.Duration) {
+            if (p['value'] instanceof Duration) {
                 new_params.replace(p.key, p['value'].toString())
             }
             // Cast LinkedHashMap to String
-            if (p['value'].getClass() == LinkedHashMap) {
+            if (p['value'] instanceof LinkedHashMap) {
                 new_params.replace(p.key, p['value'].toString())
             }
         }
