@@ -52,6 +52,21 @@ class SchemaValidatorTest extends Specification {
         !validator.hasWarnings()
     }
 
+    def 'should find validation for reads field' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [reads: 11]
+        validator.validateParameters(params, SCHEMA)
+
+        then:
+        validator.hasErrors()
+        validator.errors == [ '* --reads: expected type: String, found: Integer (11)' ]
+        and:
+        !validator.hasWarnings()
+    }
+
     def 'should correctly validate duration and memory objects' () {
         given:
         def validator = new SchemaValidator()
