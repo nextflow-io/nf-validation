@@ -1,6 +1,22 @@
+/*
+ * Copyright 2021-2022, Seqera Labs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 plugins {
     id "java"
-    id "io.nextflow.nf-build-plugin" version "1.0.0"
+    id "io.nextflow.nf-build-plugin" version "1.0.1"
 }
 
 ext.github_organization = 'nextflow-io'
@@ -21,21 +37,19 @@ String now() {
 }
 
 List<String> allPlugins() {
-    def plugins = []
-    new File(rootProject.rootDir, 'plugins') .eachDir { if(it.name.startsWith('xpack-')) plugins.add(it.name) }
-    return plugins
+    return [new File(rootProject.rootDir, 'plugins/validation')]
 }
 
-String verFromManifest(File file) {
+String metaFromManifest(String meta, File file) {
     def str = file.text
-    def regex = ~/(?m)^Plugin-Version:\s*([\w-\.]+)$/
+    def regex = ~/(?m)^$meta:\s*([\w-\.<>=]+)$/
     def m = regex.matcher(str)
     if( m.find() ) {
         def ver = m.group(1)
         //println "Set plugin '${file.parentFile.parentFile.parentFile.parentFile.name}' version=${ver}"
         return ver
     }
-    throw new GradleException("Cannot find version for plugin: $file")
+    throw new GradleException("Cannot find '$meta' for plugin: $file")
 }
 
 def timestamp = now()
@@ -50,14 +64,18 @@ subprojects {
         mavenCentral()
     }
 
-    version = verFromManifest(file('src/resources/META-INF/MANIFEST.MF'))
+    version = metaFromManifest('Plugin-Version',file('src/resources/META-INF/MANIFEST.MF'))
 
+    tasks.withType(Jar) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+    
     /*
      * Creates plugin zip and json meta file in plugin `build/libs` directory
      */
     task makeZip(type: Jar) {
         into('classes') { with jar }
-        into('lib') { from configurations.compile }
+        into('lib') { from configurations.runtimeClasspath }
         manifest.from file('src/resources/META-INF/MANIFEST.MF')
         archiveExtension = 'zip'
         preserveFileTimestamps = false
@@ -72,26 +90,41 @@ subprojects {
                 "version": "${project.version}",
                 "date": "${timestamp}",
                 "url": "https://github.com/${github_organization}/${project.name}/releases/download/${project.version}/${project.name}-${project.version}.zip",
+                "requires": "${metaFromManifest('Plugin-Requires',file('src/resources/META-INF/MANIFEST.MF'))}",
                 "sha512sum": "${computeSha512(zip)}"
               }
             """.stripIndent()
         }
+        outputs.file("$buildDir/libs/${project.name}-${project.version}.zip")
     }
 
+    /*
+     * Copy the plugin dependencies in the subproject `build/target/libs` directory
+     */
     task copyPluginLibs(type: Sync) {
-        from configurations.compile
+        from configurations.runtimeClasspath
         into 'build/target/libs'
     }
 
-    task copyPluginZip(type: Copy) {
+    /*
+     * Copy the plugin in the project root build/plugins directory
+     */
+    task copyPluginZip(type: Copy, dependsOn: project.tasks.findByName('makeZip')) {
         from makeZip
         into "$rootProject.buildDir/plugins"
+        outputs.file("$rootProject.buildDir/plugins/${project.name}-${project.version}.zip")
+        doLast {
+            ant.unzip(
+                    src: "$rootProject.buildDir/plugins/${project.name}-${project.version}.zip",
+                    dest: "$rootProject.buildDir/plugins/${project.name}-${project.version}"
+            )
+        }
     }
 
-    task unzipPlugin(type: Copy, dependsOn: copyPluginZip) {
-        from zipTree("$rootProject.buildDir/plugins/${project.name}-${project.version}.zip")
-        into "$rootProject.buildDir/plugins/${project.name}-${project.version}"
-    }
+    /*
+    * "install" the plugin the project root build/plugins directory
+    */
+    project.parent.tasks.getByName("assemble").dependsOn << copyPluginZip
 
     task uploadPlugin(type: io.nextflow.gradle.tasks.GithubUploader, dependsOn: makeZip) {
         assets = providers.provider {["$buildDir/libs/${project.name}-${project.version}.zip",
@@ -104,15 +137,15 @@ subprojects {
         skipExisting = true
     }
 
-    task upload(dependsOn: [uploadPlugin] ) { }
 }
 
-task upload(dependsOn: [subprojects.upload]) { }
+task upload(dependsOn: [subprojects.uploadPlugin]) { }
 
 classes.dependsOn subprojects.copyPluginLibs
-assemble.dependsOn subprojects.unzipPlugin
+/*
 
-
+ * Merge and publish the plugins index file
+ */
 task publishIndex( type: io.nextflow.gradle.tasks.GithubRepositoryPublisher ) {
     indexUrl = 'https://github.com/nextflow-io/plugins/main/plugins.json'
     repos = allPlugins()

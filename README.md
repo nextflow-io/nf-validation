@@ -19,7 +19,7 @@ To compile and run the tests use the following command:
 
 To test with Nextflow for development purpose:
 
-1. Clone the Nextlow repo into a sibling directory  
+1. Clone the Nextflow repo into a sibling directory  
 
    ```
    cd .. && https://github.com/nextflow-io/nextflow
@@ -31,14 +31,20 @@ To test with Nextflow for development purpose:
    includeBuild('../nextflow')
    ```                        
    
-3. run nextflow with this command:
+3. Compile the plugin code
 
+   ```
+   ./gradlew compileGroovy
+   ```
+   
+4. run nextflow with this command:
 
     ```
-    ./launch.sh run -plugins nf-validator <script/pipeline name> [pipeline params]
+    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
     ```
 
 
 ## Dependencies
 
+* Java 11 or later
 * https://github.com/everit-org/json-schema
