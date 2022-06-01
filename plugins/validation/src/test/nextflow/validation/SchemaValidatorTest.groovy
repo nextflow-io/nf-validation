@@ -14,7 +14,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [transcriptome: '/some/path']
-        validator.validateParameters(params,  SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -28,7 +28,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [xyz: '/some/path']
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         validator.hasWarnings()
@@ -43,7 +43,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [outdir: 10]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         validator.hasErrors()
@@ -58,7 +58,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_memory: 10.GB, max_time: 10.d]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -71,11 +71,11 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [publish_dir_mode: "incorrect"]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         validator.hasErrors()
-        validator.errors == [ '* --publish_dir_mode: incorrect is not a valid enum value (incorrect)' ]
+        validator.errors == [ "* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )" ]
     }
 
     def 'correct validation of integers' () {
@@ -84,7 +84,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_cpus: 12]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -97,7 +97,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [generic_number: 0.43]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         !validator.hasWarnings()
@@ -110,7 +110,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_cpus: 1.2]
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         validator.hasErrors()
@@ -124,7 +124,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_memory: '10']
-        validator.validateParameters(params, SCHEMA)
+        validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
         validator.hasErrors()

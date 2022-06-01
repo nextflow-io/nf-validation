@@ -138,11 +138,7 @@ class SchemaValidator {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                // Temporarily remove camelCase/camel-case params #1035
-                def unexpectedParamsLowerCase = unexpectedParams.collect{ it.replace("-", "").toLowerCase()}
-                if (!unexpectedParamsLowerCase.contains(specifiedParamLowerCase)){
-                    warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
-                }
+                warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
             }
         }
 
@@ -157,7 +153,7 @@ class SchemaValidator {
         }
         catch (ValidationException e) {
             JSONObject exceptionJSON = e.toJSON()
-            collectErrors(exceptionJSON, paramsJSON)
+            collectErrors(exceptionJSON, paramsJSON, enums)
         }
     }
 
@@ -312,7 +308,7 @@ class SchemaValidator {
     //
     // Loop over nested exceptions and print the causingException
     //
-    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON) {
+    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, enums, limit=5) {
         def causingExceptions = exJSON['causingExceptions']
         if (causingExceptions.length() == 0) {
             def m = exJSON['message'] =~ /required key \[([^\]]+)\] not found/
@@ -336,12 +332,12 @@ class SchemaValidator {
                         errors << "${error_msg}: ${enums[param].join(', ')})".toString()
                     }
                 } else {
-                    errors << "* --${param}: ${ex_json['message']} (${param_val})".toString()
+                    errors << "* --${param}: ${exJSON['message']} (${param_val})".toString()
                 }
             }
         }
         for (ex in causingExceptions) {
-            collectErrors(ex, paramsJSON)
+            collectErrors(ex, paramsJSON, enums)
         }
     }
 
