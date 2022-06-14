@@ -37,6 +37,19 @@ class SchemaValidatorTest extends Specification {
         !validator.hasErrors()
     }
 
+    def 'should ignore unexpected param' () {
+        given:
+        def validator = new SchemaValidator()
+
+        when:
+        def params = [xyz: '/some/path', schema_ignore_params: 'xyz']
+        validator.validateParameters(params, '/some/path', SCHEMA)
+
+        then:
+        !validator.hasWarnings()
+        !validator.hasErrors()
+    }
+
     def 'should find validation errors' () {
         given:
         def validator = new SchemaValidator()
