@@ -6,6 +6,8 @@ import nextflow.util.Duration
 import nextflow.util.MemoryUnit
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.Validator
+import org.everit.json.schema.PrimitiveValidationStrategy
 import org.json.JSONObject
 import org.json.JSONTokener
 import org.json.JSONArray
@@ -146,6 +148,11 @@ class SchemaValidator {
         // Validate parameters against the schema
         final rawSchema = new JSONObject(new JSONTokener(schema_filename))
         final schema = SchemaLoader.load(rawSchema)
+
+        // Create new validator with LENIENT mode 
+        Validator validator = Validator.builder()
+            .primitiveValidationStrategry(PrimitiveValidationStrategy.LENIENT)
+            .build();
 
         // Validate
         try {
