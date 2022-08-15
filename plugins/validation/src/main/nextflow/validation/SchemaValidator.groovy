@@ -178,6 +178,7 @@ class SchemaValidator {
     //
     // Beautify parameters for --help
     //
+    @nextflow.plugin.extension.Function
     public String paramsHelp(baseDir, params, command, schema_filename='nextflow_schema.json') {
         Map colors = NfcoreTemplate.logColours(params.monochrome_logs)
         Integer num_hidden = 0
@@ -235,6 +236,7 @@ class SchemaValidator {
     //
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
+    @nextflow.plugin.extension.Function
     public static LinkedHashMap paramsSummaryMap(workflow, baseDir, params, schema_filename='nextflow_schema.json') {
         // Get a selection of core Nextflow workflow options
         def Map workflow_summary = [:]
@@ -303,6 +305,7 @@ class SchemaValidator {
     //
     // Beautify parameters for summary and return as string
     //
+    @nextflow.plugin.extension.Function
     public String paramsSummaryLog(workflow, baseDir, params) {
         Map colors = NfcoreTemplate.logColours(params.monochrome_logs)
         String output  = ''
