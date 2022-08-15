@@ -129,6 +129,8 @@ class SchemaValidator {
             }
         }
 
+        // Add known expected parameters from the pipeline
+        expectedParams.push('fail_unrecognised_params')
         for (specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
@@ -140,7 +142,11 @@ class SchemaValidator {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                if (params.fail_unrecognised_params) {
+                    errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                } else {
+                    warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                }
             }
         }
 
