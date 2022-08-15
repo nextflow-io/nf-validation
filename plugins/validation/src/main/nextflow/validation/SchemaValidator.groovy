@@ -131,6 +131,8 @@ class SchemaValidator {
 
         // Add known expected parameters from the pipeline
         expectedParams.push('fail_unrecognised_params')
+        expectedParams.push('lenient_mode')
+
         for (specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
@@ -155,14 +157,17 @@ class SchemaValidator {
         final rawSchema = new JSONObject(new JSONTokener(schema_filename))
         final schema = SchemaLoader.load(rawSchema)
 
-        // Create new validator with LENIENT mode 
-        Validator validator = Validator.builder()
-            .primitiveValidationStrategry(PrimitiveValidationStrategy.LENIENT)
-            .build();
-
         // Validate
         try {
-            schema.validate(paramsJSON)
+            if (params.lenient_mode) {
+                // Create new validator with LENIENT mode 
+                Validator validator = Validator.builder()
+                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                    .build();
+                validator.performValidation(schema, paramsJSON);
+            } else {
+                schema.validate(paramsJSON)
+            }
         }
         catch (ValidationException e) {
             JSONObject exceptionJSON = e.toJSON()
