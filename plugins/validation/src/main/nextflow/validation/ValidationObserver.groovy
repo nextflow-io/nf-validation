@@ -28,7 +28,9 @@ class ValidationObserver implements TraceObserver {
         }
         log.debug "Applying validation schema at path: $schema"
         validator = new SchemaValidator()
-        validator.validateParameters(params, session.baseDir, schema.text)
+        if (!params.help) {
+            validator.validateParameters(params, session.baseDir, schema.text)
+        }
         // check for errors
         if( validator.errors ) {
             def msg = "The following invalid input values have been detected:\n" + validator.errors.join('\n').trim()
