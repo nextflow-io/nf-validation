@@ -65,7 +65,7 @@ dependencies {
     // test configuration
     testImplementation "org.codehaus.groovy:groovy:3.0.10"
     testImplementation "org.codehaus.groovy:groovy-nio:3.0.10"
-    testImplementation 'io.nextflow:nextflow:22.04.0'
+    testImplementation 'io.nextflow:nextflow:22.08.1-edge'
     testImplementation ("org.codehaus.groovy:groovy-test:3.0.10") { exclude group: 'org.codehaus.groovy' }
     testImplementation ("cglib:cglib-nodep:3.3.0")
     testImplementation ("org.objenesis:objenesis:3.1")
