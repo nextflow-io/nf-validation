@@ -11,8 +11,11 @@ import org.everit.json.schema.PrimitiveValidationStrategy
 import org.json.JSONObject
 import org.json.JSONTokener
 import org.json.JSONArray
+import nextflow.plugin.extension.PluginExtensionPoint
+import nextflow.plugin.extension.Function
+import nextflow.Session
 
-class SchemaValidator {
+class SchemaValidator extends PluginExtensionPoint {
 
     static final List<String> NF_OPTIONS = [
             // Options for base `nextflow` command
@@ -87,6 +90,10 @@ class SchemaValidator {
 
     private List<String> errors = []
     private List<String> warnings = []
+
+    protected void init(Session session) {
+        this.session = session
+    }
 
     boolean hasErrors() { errors.size()>0 }
     List<String> getErrors() { errors }
@@ -237,7 +244,7 @@ class SchemaValidator {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @nextflow.plugin.extension.Function
-    public static LinkedHashMap paramsSummaryMap(workflow, baseDir, params, schema_filename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(workflow, baseDir, params, schema_filename='nextflow_schema.json') {
         // Get a selection of core Nextflow workflow options
         def Map workflow_summary = [:]
         if (workflow.revision) {

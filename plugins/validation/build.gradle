@@ -57,10 +57,10 @@ sourceSets {
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    compileOnly 'io.nextflow:nextflow:22.04.0'
+    compileOnly 'io.nextflow:nextflow:22.08.1-edge'
     compileOnly 'org.slf4j:slf4j-api:1.7.10'
     compileOnly 'org.pf4j:pf4j:3.4.1'
-    api 'com.github.everit-org.json-schema:org.everit.json.schema:1.12.2'
+    api 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.1'
 
     // test configuration
     testImplementation "org.codehaus.groovy:groovy:3.0.10"
