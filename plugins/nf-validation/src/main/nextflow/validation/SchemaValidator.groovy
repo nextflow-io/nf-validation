@@ -14,7 +14,9 @@ import org.json.JSONArray
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.plugin.extension.Function
 import nextflow.Session
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
 
     static final List<String> NF_OPTIONS = [
