@@ -27,7 +27,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def params = [xyz: '/some/path', fail_unrecognised_params: 'true']
+        def params = [xyz: '/some/path']
         validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
@@ -55,7 +55,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def params = [xyz: '/some/path']
+        def params = [xyz: '/some/path', fail_unrecognised_params: 'true']
         validator.validateParameters(params, '/some/path', SCHEMA)
 
         then:
