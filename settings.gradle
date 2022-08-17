@@ -9,4 +9,4 @@
 
 rootProject.name = 'nf-validation'
 include 'plugins'
-include('plugins:validation')
+include('plugins:nf-validation')
