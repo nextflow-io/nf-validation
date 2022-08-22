@@ -15,6 +15,7 @@ import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.plugin.extension.Function
 import nextflow.Session
 import groovy.transform.CompileStatic
+import java.util.regex.Matcher
 
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -94,7 +95,6 @@ class SchemaValidator extends PluginExtensionPoint {
     private List<String> warnings = []
 
     protected void init(Session session) {
-        this.session = session
     }
 
     boolean hasErrors() { errors.size()>0 }
@@ -114,7 +114,7 @@ class SchemaValidator extends PluginExtensionPoint {
     * Function to loop over all parameters defined in schema and check
     * whether the given parameters adhere to the specifications
     */
-    public void validateParameters(Map params, baseDir, schema_filename='nextflow_schema.json') {
+    public void validateParameters(Map params, String baseDir, String schema_filename='nextflow_schema.json') {
 
         // Clean the parameters
         def cleanedParams = cleanParameters(params)
@@ -123,17 +123,22 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Check for nextflow core params and unexpected params
-        def Map schemaParams = (Map) new JsonSlurper().parseText(schema_filename).get('definitions')
+        def slupper = new JsonSlurper()
+        def Map parsed = (Map) slupper.parseText( schema_filename )
+        def Map schemaParams = (Map) parsed.get('definitions')
         def specifiedParamKeys = params.keySet()
 
         // Collect expected parameters from the schema
         def expectedParams = []
         def enums = [:]
         for (group in schemaParams) {
-            for (p in group.value['properties']) {
-                expectedParams.push(p.key)
-                if (group.value['properties'][p.key].containsKey('enum')) {
-                    enums[p.key] = group.value['properties'][p.key]['enum']
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                expectedParams.push(key)
+                def Map property = properties[key]
+                if (property.containsKey('enum')) {
+                    enums[key] = properties[key]['enum']
                 }
             }
         }
@@ -142,14 +147,18 @@ class SchemaValidator extends PluginExtensionPoint {
         expectedParams.push('fail_unrecognised_params')
         expectedParams.push('lenient_mode')
 
-        for (specifiedParam in specifiedParamKeys) {
+        for (String specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
                 errors << "You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'".toString()
             }
             // unexpected params
-            def params_ignore = params.schema_ignore_params ? params.schema_ignore_params.split(',') + 'schema_ignore_params' : []
-            def expectedParamsLowerCase = expectedParams.collect{ it.replace("-", "").toLowerCase() }
+            def String schema_ignore_params = params.schema_ignore_params
+            def List params_ignore = schema_ignore_params ? schema_ignore_params.split(',') + 'schema_ignore_params' as List : []
+            def expectedParamsLowerCase = expectedParams.collect{ it -> 
+                def String p = it
+                p.replace("-", "").toLowerCase() 
+            }
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
@@ -188,8 +197,9 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @nextflow.plugin.extension.Function
-    public String paramsHelp(baseDir, params, command, schema_filename='nextflow_schema.json') {
-        Map colors = logColours(params.monochrome_logs)
+    public String paramsHelp(String baseDir, Map params, String command, String schema_filename='nextflow_schema.json') {
+        def Boolean monochrome_logs = params.monochrome_logs
+        Map<String,String> colors = logColours(monochrome_logs)
         Integer num_hidden = 0
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
@@ -201,15 +211,16 @@ class SchemaValidator extends PluginExtensionPoint {
         for (group in params_map.keySet()) {
             Integer num_params = 0
             String group_output = colors.underlined + colors.bold + group + colors.reset + '\n'
-            def group_params = params_map.get(group)  // This gets the parameters of that particular group
-            for (param in group_params.keySet()) {
-                if (group_params.get(param).hidden && !params.show_hidden_params) {
+            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+            for (String param in group_params.keySet()) {
+                def Map get_param = group_params.get(param)
+                if (get_param.hidden && !params.show_hidden_params) {
                     num_hidden += 1
                     continue;
                 }
-                def type = '[' + group_params.get(param).type + ']'
-                def description = group_params.get(param).description
-                def defaultValue = group_params.get(param).default != null ? " [default: " + group_params.get(param).default.toString() + "]" : ''
+                def String type = '[' + get_param.type + ']'
+                def String description = get_param.description
+                def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
                 def description_default = description + colors.dim + defaultValue + colors.reset
                 // Wrap long description texts
                 // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
@@ -246,7 +257,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @nextflow.plugin.extension.Function
-    public LinkedHashMap paramsSummaryMap(workflow, baseDir, params, schema_filename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(Map workflow, String baseDir, Map params, String schema_filename='nextflow_schema.json') {
         // Get a selection of core Nextflow workflow options
         def Map workflow_summary = [:]
         if (workflow.revision) {
@@ -259,24 +270,26 @@ class SchemaValidator extends PluginExtensionPoint {
         if (workflow.container) {
             workflow_summary['container'] = workflow.container
         }
+        def String configFiles = workflow.configFiles
         workflow_summary['launchDir']    = workflow.launchDir
         workflow_summary['workDir']      = workflow.workDir
         workflow_summary['projectDir']   = workflow.projectDir
         workflow_summary['userName']     = workflow.userName
         workflow_summary['profile']      = workflow.profile
-        workflow_summary['configFiles']  = workflow.configFiles.join(', ')
+        workflow_summary['configFiles']  = configFiles.join(', ')
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
         def params_map = paramsLoad(getSchemaPath(baseDir, schema_filename=schema_filename))
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
-            def group_params = params_map.get(group)  // This gets the parameters of that particular group
+            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
             for (param in group_params.keySet()) {
                 if (params.containsKey(param)) {
-                    def params_value = params.get(param)
-                    def schema_value = group_params.get(param).default
-                    def param_type   = group_params.get(param).type
+                    def String params_value = params.get(param)
+                    def Map group_params_value = group_params.get(param)
+                    def String schema_value = group_params_value.default
+                    def String param_type   = group_params_value.type
                     if (schema_value != null) {
                         if (param_type == 'string') {
                             if (schema_value.contains('$projectDir') || schema_value.contains('${projectDir}')) {
@@ -308,23 +321,24 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             params_summary.put(group, sub_params)
         }
-        return [ 'Core Nextflow options' : workflow_summary ] << params_summary
+        return [ 'Core Nextflow options' : workflow_summary ] << params_summary as LinkedHashMap
     }
 
     //
     // Beautify parameters for summary and return as string
     //
     @nextflow.plugin.extension.Function
-    public String paramsSummaryLog(workflow, baseDir, params) {
-        Map colors = logColours(params.monochrome_logs)
+    public String paramsSummaryLog(Map workflow, String baseDir, Map params) {
+        def Boolean monochrome_logs = params.monochrome_logs
+        Map<String,String> colors = logColours(monochrome_logs)
         String output  = ''
         def params_map = paramsSummaryMap(workflow, baseDir, params)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
-            def group_params = params_map.get(group)  // This gets the parameters of that particular group
+            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
             if (group_params) {
                 output += colors.bold + group + colors.reset + '\n'
-                for (param in group_params.keySet()) {
+                for (String param in group_params.keySet()) {
                     output += "  " + colors.blue + param.padRight(max_chars) + ": " + colors.green +  group_params.get(param) + colors.reset + '\n'
                 }
                 output += '\n'
@@ -338,13 +352,14 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Loop over nested exceptions and print the causingException
     //
-    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, enums, limit=5) {
-        def causingExceptions = exJSON['causingExceptions']
+    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
+        def JSONObject causingExceptions = (JSONObject) exJSON['causingExceptions']
         if (causingExceptions.length() == 0) {
-            def m = exJSON['message'] =~ /required key \[([^\]]+)\] not found/
+            def Matcher m = (Matcher) exJSON['message'] =~ /required key \[([^\]]+)\] not found/
             // Missing required param
             if(m.matches()){
-                errors << "* Missing required parameter: --${m[0][1]}".toString()
+                def List l = m[0] as ArrayList
+                errors << "* Missing required parameter: --${l[1]}".toString()
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
@@ -352,14 +367,15 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             // Error with specific param
             else {
-                def param = exJSON['pointerToViolation'] - ~/^#\//
+                def String param = (String) exJSON['pointerToViolation'] - ~/^#\//
                 def param_val = paramsJSON[param].toString()
                 if (enums.containsKey(param)) {
                     def error_msg = "* --${param}: '${param_val}' is not a valid choice (Available choices"
-                    if (enums[param].size() > limit) {
-                        errors << "${error_msg} (${limit} of ${enums[param].size()}): ${enums[param][0..limit-1].join(', ')}, ... )".toString()
+                    def String enums_param = enums[param]
+                    if (enums_param.size() > limit) {
+                        errors << "${error_msg} (${limit} of ${enums_param.size()}): ${enums_param[0..limit-1].join(', ')}, ... )".toString()
                     } else {
-                        errors << "${error_msg}: ${enums[param].join(', ')})".toString()
+                        errors << "${error_msg}: ${enums_param.join(', ')})".toString()
                     }
                 } else {
                     errors << "* --${param}: ${exJSON['message']} (${param_val})".toString()
@@ -367,14 +383,15 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         for (ex in causingExceptions) {
-            collectErrors(ex, paramsJSON, enums)
+            def JSONObject exception = (JSONObject) ex
+            collectErrors(exception, paramsJSON, enums)
         }
     }
 
     //
     // Remove an element from a JSONArray
     //
-    private static JSONArray removeElement(json_array, element) {
+    private static JSONArray removeElement(JSONArray json_array, String element) {
         def list = []
         int len = json_array.length()
         for (int i=0;i<len;i++){
@@ -388,40 +405,50 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Remove ignored parameters
     //
-    private static JSONObject removeIgnoredParams(raw_schema, params) {
+    private static JSONObject removeIgnoredParams(Map raw_schema, Map params) {
         // Remove anything that's in params.schema_ignore_params
-        params.schema_ignore_params.split(',').each{ ignore_param ->
+        def String schema_ignore_params = (String) params.schema_ignore_params
+        schema_ignore_params.split(',').each{ ignore_param ->
             if(raw_schema.keySet().contains('definitions')){
-                raw_schema.definitions.each { definition ->
+                raw_schema.definitions.each { Map definition ->
                     for (key in definition.keySet()){
-                        if (definition[key].get("properties").keySet().contains(ignore_param)){
+                        def Map definition_key = (Map) definition[key]
+                        def Map definition_properties = (Map) definition_key.get("properties")
+                        if (definition_properties.keySet().contains(ignore_param)){
                             // Remove the param to ignore
-                            definition[key].get("properties").remove(ignore_param)
+                            definition_properties.remove(ignore_param)
                             // If the param was required, change this
-                            if (definition[key].has("required")) {
-                                def cleaned_required = removeElement(definition[key].required, ignore_param)
-                                definition[key].put("required", cleaned_required)
+                            if (definition_key.containsKey("required")) {
+                                def JSONArray required = (JSONArray) definition_key.required
+                                def JSONArray cleaned_required = removeElement(required, ignore_param)
+                                definition_key.put("required", cleaned_required)
                             }
                         }
                     }
                 }
             }
-            if(raw_schema.keySet().contains('properties') && raw_schema.get('properties').keySet().contains(ignore_param)) {
-                raw_schema.get("properties").remove(ignore_param)
-            }
-            if(raw_schema.keySet().contains('required') && raw_schema.required.contains(ignore_param)) {
-                def cleaned_required = removeElement(raw_schema.required, ignore_param)
-                raw_schema.put("required", cleaned_required)
+            if(raw_schema.keySet().contains('properties')) {
+                def Map raw_schema_properties = (Map) raw_schema.get("properties")
+                if (raw_schema_properties.keySet().contains(ignore_param)) {
+                    raw_schema_properties.remove(ignore_param)
+                }
+            } 
+            if(raw_schema.keySet().contains('required')){
+                def JSONArray raw_schema_required = (JSONArray) raw_schema.required
+                if (raw_schema_required.contains(ignore_param)) {
+                    def JSONArray cleaned_required = removeElement(raw_schema_required, ignore_param)
+                    raw_schema.put("required", cleaned_required)
+                }
             }
         }
-        return raw_schema
+        return raw_schema as JSONObject
     }
 
     //
     // Clean and check parameters relative to Nextflow native classes
     //
-    private static Map cleanParameters(params) {
-        def new_params = params.getClass().newInstance(params)
+    private static Map cleanParameters(Map params) {
+        def Map new_params = (Map) params.getClass().newInstance(params)
         for (p in params) {
             // remove anything evaluating to false
             if (!p['value']) {
@@ -467,8 +494,9 @@ class SchemaValidator extends PluginExtensionPoint {
     //    -
     private static LinkedHashMap paramsRead(String json_schema) throws Exception {
         def json = new File(json_schema).text
-        def Map schema_definitions = (Map) new JsonSlurper().parseText(json).get('definitions')
-        def Map schema_properties = (Map) new JsonSlurper().parseText(json).get('properties')
+        def Map schema = (Map) new JsonSlurper().parseText(json)
+        def Map schema_definitions = (Map) schema.get('definitions')
+        def Map schema_properties = (Map) schema.get('properties')
         /* Tree looks like this in nf-core schema
         * definitions <- this is what the first get('definitions') gets us
                 group 1
@@ -496,11 +524,12 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Grouped params
         def params_map = new LinkedHashMap()
-        schema_definitions.each { key, val ->
-            def Map group = schema_definitions."$key".properties // Gets the property object of the group
-            def title = schema_definitions."$key".title
+        schema_definitions.each { k, v ->
+            def Map group = (Map) schema_definitions.k
+            def Map group_property = (Map) group.properties // Gets the property object of the group
+            def Map title = (Map) group.title
             def sub_params = new LinkedHashMap()
-            group.each { innerkey, value ->
+            group_property.each { innerkey, value ->
                 sub_params.put(innerkey, value)
             }
             params_map.put(title, sub_params)
@@ -519,11 +548,11 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Get maximum number of characters across all parameter names
     //
-    private static Integer paramsMaxChars(params_map) {
+    private static Integer paramsMaxChars( Map params_map) {
         Integer max_chars = 0
         for (group in params_map.keySet()) {
-            def group_params = params_map.get(group)  // This gets the parameters of that particular group
-            for (param in group_params.keySet()) {
+            def Map group_params = (Map) params_map.get(group)  // This gets the parameters of that particular group
+            for (String param in group_params.keySet()) {
                 if (param.size() > max_chars) {
                     max_chars = param.size()
                 }
