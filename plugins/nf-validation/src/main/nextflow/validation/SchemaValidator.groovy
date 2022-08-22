@@ -16,6 +16,7 @@ import nextflow.plugin.extension.Function
 import nextflow.Session
 import groovy.transform.CompileStatic
 import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -188,7 +189,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         catch (ValidationException e) {
-            JSONArray exceptionJSON = e.toJSON() as JSONArray
+            JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
         }
     }
@@ -352,10 +353,12 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Loop over nested exceptions and print the causingException
     //
-    private void collectErrors(JSONArray exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
+    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
         def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
         if (causingExceptions.length() == 0) {
-            def Matcher m = (Matcher) exJSON['message'] =~ /required key \[([^\]]+)\] not found/
+            def String message = (String) exJSON['message']
+            def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
+            def Matcher m = message =~ p
             // Missing required param
             if(m.matches()){
                 def List l = m[0] as ArrayList
@@ -363,7 +366,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
-                errors << "* ${exJSON['message']}".toString()
+                errors << "* ${message}".toString()
             }
             // Error with specific param
             else {
@@ -378,12 +381,12 @@ class SchemaValidator extends PluginExtensionPoint {
                         errors << "${error_msg}: ${enums_param.join(', ')})".toString()
                     }
                 } else {
-                    errors << "* --${param}: ${exJSON['message']} (${param_val})".toString()
+                    errors << "* --${param}: ${message} (${param_val})".toString()
                 }
             }
         }
         for (ex in causingExceptions) {
-            def JSONArray exception = (JSONArray) ex
+            def JSONObject exception = (JSONObject) ex
             collectErrors(exception, paramsJSON, enums)
         }
     }
