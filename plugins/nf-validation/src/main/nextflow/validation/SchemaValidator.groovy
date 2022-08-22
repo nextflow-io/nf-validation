@@ -114,7 +114,7 @@ class SchemaValidator extends PluginExtensionPoint {
     * Function to loop over all parameters defined in schema and check
     * whether the given parameters adhere to the specifications
     */
-    public void validateParameters(Map params, String baseDir, String schema_filename='nextflow_schema.json') {
+    public void validateParameters(Map params, String schema_filename='nextflow_schema.json') {
 
         // Clean the parameters
         def cleanedParams = cleanParameters(params)

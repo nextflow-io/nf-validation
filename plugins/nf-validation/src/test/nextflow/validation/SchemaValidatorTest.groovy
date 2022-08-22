@@ -1,6 +1,7 @@
 package nextflow.validation
 
 import spock.lang.Specification
+import groovy.json.JsonSlurper
 
 /**
  *
@@ -14,7 +15,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [transcriptome: '/some/path']
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -28,7 +29,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [xyz: '/some/path']
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasWarnings()
@@ -43,7 +44,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [xyz: '/some/path', schema_ignore_params: 'xyz']
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         !validator.hasWarnings()
@@ -56,7 +57,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [xyz: '/some/path', fail_unrecognised_params: 'true']
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasErrors()
@@ -71,7 +72,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [outdir: 10]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasErrors()
@@ -86,7 +87,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_memory: 10.GB, max_time: 10.d]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -99,7 +100,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [publish_dir_mode: "incorrect"]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasErrors()
@@ -112,7 +113,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_cpus: 12]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         !validator.hasErrors()
@@ -125,7 +126,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [generic_number: 0.43]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         !validator.hasWarnings()
@@ -138,7 +139,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_cpus: 1.2]
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasErrors()
@@ -152,7 +153,7 @@ class SchemaValidatorTest extends Specification {
 
         when:
         def params = [max_memory: '10']
-        validator.validateParameters(params, '/some/path', SCHEMA)
+        validator.validateParameters(params, SCHEMA)
 
         then:
         validator.hasErrors()
@@ -263,7 +264,7 @@ class SchemaValidatorTest extends Specification {
                     "pattern": "^[\\\\d\\\\.]+\\\\.*(s|m|h|d)$",
                     "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
                 }
-               }   
+              }   
                 },
                 "institutional_config_options": {
                   "title": "Institutional config options",
