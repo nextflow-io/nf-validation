@@ -139,7 +139,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 expectedParams.push(key)
                 def Map property = properties[key]
                 if (property.containsKey('enum')) {
-                    enums[key] = properties[key]['enum']
+                    enums[key] = property['enum']
                 }
             }
         }
@@ -374,7 +374,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 def param_val = paramsJSON[param].toString()
                 if (enums.containsKey(param)) {
                     def error_msg = "* --${param}: '${param_val}' is not a valid choice (Available choices"
-                    def String enums_param = enums[param]
+                    def List enums_param = (List) enums[param]
                     if (enums_param.size() > limit) {
                         errors << "${error_msg} (${limit} of ${enums_param.size()}): ${enums_param[0..limit-1].join(', ')}, ... )".toString()
                     } else {
