@@ -188,7 +188,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         catch (ValidationException e) {
-            JSONObject exceptionJSON = e.toJSON()
+            JSONArray exceptionJSON = e.toJSON() as JSONArray
             collectErrors(exceptionJSON, paramsJSON, enums)
         }
     }
@@ -352,8 +352,8 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Loop over nested exceptions and print the causingException
     //
-    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
-        def JSONObject causingExceptions = (JSONObject) exJSON['causingExceptions']
+    private void collectErrors(JSONArray exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
+        def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
         if (causingExceptions.length() == 0) {
             def Matcher m = (Matcher) exJSON['message'] =~ /required key \[([^\]]+)\] not found/
             // Missing required param
@@ -383,7 +383,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         for (ex in causingExceptions) {
-            def JSONObject exception = (JSONObject) ex
+            def JSONArray exception = (JSONArray) ex
             collectErrors(exception, paramsJSON, enums)
         }
     }
