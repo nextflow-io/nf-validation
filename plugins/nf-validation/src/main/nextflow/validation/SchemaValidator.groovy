@@ -16,6 +16,7 @@ import nextflow.plugin.extension.Function
 import nextflow.Session
 import groovy.transform.CompileStatic
 
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -130,7 +131,8 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check for nextflow core params and unexpected params
         def slupper = new JsonSlurper()
-        def Map parsed = (Map) slupper.parse( Path.of(getSchemaPath(schema_filename)) )
+        // # TODO: get baseDir from Session (instead of using "")
+        def Map parsed = (Map) slupper.parse( Path.of(getSchemaPath("", schema_filename)) )
         def Map schemaParams = (Map) parsed.get('definitions')
         def specifiedParamKeys = params.keySet()
 
@@ -178,7 +180,8 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Validate parameters against the schema
-        final rawSchema = new JSONObject(new JSONTokener(schema_filename))
+        def String schema_string = Files.readString( Path.of(getSchemaPath("", schema_filename)) )
+        final rawSchema = new JSONObject(new JSONTokener(schema_string))
         final schema = SchemaLoader.load(rawSchema)
 
         // Validate
@@ -210,7 +213,7 @@ class SchemaValidator extends PluginExtensionPoint {
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad(getSchemaPath(baseDir, schema_filename=schema_filename))
+        Map params_map = paramsLoad(getSchemaPath(baseDir, schema_filename))
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
