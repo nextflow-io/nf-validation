@@ -60,24 +60,45 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         '''
 
         when:
-        def result = dsl_eval(SCRIPT_TEXT)
+        dsl_eval(SCRIPT_TEXT)
 
         then:
-        true
+        noExceptionThrown()
     }
 
-    def 'should validate parameters functions' () {
+    def 'should validate when no params' () {
         given:
-        def  SCRIPT_TEXT = '''
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(params)
-        '''
+            validateParameters(params, '$schema')
+        """
 
         when:
-        def result = dsl_eval(SCRIPT_TEXT)
+        dsl_eval(SCRIPT_TEXT)
 
         then:
-        true
+        noExceptionThrown()
+    }
+
+    def 'should validate parameters' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params = [
+                xyz : '/some/path',
+                fail_unrecognised_params : true
+            ]
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(params, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(IllegalArgumentException)
     }
 }

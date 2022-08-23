@@ -16,8 +16,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [transcriptome: '/some/path']
         validator.validateParameters(params, schema)
 
@@ -31,8 +30,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [xyz: '/some/path']
         validator.validateParameters(params, schema)
 
@@ -48,8 +46,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [xyz: '/some/path', schema_ignore_params: 'xyz']
         validator.validateParameters(params, schema)
 
@@ -63,8 +60,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [xyz: '/some/path', fail_unrecognised_params: 'true']
         validator.validateParameters(params, schema)
 
@@ -80,8 +76,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [outdir: 10]
         validator.validateParameters(params, schema)
 
@@ -97,8 +92,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [max_memory: 10.GB, max_time: 10.d]
         validator.validateParameters(params, schema)
 
@@ -112,8 +106,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [publish_dir_mode: "incorrect"]
         validator.validateParameters(params, schema)
 
@@ -127,8 +120,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [max_cpus: 12]
         validator.validateParameters(params, schema)
 
@@ -142,8 +134,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [generic_number: 0.43]
         validator.validateParameters(params, schema)
 
@@ -157,8 +148,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [max_cpus: 1.2]
         validator.validateParameters(params, schema)
 
@@ -173,8 +163,7 @@ class SchemaValidatorTest extends Specification {
         def validator = new SchemaValidator()
 
         when:
-        def ClassLoader classLoader = getClass().getClassLoader()
-        def String schema = (String) getClass().getResource("test_schema.json").getPath()
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def params = [max_memory: '10']
         validator.validateParameters(params, schema)
 
