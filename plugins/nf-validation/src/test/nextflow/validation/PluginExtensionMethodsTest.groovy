@@ -150,7 +150,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(SchemaValidationException)
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n* --xyz: /some/path"
     }
 
     def 'should find validation errors' () {
@@ -167,7 +168,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(SchemaValidationException)
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n* --outdir: expected type: String, found: Integer (10)"
     }
 
     def 'should correctly validate duration and memory objects' () {
@@ -203,7 +205,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(SchemaValidationException)
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )"
     }
 
     def 'correct validation of integers' () {
@@ -254,7 +257,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(SchemaValidationException)
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n* --max_cpus: expected type: Integer, found: BigDecimal (1.2)"
     }
 
     def 'should fail because of wrong pattern' () {
@@ -271,7 +275,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(SchemaValidationException)
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)"
     }
 
 }
