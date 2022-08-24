@@ -29,7 +29,7 @@ class ValidationObserver implements TraceObserver {
         log.debug "Applying validation schema at path: $schema"
         validator = new SchemaValidator()
         if (!params.help) {
-            validator.validateParameters(params, schema.text)
+            validator.validateParameters(session, schema.text)
         }
         // check for errors
         if( validator.errors ) {

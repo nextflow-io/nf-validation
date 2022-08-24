@@ -11,6 +11,7 @@ import spock.lang.TempDir
 import test.Dsl2Spec
 
 import java.nio.file.Path
+import java.nio.file.Files
 
 
 /**
@@ -72,7 +73,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(params, '$schema')
+            validateParameters(session, 'src/testResources/test_schema.json')
         """
 
         when:
@@ -82,23 +83,195 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         noExceptionThrown()
     }
 
-    def 'should validate parameters' () {
+    def 'should validate a schema' () {
         given:
         def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params = [
-                xyz : '/some/path',
-                fail_unrecognised_params : true
-            ]
+            params.transcriptome = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(params, '$schema')
+            validateParameters(session, '$schema')
         """
 
         when:
         dsl_eval(SCRIPT_TEXT)
 
         then:
-        thrown(IllegalArgumentException)
+        noExceptionThrown()
     }
+
+    def 'should find unexpected params' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.xyz = '/some/path'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'should ignore unexpected param' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.xyz = '/some/path'
+            params.schema_ignore_params = 'xyz'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'should fail for unexpected param' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.xyz = '/some/path'
+            params.fail_unrecognised_params = true
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(SchemaValidationException)
+    }
+
+    def 'should find validation errors' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.outdir = 10
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(SchemaValidationException)
+    }
+
+    def 'should correctly validate duration and memory objects' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.max_memory = 10.GB
+            params.max_time = 10.d
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'should find validation errors for enum' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.publish_dir_mode = 'incorrect'
+            params.max_time = 10.d
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(SchemaValidationException)
+    }
+
+    def 'correct validation of integers' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.max_cpus = 12
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'correct validation of numbers' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.generic_number = 0.43
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'should fail because of incorrect integer' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.max_cpus = 1.2
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(SchemaValidationException)
+    }
+
+    def 'should fail because of wrong pattern' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.max_memory = '10'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(session, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        thrown(SchemaValidationException)
+    }
+
 }

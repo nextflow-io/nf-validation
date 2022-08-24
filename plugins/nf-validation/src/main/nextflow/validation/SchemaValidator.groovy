@@ -112,8 +112,12 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Resolve Schema path relative to main workflow directory
     //
-    static String getSchemaPath(baseDir, schema_filename='nextflow_schema.json') {
-        return "${baseDir}/${schema_filename}"
+    static String getSchemaPath(String baseDir, String schema_filename='nextflow_schema.json') {
+        if (Path.of(schema_filename).exists()) {
+            return schema_filename
+        } else {
+            return "${baseDir}/${schema_filename}"
+        }
     }
 
     /*
@@ -121,8 +125,11 @@ class SchemaValidator extends PluginExtensionPoint {
     * whether the given parameters adhere to the specifications
     */
     @Function
-    void validateParameters(Map params, String schema_filename='nextflow_schema.json') {
+    void validateParameters(Session session, String schema_filename='nextflow_schema.json') {
 
+        def Map params = session.params
+        def String baseDir = session.baseDir
+        
         // Clean the parameters
         def cleanedParams = cleanParameters(params)
         // Convert to JSONObject
@@ -131,8 +138,7 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check for nextflow core params and unexpected params
         def slupper = new JsonSlurper()
-        // # TODO: get baseDir from Session (instead of using "")
-        def Map parsed = (Map) slupper.parse( Path.of(getSchemaPath("", schema_filename)) )
+        def Map parsed = (Map) slupper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
         def Map schemaParams = (Map) parsed.get('definitions')
         def specifiedParamKeys = params.keySet()
 
@@ -199,6 +205,14 @@ class SchemaValidator extends PluginExtensionPoint {
         catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
+            def msg = "The following invalid input values have been detected:\n" + this.getErrors().join('\n').trim()
+            throw new SchemaValidationException(msg, this.getErrors())
+        }
+
+        // check for warnings
+        if( this.hasWarnings() ) {
+            def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
+            // log.warn(msg)
         }
     }
 
