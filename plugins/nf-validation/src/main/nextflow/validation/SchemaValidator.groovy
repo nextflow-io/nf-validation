@@ -15,6 +15,7 @@ import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.plugin.extension.Function
 import nextflow.Session
 import groovy.transform.CompileStatic
+import nextflow.script.WorkflowMetadata
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -220,7 +221,9 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @Function
-    String paramsHelp(String baseDir, Map params, String command, String schema_filename='nextflow_schema.json') {
+    String paramsHelp(Session session, String command, String schema_filename='nextflow_schema.json') {
+        def Map params = session.params
+        def String baseDir = session.baseDir
         def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
         Integer num_hidden = 0
@@ -280,7 +283,11 @@ class SchemaValidator extends PluginExtensionPoint {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @Function
-    public LinkedHashMap paramsSummaryMap(Map workflow, String baseDir, Map params, String schema_filename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(Session session, WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
+        
+        def String baseDir = session.baseDir
+        def Map params = session.params
+        
         // Get a selection of core Nextflow workflow options
         def Map workflow_summary = [:]
         if (workflow.revision) {
@@ -351,11 +358,15 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for summary and return as string
     //
     @Function
-    public String paramsSummaryLog(Map workflow, String baseDir, Map params) {
+    public String paramsSummaryLog(Session session, WorkflowMetadata workflow) {
+
+        def String baseDir = session.baseDir
+        def Map params = session.params
+
         def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
         String output  = ''
-        def params_map = paramsSummaryMap(workflow, baseDir, params)
+        def params_map = paramsSummaryMap(session, workflow)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
             def Map group_params = params_map.get(group)  // This gets the parameters of that particular group

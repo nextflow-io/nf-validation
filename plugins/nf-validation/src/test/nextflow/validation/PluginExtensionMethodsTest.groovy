@@ -279,4 +279,38 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         error.message == '''The following invalid input values have been detected:\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)'''
     }
 
+    def 'should print a help message' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { paramsHelp } from 'plugin/nf-validation'
+
+            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
+            
+            paramsHelp(session, command, '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'should return params map' () {
+        given:
+        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { paramsSummaryLog } from 'plugin/nf-validation'
+            
+            def summary_params = paramsSummaryLog(session, workflow)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+
+        then:
+        noExceptionThrown()
+    }
+
 }
