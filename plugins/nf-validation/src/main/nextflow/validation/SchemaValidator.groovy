@@ -2,6 +2,7 @@ package nextflow.validation
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import nextflow.Global
 import nextflow.util.Duration
 import nextflow.util.MemoryUnit
 import org.everit.json.schema.ValidationException
@@ -99,9 +100,13 @@ class SchemaValidator extends PluginExtensionPoint {
     private List<String> errors = []
     private List<String> warnings = []
 
-    Session session
+    @Override
     protected void init(Session session) {
-        this.session = session
+        // only called in operators
+    }
+
+    Session getSession(){
+        Global.getSession() as Session
     }
 
     boolean hasErrors() { errors.size()>0 }
@@ -126,7 +131,7 @@ class SchemaValidator extends PluginExtensionPoint {
     * whether the given parameters adhere to the specifications
     */
     @Function
-    void validateParameters(Session session, String schema_filename='nextflow_schema.json') {
+    void validateParameters(String schema_filename='nextflow_schema.json') {
 
         def Map params = session.params
         def String baseDir = session.baseDir

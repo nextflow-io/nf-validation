@@ -73,7 +73,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, 'src/testResources/test_schema.json')
+            validateParameters('src/testResources/test_schema.json')
         """
 
         when:
@@ -90,7 +90,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.transcriptome = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -107,7 +107,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.xyz = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -125,7 +125,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.schema_ignore_params = 'xyz'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -143,7 +143,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.fail_unrecognised_params = true
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -161,7 +161,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -180,7 +180,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_time = 10.d
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -198,7 +198,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_time = 10.d
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -216,7 +216,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_cpus = 12
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -233,7 +233,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.generic_number = 0.43
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -250,7 +250,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
@@ -268,7 +268,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_memory = '10'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters(session, '$schema')
+            validateParameters('$schema')
         """
 
         when:
