@@ -276,7 +276,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)"
+        error.message == '''The following invalid input values have been detected:\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)'''
     }
 
 }
