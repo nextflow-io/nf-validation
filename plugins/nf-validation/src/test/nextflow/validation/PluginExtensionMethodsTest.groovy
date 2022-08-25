@@ -1,17 +1,17 @@
 package nextflow.validation
 
-import nextflow.Channel
 import nextflow.plugin.Plugins
 import nextflow.plugin.TestPluginDescriptorFinder
 import nextflow.plugin.TestPluginManager
 import nextflow.plugin.extension.PluginExtensionProvider
+import org.junit.Rule
 import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import spock.lang.TempDir
 import test.Dsl2Spec
+import test.OutputCapture
 
 import java.nio.file.Path
-import java.nio.file.Files
 
 
 /**
@@ -20,9 +20,9 @@ import java.nio.file.Files
  */
 class PluginExtensionMethodsTest extends Dsl2Spec{
 
-    @TempDir
-    @Shared
-    Path folder
+    @Rule
+    OutputCapture capture = new OutputCapture()
+
 
     @Shared String pluginsMode
 
@@ -112,9 +112,17 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+        // remove the log part
+                .findResults {it.contains('nextflow.validation.SchemaValidator - The following invalid input values have been detected') ? it : null }
+
+        println "*** stdout : $stdout \n *** ---"
 
         then:
         noExceptionThrown()
+        stdout.size() == 1
     }
 
     def 'should ignore unexpected param' () {
