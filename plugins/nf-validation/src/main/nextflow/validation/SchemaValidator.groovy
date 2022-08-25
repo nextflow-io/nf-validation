@@ -2,27 +2,28 @@ package nextflow.validation
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import nextflow.Global
-import nextflow.util.Duration
-import nextflow.util.MemoryUnit
-import org.everit.json.schema.ValidationException
-import org.everit.json.schema.loader.SchemaLoader
-import org.everit.json.schema.Validator
-import org.everit.json.schema.PrimitiveValidationStrategy
-import org.json.JSONObject
-import org.json.JSONTokener
-import org.json.JSONArray
-import nextflow.plugin.extension.PluginExtensionPoint
-import nextflow.plugin.extension.Function
-import nextflow.Session
 import groovy.transform.CompileStatic
-import nextflow.script.WorkflowMetadata
-
+import groovy.util.logging.Slf4j
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import nextflow.Global
+import nextflow.plugin.extension.Function
+import nextflow.plugin.extension.PluginExtensionPoint
+import nextflow.script.WorkflowMetadata
+import nextflow.Session
+import nextflow.util.Duration
+import nextflow.util.MemoryUnit
+import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.PrimitiveValidationStrategy
+import org.everit.json.schema.ValidationException
+import org.everit.json.schema.Validator
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 
+@Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
 
@@ -218,7 +219,7 @@ class SchemaValidator extends PluginExtensionPoint {
         // check for warnings
         if( this.hasWarnings() ) {
             def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
-            // log.warn(msg)
+            log.warn(msg)
         }
     }
 
