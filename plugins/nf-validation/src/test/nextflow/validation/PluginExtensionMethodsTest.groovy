@@ -62,9 +62,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should validate when no params' () {
@@ -78,9 +83,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should validate a schema' () {
@@ -95,9 +105,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should find unexpected params' () {
@@ -115,14 +130,12 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
-        // remove the log part
-                .findResults {it.contains('nextflow.validation.SchemaValidator - The following invalid input values have been detected') ? it : null }
-
-        println "*** stdout : $stdout \n *** ---"
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
-        stdout.size() == 1
+        stdout.size() >= 1
+        stdout.contains("* --xyz: /some/path")
     }
 
     def 'should ignore unexpected param' () {
@@ -138,9 +151,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should fail for unexpected param' () {
@@ -156,10 +174,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         def error = thrown(SchemaValidationException)
         error.message == "The following invalid input values have been detected:\n* --xyz: /some/path"
+        !stdout
     }
 
     def 'should find validation errors' () {
@@ -174,10 +197,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         def error = thrown(SchemaValidationException)
         error.message == "The following invalid input values have been detected:\n* --outdir: expected type: String, found: Integer (10)"
+        !stdout
     }
 
     def 'should correctly validate duration and memory objects' () {
@@ -193,9 +221,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should find validation errors for enum' () {
@@ -211,10 +244,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         def error = thrown(SchemaValidationException)
         error.message == "The following invalid input values have been detected:\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )"
+        !stdout
     }
 
     def 'correct validation of integers' () {
@@ -229,9 +267,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'correct validation of numbers' () {
@@ -246,9 +289,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         noExceptionThrown()
+        !stdout
     }
 
     def 'should fail because of incorrect integer' () {
@@ -263,10 +311,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         def error = thrown(SchemaValidationException)
         error.message == "The following invalid input values have been detected:\n* --max_cpus: expected type: Integer, found: BigDecimal (1.2)"
+        !stdout
     }
 
     def 'should fail because of wrong pattern' () {
@@ -281,10 +334,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
         def error = thrown(SchemaValidationException)
         error.message == '''The following invalid input values have been detected:\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)'''
+        !stdout
     }
 
     def 'should print a help message' () {
@@ -295,30 +353,65 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            paramsHelp(session, command, '$schema')
+            def help_msg = paramsHelp(command, '$schema')
+            log.info help_msg
         """
 
         when:
         dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('Typical pipeline command:') ||
+                    it.contains('nextflow run') ||
+                    it.contains('transcriptome') ||
+                    it.contains('reads') ||
+                    it.contains('outdir') ||
+                    it.contains('Input/output options') ||
+                    it.contains('Generic options') ||
+                    it.contains('publish_dir_mode') ||
+                    it.contains('generic_number') ||
+                    it.contains('Other parameters') ||
+                    it.contains('multiqc') 
+                    ? it : null }
 
         then:
         noExceptionThrown()
+        stdout.size == 13
     }
 
-    def 'should return params map' () {
+    def 'should print params summary' () {
         given:
         def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.outdir = "outDir"
             include { paramsSummaryLog } from 'plugin/nf-validation'
             
-            def summary_params = paramsSummaryLog(session, workflow)
+            def summary_params = paramsSummaryLog(workflow, '$schema')
+            log.info summary_params
         """
 
         when:
         dsl_eval(SCRIPT_TEXT)
-
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('Only displaying parameters that differ from the pipeline defaults') ||
+                    it.contains('Core Nextflow options') ||
+                    it.contains('runName') ||
+                    it.contains('launchDir') ||
+                    it.contains('workDir') ||
+                    it.contains('projectDir') ||
+                    it.contains('userName') ||
+                    it.contains('profile') ||
+                    it.contains('configFiles') ||
+                    it.contains('Input/output options') ||
+                    it.contains('outdir') 
+                    ? it : null }
+        
         then:
         noExceptionThrown()
+        stdout.size == 11
+        stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
     }
-
 }

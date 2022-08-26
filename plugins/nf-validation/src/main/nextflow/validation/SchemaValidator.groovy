@@ -144,8 +144,8 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Check for nextflow core params and unexpected params
-        def slupper = new JsonSlurper()
-        def Map parsed = (Map) slupper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
         def Map schemaParams = (Map) parsed.get('definitions')
         def specifiedParamKeys = params.keySet()
 
@@ -193,7 +193,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Validate parameters against the schema
-        def String schema_string = Files.readString( Path.of(getSchemaPath("", schema_filename)) )
+        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
         final schema = SchemaLoader.load(rawSchema)
 
@@ -227,7 +227,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @Function
-    String paramsHelp(Session session, String command, String schema_filename='nextflow_schema.json') {
+    String paramsHelp(String command, String schema_filename='nextflow_schema.json') {
         def Map params = session.params
         def String baseDir = session.baseDir
         def Boolean monochrome_logs = params.monochrome_logs
@@ -236,7 +236,7 @@ class SchemaValidator extends PluginExtensionPoint {
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad(getSchemaPath(baseDir, schema_filename))
+        Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schema_filename)) )
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
@@ -289,7 +289,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @Function
-    public LinkedHashMap paramsSummaryMap(Session session, WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
         
         def String baseDir = session.baseDir
         def Map params = session.params
@@ -316,11 +316,11 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
-        def params_map = paramsLoad(getSchemaPath(baseDir, schema_filename))
+        def Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schema_filename)) )
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
             def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
-            for (param in group_params.keySet()) {
+            for (String param in group_params.keySet()) {
                 if (params.containsKey(param)) {
                     def String params_value = params.get(param)
                     def Map group_params_value = group_params.get(param)
@@ -364,7 +364,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for summary and return as string
     //
     @Function
-    public String paramsSummaryLog(Session session, WorkflowMetadata workflow) {
+    public String paramsSummaryLog(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
 
         def String baseDir = session.baseDir
         def Map params = session.params
@@ -372,7 +372,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
         String output  = ''
-        def params_map = paramsSummaryMap(session, workflow)
+        def LinkedHashMap params_map = paramsSummaryMap(workflow, schema_filename)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
             def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
@@ -445,48 +445,6 @@ class SchemaValidator extends PluginExtensionPoint {
     }
 
     //
-    // Remove ignored parameters
-    //
-    private static JSONObject removeIgnoredParams(Map raw_schema, Map params) {
-        // Remove anything that's in params.schema_ignore_params
-        def String schema_ignore_params = (String) params.schema_ignore_params
-        schema_ignore_params.split(',').each{ ignore_param ->
-            if(raw_schema.keySet().contains('definitions')){
-                raw_schema.definitions.each { Map definition ->
-                    for (key in definition.keySet()){
-                        def Map definition_key = (Map) definition[key]
-                        def Map definition_properties = (Map) definition_key.get("properties")
-                        if (definition_properties.keySet().contains(ignore_param)){
-                            // Remove the param to ignore
-                            definition_properties.remove(ignore_param)
-                            // If the param was required, change this
-                            if (definition_key.containsKey("required")) {
-                                def JSONArray required = (JSONArray) definition_key.required
-                                def JSONArray cleaned_required = removeElement(required, ignore_param)
-                                definition_key.put("required", cleaned_required)
-                            }
-                        }
-                    }
-                }
-            }
-            if(raw_schema.keySet().contains('properties')) {
-                def Map raw_schema_properties = (Map) raw_schema.get("properties")
-                if (raw_schema_properties.keySet().contains(ignore_param)) {
-                    raw_schema_properties.remove(ignore_param)
-                }
-            } 
-            if(raw_schema.keySet().contains('required')){
-                def JSONArray raw_schema_required = (JSONArray) raw_schema.required
-                if (raw_schema_required.contains(ignore_param)) {
-                    def JSONArray cleaned_required = removeElement(raw_schema_required, ignore_param)
-                    raw_schema.put("required", cleaned_required)
-                }
-            }
-        }
-        return raw_schema as JSONObject
-    }
-
-    //
     // Clean and check parameters relative to Nextflow native classes
     //
     private static Map cleanParameters(Map params) {
@@ -515,7 +473,7 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // This function tries to read a JSON params file
     //
-    private static LinkedHashMap paramsLoad(String json_schema) {
+    private static LinkedHashMap paramsLoad(Path json_schema) {
         def params_map = new LinkedHashMap()
         try {
             params_map = paramsRead(json_schema)
@@ -534,9 +492,9 @@ class SchemaValidator extends PluginExtensionPoint {
     //    ....
     // Group
     //    -
-    private static LinkedHashMap paramsRead(String json_schema) throws Exception {
-        def json = new File(json_schema).text
-        def Map schema = (Map) new JsonSlurper().parseText(json)
+    private static LinkedHashMap paramsRead(Path json_schema) throws Exception {
+        def slurper = new JsonSlurper()
+        def Map schema = (Map) slurper.parse( json_schema )
         def Map schema_definitions = (Map) schema.get('definitions')
         def Map schema_properties = (Map) schema.get('properties')
         /* Tree looks like this in nf-core schema
@@ -566,10 +524,9 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Grouped params
         def params_map = new LinkedHashMap()
-        schema_definitions.each { k, v ->
-            def Map group = (Map) schema_definitions.k
-            def Map group_property = (Map) group.properties // Gets the property object of the group
-            def Map title = (Map) group.title
+        for (group in schema_definitions) {
+            def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
+            def String title = (String) group.value['title']
             def sub_params = new LinkedHashMap()
             group_property.each { innerkey, value ->
                 sub_params.put(innerkey, value)
