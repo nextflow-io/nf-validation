@@ -208,12 +208,16 @@ class SchemaValidator extends PluginExtensionPoint {
             } else {
                 schema.validate(paramsJSON)
             }
-        }
-        catch (ValidationException e) {
+        } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
             def msg = "The following invalid input values have been detected:\n" + this.getErrors().join('\n').trim()
             throw new SchemaValidationException(msg, this.getErrors())
+        } finally {
+            if (this.hasErrors()) {
+                def msg = "The following invalid input values have been detected:\n" + this.getErrors().join('\n').trim()
+                throw new SchemaValidationException(msg, this.getErrors())
+            }
         }
 
         // check for warnings
