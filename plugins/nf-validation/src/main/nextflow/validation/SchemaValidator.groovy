@@ -526,24 +526,28 @@ class SchemaValidator extends PluginExtensionPoint {
                     description
         */
 
-        // Grouped params
         def params_map = new LinkedHashMap()
-        for (group in schema_definitions) {
-            def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
-            def String title = (String) group.value['title']
-            def sub_params = new LinkedHashMap()
-            group_property.each { innerkey, value ->
-                sub_params.put(innerkey, value)
+        // Grouped params
+        if (schema_definitions) {
+            for (group in schema_definitions) {
+                def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
+                def String title = (String) group.value['title']
+                def sub_params = new LinkedHashMap()
+                group_property.each { innerkey, value ->
+                    sub_params.put(innerkey, value)
+                }
+                params_map.put(title, sub_params)
             }
-            params_map.put(title, sub_params)
         }
 
         // Ungrouped params
-        def ungrouped_params = new LinkedHashMap()
-        schema_properties.each { innerkey, value ->
-            ungrouped_params.put(innerkey, value)
+        if (schema_properties) {
+            def ungrouped_params = new LinkedHashMap()
+            schema_properties.each { innerkey, value ->
+                ungrouped_params.put(innerkey, value)
+            }
+            params_map.put("Other parameters", ungrouped_params)
         }
-        params_map.put("Other parameters", ungrouped_params)
 
         return params_map
     }
