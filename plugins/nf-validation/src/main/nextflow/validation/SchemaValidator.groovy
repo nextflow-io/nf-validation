@@ -202,7 +202,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
             log.warn(msg)
         }
-        
+
         // Validate
         try {
             if (params.lenient_mode) {
@@ -214,19 +214,16 @@ class SchemaValidator extends PluginExtensionPoint {
             } else {
                 schema.validate(paramsJSON)
             }
+            if (this.hasErrors()) {
+                def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+                log.error(msg, new SchemaValidationException(msg, this.getErrors()))
+            }
         } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
-            def msg = "The following invalid input values have been detected:\n" + this.getErrors().join('\n').trim()
-            throw new SchemaValidationException(msg, this.getErrors())
-        } finally {
-            if (this.hasErrors()) {
-                def msg = "The following invalid input values have been detected:\n" + this.getErrors().join('\n').trim()
-                throw new SchemaValidationException(msg, this.getErrors())
-            }
+            def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+            log.error(msg, new SchemaValidationException(msg, this.getErrors()))
         }
-
-
     }
 
     //
