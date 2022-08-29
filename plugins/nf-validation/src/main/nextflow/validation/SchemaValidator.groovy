@@ -215,14 +215,17 @@ class SchemaValidator extends PluginExtensionPoint {
                 schema.validate(paramsJSON)
             }
             if (this.hasErrors()) {
+                // Needed when fail_unrecognised_params is true
                 def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
-                log.error(msg, new SchemaValidationException(msg, this.getErrors()))
+                log.error("ERROR: Validation of pipeline parameters failed!")
+                throw new SchemaValidationException(msg, this.getErrors())
             }
         } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
             def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
-            log.error(msg, new SchemaValidationException(msg, this.getErrors()))
+            log.error("ERROR: Validation of pipeline parameters failed!")
+            throw new SchemaValidationException(msg, this.getErrors())
         }
     }
 
