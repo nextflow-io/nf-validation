@@ -197,6 +197,12 @@ class SchemaValidator extends PluginExtensionPoint {
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
         final schema = SchemaLoader.load(rawSchema)
 
+        // check for warnings
+        if( this.hasWarnings() ) {
+            def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
+            log.warn(msg)
+        }
+        
         // Validate
         try {
             if (params.lenient_mode) {
@@ -220,11 +226,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
 
-        // check for warnings
-        if( this.hasWarnings() ) {
-            def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
-            log.warn(msg)
-        }
+
     }
 
     //
