@@ -89,7 +89,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
                 .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
 
         then:
-        noExceptionThrown()
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --input\n* Missing required parameter: --outdir"
         !stdout
     }
 
@@ -97,7 +98,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.transcriptome = '/some/path'
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -119,6 +121,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.xyz = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -142,6 +146,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.xyz = '/some/path'
             params.schema_ignore_params = 'xyz'
             include { validateParameters } from 'plugin/nf-validation'
@@ -165,6 +171,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.xyz = '/some/path'
             params.fail_unrecognised_params = true
             include { validateParameters } from 'plugin/nf-validation'
@@ -189,6 +197,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -212,8 +221,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.max_memory = 10.GB
-            params.max_time = 10.d
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
+            params.max_memory = '10.GB'
+            params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -235,8 +246,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.publish_dir_mode = 'incorrect'
-            params.max_time = 10.d
+            params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -259,6 +272,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.max_cpus = 12
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -281,7 +296,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.generic_number = 0.43
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
+            params.max_cpus = 4
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -303,6 +320,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -326,6 +345,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.input = '/some/path/input.csv'
+            params.outdir = '/some/path'
             params.max_memory = '10'
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -341,7 +362,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^[\\d\\.]+\\s*.(K|M|G|T)?B$ (10)'''
+        error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$ (10)'''
         !stdout
     }
 
@@ -364,20 +385,19 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
                 .readLines()
                 .findResults {it.contains('Typical pipeline command:') ||
                     it.contains('nextflow run') ||
-                    it.contains('transcriptome') ||
-                    it.contains('reads') ||
-                    it.contains('outdir') ||
                     it.contains('Input/output options') ||
-                    it.contains('Generic options') ||
-                    it.contains('publish_dir_mode') ||
-                    it.contains('generic_number') ||
-                    it.contains('Other parameters') ||
-                    it.contains('multiqc') 
+                    it.contains('--input') ||
+                    it.contains('--outdir') ||
+                    it.contains('--email') ||
+                    it.contains('--multiqc_title') ||
+                    it.contains('Reference genome options') ||
+                    it.contains('--genome') ||
+                    it.contains('--fasta') 
                     ? it : null }
 
         then:
         noExceptionThrown()
-        stdout.size == 13
+        stdout.size == 10
     }
 
     def 'should print params summary' () {
