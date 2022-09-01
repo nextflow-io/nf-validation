@@ -74,11 +74,11 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should validate when no params' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('src/testResources/test_schema.json')
+            validateParameters('src/testResources/nextflow_schema.json')
         """
 
         when:
@@ -95,7 +95,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should validate a schema' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.transcriptome = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
@@ -117,7 +117,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should find unexpected params' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.xyz = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
@@ -140,7 +140,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should ignore unexpected param' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.xyz = '/some/path'
             params.schema_ignore_params = 'xyz'
@@ -163,7 +163,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should fail for unexpected param' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.xyz = '/some/path'
             params.fail_unrecognised_params = true
@@ -187,7 +187,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should find validation errors' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
@@ -210,7 +210,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should correctly validate duration and memory objects' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.max_memory = 10.GB
             params.max_time = 10.d
@@ -233,7 +233,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should find validation errors for enum' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.publish_dir_mode = 'incorrect'
             params.max_time = 10.d
@@ -257,7 +257,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'correct validation of integers' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.max_cpus = 12
             include { validateParameters } from 'plugin/nf-validation'
@@ -279,7 +279,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'correct validation of numbers' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.generic_number = 0.43
             include { validateParameters } from 'plugin/nf-validation'
@@ -301,7 +301,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should fail because of incorrect integer' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-validation'
@@ -324,7 +324,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should fail because of wrong pattern' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.max_memory = '10'
             include { validateParameters } from 'plugin/nf-validation'
@@ -347,7 +347,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should print a help message' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             include { paramsHelp } from 'plugin/nf-validation'
 
@@ -382,7 +382,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should print params summary' () {
         given:
-        def schema = Path.of('src/testResources/test_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.outdir = "outDir"
             include { paramsSummaryLog } from 'plugin/nf-validation'
