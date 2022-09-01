@@ -292,13 +292,14 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
-    def 'correct validation of numbers' () {
+    def 'correct validation of numbers with lenient mode' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
-            params.max_cpus = 4
+            params.lenient_mode = true
+            params.max_cpus = '4'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
