@@ -257,9 +257,27 @@ class SchemaValidator extends PluginExtensionPoint {
                     continue;
                 }
                 def String type = '[' + get_param.type + ']'
+                def String enums_string = ""
+                if (get_param.enum != null) {
+                    def List enums = (List) get_param.enum
+                    def String chop_enums = ""
+                    for (val in enums) {
+                        def String add_val = chop_enums + ", " + val
+                        if (add_val.length() > dec_linewidth - 5) {
+                            chop_enums += ", ..."
+                        } else {
+                            if (chop_enums == "") {
+                                chop_enums += val
+                            } else {
+                                chop_enums += ", " + val
+                            }
+                        }
+                    }
+                    enums_string = " (accepted: " + chop_enums + ")"
+                }
                 def String description = get_param.description
                 def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
-                def description_default = description + colors.dim + defaultValue + colors.reset
+                def description_default = description + colors.dim + enums_string + defaultValue + colors.reset
                 // Wrap long description texts
                 // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
                 if (description_default.length() > dec_linewidth){
