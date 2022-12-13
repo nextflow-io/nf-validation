@@ -401,6 +401,33 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         stdout.size == 10
     }
 
+    def 'should print a help message with argument options' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { paramsHelp } from 'plugin/nf-validation'
+            params.show_hidden_params = true
+
+            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
+            
+            def help_msg = paramsHelp(command, '$schema')
+            log.info help_msg
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('publish_dir_mode') && 
+                    it.contains('(accepted: symlink, rellink, link, copy, copyNoFollow') 
+                    ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.size == 1
+    }
+
     def 'should print params summary' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
