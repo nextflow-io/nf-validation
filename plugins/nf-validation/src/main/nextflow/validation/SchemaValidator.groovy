@@ -260,18 +260,10 @@ class SchemaValidator extends PluginExtensionPoint {
                 def String enums_string = ""
                 if (get_param.enum != null) {
                     def List enums = (List) get_param.enum
-                    def String chop_enums = ""
-                    for (val in enums) {
-                        def String add_val = chop_enums + ", " + val
-                        if (add_val.length() > dec_linewidth - 5) {
-                            chop_enums += ", ..."
-                        } else {
-                            if (chop_enums == "") {
-                                chop_enums += val
-                            } else {
-                                chop_enums += ", " + val
-                            }
-                        }
+                    def String chop_enums = enums.join(", ")
+                    if(chop_enums.length() > dec_linewidth){
+                        chop_enums = chop_enums.substring(0, dec_linewidth-5)
+                        chop_enums = chop_enums.substring(0, chop_enums.lastIndexOf(",")) + ", ..."
                     }
                     enums_string = " (accepted: " + chop_enums + ")"
                 }
