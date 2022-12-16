@@ -229,33 +229,23 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
-    // 
-    // Wrap param description
     //
-    String wrapDescription(String param, Map get_param, Map colors, Integer dec_linewidth, Integer desc_indent, Integer max_chars) {
-        def String type = '[' + get_param.type + ']'
-        def String description = get_param.description
-        def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
-        def description_default = description + colors.dim + defaultValue + colors.reset
-        // Wrap long description texts
-        // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
-        if (description_default.length() > dec_linewidth){
-            List olines = []
-            String oline = "" // " " * indent
-            description_default.split(" ").each() { wrd ->
-                if ((oline.size() + wrd.size()) <= dec_linewidth) {
-                    oline += wrd + " "
-                } else {
-                    olines += oline
-                    oline = wrd + " "
-                }
+    // Wrap too long text
+    //
+    String wrapText(String text, Integer lineWidth, Integer indent) {
+        List olines = []
+        String oline = "" // " " * indent
+        text.split(" ").each() { wrd ->
+            if ((oline.size() + wrd.size()) <= lineWidth) {
+                oline += wrd + " "
+            } else {
+                olines += oline
+                oline = wrd + " "
             }
-            olines += oline
-            description_default = olines.join("\n" + " " * desc_indent)
         }
-        return "  --" +  param.padRight(max_chars) + colors.dim + type.padRight(10) + colors.reset + description_default + '\n'
+        olines += oline
+        return olines.join("\n" + " " * indent)
     }
-
 
     //
     // Beautify parameters for --help
@@ -288,9 +278,16 @@ class SchemaValidator extends PluginExtensionPoint {
             if (!get_param) {
                 throw new Exception("Specified param ${param} does not exist in JSON schema.")
             }
-            output += wrapDescription(param, get_param, colors, dec_linewidth, desc_indent, max_chars)
-            if (num_hidden > 0){
-                output += "$colors.dim !! Hiding $num_hidden params, use --show_hidden_params to show them !!\n$colors.reset"
+            output += "--" + param + '\n'
+            for (property in get_param) {
+                def String key = property.key
+                def String value = property.value
+                def Integer lineWidth = 160 - 17
+                def Integer indent = 17
+                if (value.length() > lineWidth) {
+                    value = wrapText(value, lineWidth, indent)
+                }
+                output += "    " + colors.dim + key.padRight(11) + ": " + colors.reset + value + '\n'
             }
             output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
             return output
@@ -302,11 +299,20 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
             for (String param in group_params.keySet()) {
                 def Map get_param = group_params.get(param)
+                def String type = '[' + get_param.type + ']'
+                def String description = get_param.description
+                def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
+                def description_default = description + colors.dim + defaultValue + colors.reset
+                // Wrap long description texts
+                // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
+                if (description_default.length() > dec_linewidth){
+                    description_default = wrapText(description_default, dec_linewidth, desc_indent)
+                }
                 if (get_param.hidden && !params.show_hidden_params) {
                     num_hidden += 1
                     continue;
                 }
-                group_output += wrapDescription(param, get_param, colors, dec_linewidth, desc_indent, max_chars)
+                group_output += "  --" +  param.padRight(max_chars) + colors.dim + type.padRight(10) + colors.reset + description_default + '\n'
                 num_params += 1
             }
             group_output += '\n'
