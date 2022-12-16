@@ -229,6 +229,34 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
+    // 
+    // Wrap param description
+    //
+    String wrapDescription(String param, Map get_param, Map colors, Integer dec_linewidth, Integer desc_indent, Integer max_chars) {
+        def String type = '[' + get_param.type + ']'
+        def String description = get_param.description
+        def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
+        def description_default = description + colors.dim + defaultValue + colors.reset
+        // Wrap long description texts
+        // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
+        if (description_default.length() > dec_linewidth){
+            List olines = []
+            String oline = "" // " " * indent
+            description_default.split(" ").each() { wrd ->
+                if ((oline.size() + wrd.size()) <= dec_linewidth) {
+                    oline += wrd + " "
+                } else {
+                    olines += oline
+                    oline = wrd + " "
+                }
+            }
+            olines += oline
+            description_default = olines.join("\n" + " " * desc_indent)
+        }
+        return "  --" +  param.padRight(max_chars) + colors.dim + type.padRight(10) + colors.reset + description_default + '\n'
+    }
+
+
     //
     // Beautify parameters for --help
     //
@@ -246,6 +274,28 @@ class SchemaValidator extends PluginExtensionPoint {
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
+
+        // If a value is passed to help
+        if (params.help instanceof String) {
+            def String param = params.help
+            def Map get_param = [:]
+            for (group in params_map.keySet()) {
+                def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+                if (group_params.containsKey(param)) {
+                    get_param = group_params.get(param)
+                }
+            }
+            if (!get_param) {
+                throw new Exception("Specified param ${param} does not exist in JSON schema.")
+            }
+            output += wrapDescription(param, get_param, colors, dec_linewidth, desc_indent, max_chars)
+            if (num_hidden > 0){
+                output += "$colors.dim !! Hiding $num_hidden params, use --show_hidden_params to show them !!\n$colors.reset"
+            }
+            output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
+            return output
+        }
+
         for (group in params_map.keySet()) {
             Integer num_params = 0
             String group_output = "$colors.underlined$colors.bold$group$colors.reset\n"
@@ -256,27 +306,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     num_hidden += 1
                     continue;
                 }
-                def String type = '[' + get_param.type + ']'
-                def String description = get_param.description
-                def defaultValue = get_param.default != null ? " [default: " + get_param.default.toString() + "]" : ''
-                def description_default = description + colors.dim + defaultValue + colors.reset
-                // Wrap long description texts
-                // Loosely based on https://dzone.com/articles/groovy-plain-text-word-wrap
-                if (description_default.length() > dec_linewidth){
-                    List olines = []
-                    String oline = "" // " " * indent
-                    description_default.split(" ").each() { wrd ->
-                        if ((oline.size() + wrd.size()) <= dec_linewidth) {
-                            oline += wrd + " "
-                        } else {
-                            olines += oline
-                            oline = wrd + " "
-                        }
-                    }
-                    olines += oline
-                    description_default = olines.join("\n" + " " * desc_indent)
-                }
-                group_output += "  --" +  param.padRight(max_chars) + colors.dim + type.padRight(10) + colors.reset + description_default + '\n'
+                group_output += wrapDescription(param, get_param, colors, dec_linewidth, desc_indent, max_chars)
                 num_params += 1
             }
             group_output += '\n'
