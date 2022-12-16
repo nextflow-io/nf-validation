@@ -276,7 +276,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 }
             }
             if (!get_param) {
-                throw new Exception("Specified param ${param} does not exist in JSON schema.")
+                throw new Exception("Specified param '${param}' does not exist in JSON schema.")
             }
             output += "--" + param + '\n'
             for (property in get_param) {
