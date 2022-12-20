@@ -280,6 +280,9 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             output += "--" + param + '\n'
             for (property in get_param) {
+                if (property.key == "fa_icon") {
+                    continue;
+                }
                 def String key = property.key
                 def String value = property.value
                 def Integer lineWidth = 160 - 17
