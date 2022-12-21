@@ -407,7 +407,6 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             include { paramsHelp } from 'plugin/nf-validation'
             params.show_hidden_params = true
-
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
             def help_msg = paramsHelp(command, '$schema')
@@ -426,6 +425,65 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         noExceptionThrown()
         stdout.size == 1
+    }
+
+    def 'should print a help message of one parameter' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { paramsHelp } from 'plugin/nf-validation'
+            params.help = 'publish_dir_mode'
+
+            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
+            
+            def help_msg = paramsHelp(command, '$schema')
+            log.info help_msg
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('--publish_dir_mode') ||
+                    it.contains('type       :') ||
+                    it.contains('default    :') ||
+                    it.contains('description:') ||
+                    it.contains('help_text  :') ||
+                    it.contains('fa_icon    :') || // fa_icon shouldn't be printed
+                    it.contains('enum       :') ||
+                    it.contains('hidden     :') 
+                    ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.size == 7
+    }
+
+    def 'should fail when help param doesnt exist' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { paramsHelp } from 'plugin/nf-validation'
+            params.help = 'no_exist'
+
+            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
+            
+            def help_msg = paramsHelp(command, '$schema')
+            log.info help_msg
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('--no_exist') ? it : null }
+
+        then:
+        def error = thrown(Exception)
+        error.message == "Specified param 'no_exist' does not exist in JSON schema."
+        !stdout
     }
 
     def 'should print params summary' () {
