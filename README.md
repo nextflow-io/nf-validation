@@ -48,3 +48,151 @@ To test with Nextflow for development purpose:
 
 * Java 11 or later
 * https://github.com/everit-org/json-schema
+
+# Usage
+
+## Introduction
+
+The nf-validation plugin implements the validation of Nextflow pipeline parameters using the [JSON Schema](https://json-schema.org/) format. This plugin contains different functions that can be included into a Nextflow pipeline to provide documentation or validate the pipeline parameters.
+
+## Quick Start
+
+Declare the plugin in the Nextflow configuration file:
+
+```
+plugins {
+  id 'nf-validation@0.0.1'
+}
+```
+
+Include a function into your Nextflow pipeline and execute it.
+
+```
+include { validateParameters } from 'plugin/nf-validation'
+validateParameters()
+```
+
+You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
+
+### The JSON Schema
+
+A JSON schema file will contains the information for all pipeline parameters. It can define the required parameters, describe parameter characteristics such as type (ex. string, integer), the pattern (regular expressions matching strings) or a description of the parameter.
+
+You can find more information about JSON Schemas in their official [documentation webpage](https://json-schema.org/). You can see an example JSON Schema for a Nextflow pipeline [nextflow_schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema.json).
+
+## Functions
+
+nf-validation includes four different functions that you can include in your pipeline. Those functions can be used to:
+
+- validate parameters
+- print a help message
+- summarize pipeline parameters
+
+### validateParameters
+
+This function takes all pipeline parameters and checks that they adhere to the specifications defined in the JSON Schema.
+It returns errors or warnings indicating the parameters that failed.
+
+#### Usage
+
+When using this function in your pipeline, you can provide the name of a JSON Schema file. It defaults to '`nextflow_schema.json`'.
+
+```
+validateParameters('custom_nextflow_schema.json')
+```
+
+#### Options
+
+There are two specific params that affect the behavior of this function:
+
+- fail_unrecognised_params
+
+When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `fail_unrecognised_params` parameter.
+```
+nextflow run my_pipeline --fail_unrecognised_params
+```
+or specifying it in the configuration file
+```
+params.fail_unrecognised_params = true
+```
+
+- lenient_mode
+
+The lenient mode of JSON Schema validation tries to cast parameters to their correct type. For example, providing an integer as a string won't fail when using such mode. You can find more information [here](https://github.com/everit-org/json-schema#lenient-mode).
+
+```
+nextflow run my_pipeline --lenient_mode
+```
+or specifying it in the configuration file
+```
+params.lenient_mode = true
+```
+
+### paramsHelp
+
+This function prints a help message with the command to run a pipeline and the available parameters.
+
+> **_NOTE:_**  paramsHelp() doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
+
+#### Usage
+
+This function required an argument providing the typical command used to run the pipeline. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
+
+In this example we are executing the function if the parameter `help` is provided and ending the execution afterwards.
+```
+if (params.help) {
+   def String command = "nextflow run my_pipeline --input input_file.csv --output output_directory"
+   log.info paramsHelp(command, 'custom_nextflow_schema.json')
+   System.exit(0)
+}
+```
+
+#### Options
+
+- show_hidden_params
+
+Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `show_hidden_params` parameter.
+
+```
+nextflow run my_pipeline --help --show_hidden_params
+```
+or specifying it in the configuration file
+```
+params.show_hidden_params = true
+```
+
+- Show the complete information for one parameter
+
+By default, when printing the help message only a selection of attributes are printed: type of the variable, accepted options "enums", description and default value. In order to print the complete information for a single parameter, you can pass the parameter name to `--help`:
+
+```
+nextflow run my_pipeline --help param_name
+```
+
+### paramsSummaryMap
+
+This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
+
+> **_NOTE:_**  paramsSummaryMap() will return only the provided parameters that differ from the default values.
+
+#### Usage
+
+This function requires an argument providing the a WorkflowMetadata object. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
+
+```
+paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
+```
+
+### paramsSummaryLog
+
+This function returns a string summarizing the parameters provided to the pipeline. 
+
+> **_NOTE:_**  paramsSummaryLog() will return only the provided parameters that differ from the default values.
+
+#### Usage
+
+This function requires an argument providing the a WorkflowMetadata object. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
+
+```
+paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
+```
