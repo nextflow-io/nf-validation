@@ -110,6 +110,7 @@ It returns errors or warnings indicating the parameters that failed.
 
 When using this function in your pipeline, you can provide the name of a JSON Schema file. It defaults to '`nextflow_schema.json`'.
 File paths should be relative to the root of the pipeline directory.
+File paths should be relative to the root of the pipeline directory.
 
 ```nextflow
 validateParameters('custom_nextflow_schema.json')
@@ -188,7 +189,7 @@ nextflow run my_pipeline --help param_name
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
-> **Note** 
+> **Note**
 > `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
 
 #### Usage
