@@ -147,7 +147,7 @@ params.lenient_mode = true
 
 This function prints a help message with the command to run a pipeline and the available parameters.
 
-> **Note** . 
+> **Note**  
 > `paramsHelp()` doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
 
 #### Usage
