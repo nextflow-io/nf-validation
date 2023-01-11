@@ -87,9 +87,9 @@ A JSON schema file will contains the information for all pipeline parameters. It
 
 You can find more information about JSON Schemas in their official [documentation webpage](https://json-schema.org/). You can see an example JSON Schema for a Nextflow pipeline [nextflow_schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema.json).
 
-> **Note**
-> Although the JSON Schema allows schema objects (eg. params.foo.bar = "baz") or arrays, this is not supported by this plugin.
-> In the example schema file, we use some extra JSON keys not available in the standard JSON Schema set: `help_text`, `hidden` and `fa_icon`.
+> **Note** . 
+> Although the JSON Schema allows schema objects (eg. params.foo.bar = "baz") or arrays, this is not supported by this plugin.  
+> In the example schema file, we use some extra JSON keys not available in the standard JSON Schema set: `help_text`, `hidden` and `fa_icon`.  
 > You can find an interactive [schema builder tool](https://nf-co.re/pipeline_schema_builder) in the nf-core website, and more information about the extra keys under the `Help` section.
 
 ## Functions
@@ -147,7 +147,7 @@ params.lenient_mode = true
 
 This function prints a help message with the command to run a pipeline and the available parameters.
 
-> **Note**
+> **Note** . 
 > `paramsHelp()` doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
 
 #### Usage
@@ -189,7 +189,7 @@ nextflow run my_pipeline --help param_name
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
-> **Note**
+> **Note**  
 > `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
 
 #### Usage
@@ -204,7 +204,7 @@ paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
 
 This function returns a string summarizing the parameters provided to the pipeline. 
 
-> **Note**
+> **Note**  
 > `paramsSummaryLog()` will return only the provided parameters that differ from the default values.
 
 #### Usage
