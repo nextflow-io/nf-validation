@@ -84,7 +84,7 @@ You can find more information about JSON Schemas in their official [documentatio
 
 nf-validation includes four different functions that you can include in your pipeline. Those functions can be used to:
 
-- validate parameters
+- `validateParameters()` - validate user-provided parameters
 - print a help message
 - summarize pipeline parameters
 
@@ -96,6 +96,7 @@ It returns errors or warnings indicating the parameters that failed.
 #### Usage
 
 When using this function in your pipeline, you can provide the name of a JSON Schema file. It defaults to '`nextflow_schema.json`'.
+File paths should be relative to the root of the pipeline directory.
 
 ```
 validateParameters('custom_nextflow_schema.json')
@@ -105,7 +106,7 @@ validateParameters('custom_nextflow_schema.json')
 
 There are two specific params that affect the behavior of this function:
 
-- fail_unrecognised_params
+##### `fail_unrecognised_params`
 
 When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `fail_unrecognised_params` parameter.
 ```
@@ -116,7 +117,7 @@ or specifying it in the configuration file
 params.fail_unrecognised_params = true
 ```
 
-- lenient_mode
+##### `lenient_mode`
 
 The lenient mode of JSON Schema validation tries to cast parameters to their correct type. For example, providing an integer as a string won't fail when using such mode. You can find more information [here](https://github.com/everit-org/json-schema#lenient-mode).
 
@@ -173,7 +174,8 @@ nextflow run my_pipeline --help param_name
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
-> **_NOTE:_**  paramsSummaryMap() will return only the provided parameters that differ from the default values.
+> **Note**
+> `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
 
 #### Usage
 
@@ -187,12 +189,13 @@ paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
 
 This function returns a string summarizing the parameters provided to the pipeline. 
 
-> **_NOTE:_**  paramsSummaryLog() will return only the provided parameters that differ from the default values.
+> **Note**
+> `paramsSummaryLog()` will return only the provided parameters that differ from the default values.
 
 #### Usage
 
 This function requires an argument providing the a WorkflowMetadata object. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
 
-```
+```nextflow
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 ```
