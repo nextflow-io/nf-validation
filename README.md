@@ -70,13 +70,18 @@ Include a function into your Nextflow pipeline and execute it.
 ```nextflow
 include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog } from 'plugin/nf-validation'
 
+// Print help message
+if (params.help) {
+   def String command = "nextflow run my_pipeline --input input_file.csv"
+   log.info paramsHelp(command)
+   exit 0
+}
+
+// Validate input parameters
 validateParameters()
 
-def String command = "nextflow run my_pipeline --input input_file.csv"
-paramsHelp(command)
-
-paramsSummaryMap(workflow)
-paramsSummaryLog(workflow)
+// Print parameter summary log to screen
+log.info paramsSummaryLog(workflow)
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
