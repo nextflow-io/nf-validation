@@ -90,7 +90,7 @@ You can find more information on plugins in the [Nextflow documentation](https:/
 
 A JSON schema file will contains the information for all pipeline parameters. It can define the required parameters, describe parameter characteristics such as type (ex. string, integer), the pattern (regular expressions matching strings) or a description of the parameter.
 
-You can find more information about JSON Schemas in their official [documentation webpage](https://json-schema.org/). You can see an example JSON Schema for a Nextflow pipeline [nextflow_schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema.json).
+You can find more information about JSON Schemas in their official [documentation webpage](https://json-schema.org/). You can see an example JSON Schema for a Nextflow pipeline [`nextflow_schema.json` file](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema.json).
 
 > **Note**  
 > Although the JSON Schema allows schema objects (eg. params.foo.bar = "baz") or arrays, this is not supported by this plugin.  
@@ -128,7 +128,7 @@ There are two specific params that affect the behavior of this function:
 ##### `fail_unrecognised_params`
 
 When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `fail_unrecognised_params` parameter.
-```nextflow
+```bash
 nextflow run my_pipeline --fail_unrecognised_params
 ```
 or specifying it in the configuration file
@@ -140,7 +140,7 @@ params.fail_unrecognised_params = true
 
 The lenient mode of JSON Schema validation tries to cast parameters to their correct type. For example, providing an integer as a string won't fail when using such mode. You can find more information [here](https://github.com/everit-org/json-schema#lenient-mode).
 
-```nextflow
+```bash
 nextflow run my_pipeline --lenient_mode
 ```
 or specifying it in the configuration file
@@ -174,7 +174,7 @@ if (params.help) {
 
 Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `show_hidden_params` parameter.
 
-```nextflow
+```bash
 nextflow run my_pipeline --help --show_hidden_params
 ```
 or specifying it in the configuration file
@@ -186,7 +186,7 @@ params.show_hidden_params = true
 
 By default, when printing the help message only a selection of attributes are printed: type of the variable, accepted options "enums", description and default value. In order to print the complete information for a single parameter, you can pass the parameter name to `--help`:
 
-```nextflow
+```bash
 nextflow run my_pipeline --help param_name
 ```
 
