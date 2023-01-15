@@ -17,23 +17,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [8, 11]
+        java_version: [11, 17]
 
     steps:
       - name: Environment
         run: env | sort
 
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
           submodules: true
 
       - name: Setup Java ${{ matrix.java_version }}
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: ${{matrix.java_version}}
+          distribution: 'adopt'
           architecture: x64
+          cache: gradle
 
       - name: Compile
         run: ./gradlew assemble
@@ -43,10 +45,10 @@ jobs:
         env:
           GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
-      - name: Publish
+      - name: Publish tests report
         if: failure()
-        run: bash pub-tests.sh github
-        env:
-          TEST_JDK: ${{ matrix.java_version }}
-          NXF_AWS_ACCESS: ${{ secrets.NXF_AWS_ACCESS }}
-          NXF_AWS_SECRET: ${{ secrets.NXF_AWS_SECRET }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports-jdk-${{ matrix.java_version }}
+          path: |
+            ./plugins/nf-validation/build/reports/tests/test/**

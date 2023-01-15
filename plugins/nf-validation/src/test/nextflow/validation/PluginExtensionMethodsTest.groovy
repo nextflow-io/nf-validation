@@ -1,5 +1,7 @@
 package nextflow.validation
 
+import java.nio.file.Path
+
 import nextflow.plugin.Plugins
 import nextflow.plugin.TestPluginDescriptorFinder
 import nextflow.plugin.TestPluginManager
@@ -7,13 +9,8 @@ import nextflow.plugin.extension.PluginExtensionProvider
 import org.junit.Rule
 import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
-import spock.lang.TempDir
 import test.Dsl2Spec
 import test.OutputCapture
-
-import java.nio.file.Path
-
-
 /**
  * @author : jorge <jorge.aguilera@seqera.io>
  *
@@ -398,7 +395,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.size == 10
+        stdout.size() == 10
     }
 
     def 'should print a help message with argument options' () {
@@ -424,7 +421,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.size == 1
+        stdout.size() == 1
     }
 
     def 'should print a help message of one parameter' () {
@@ -457,7 +454,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.size == 7
+        stdout.size() == 7
     }
 
     def 'should fail when help param doesnt exist' () {
@@ -517,7 +514,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         
         then:
         noExceptionThrown()
-        stdout.size == 11
+        stdout.size() == 11
         stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
     }
 }

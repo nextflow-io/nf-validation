@@ -23,7 +23,6 @@ ext.github_organization = 'nextflow-io'
 ext.github_username = project.findProperty('github_username') ?: 'pditommaso'
 ext.github_access_token = project.findProperty('github_access_token') ?: System.getenv('GITHUB_TOKEN')
 ext.github_commit_email = project.findProperty('github_commit_email') ?: 'paolo.ditommaso@gmail.com'
-ext.nextflowVersion = '22.08.1-edge'
 
 jar.enabled = false
 
@@ -59,7 +58,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
     apply plugin: 'io.nextflow.nf-build-plugin'
-
+    
     repositories {
         mavenLocal()
         mavenCentral()
@@ -95,6 +94,8 @@ subprojects {
                 "sha512sum": "${computeSha512(zip)}"
               }
             """.stripIndent()
+            // cleanup tmp dir
+            file("$buildDir/tmp/makeZip").deleteDir()
         }
         outputs.file("$buildDir/libs/${project.name}-${project.version}.zip")
     }
@@ -138,13 +139,32 @@ subprojects {
         skipExisting = true
     }
 
+    jar {
+        from sourceSets.main.allSource
+        doLast {
+            file("$buildDir/tmp/jar").deleteDir()
+        }
+    }
+
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+    
+    task upload(dependsOn: [uploadPlugin] ) { }
 }
 
+/*
+ * Upload all plugins to the corresponding GitHub repos
+ */
 task upload(dependsOn: [subprojects.uploadPlugin]) { }
 
-classes.dependsOn subprojects.copyPluginLibs
 /*
+ * Copies the plugins required dependencies in the corresponding lib directory
+ */
+classes.dependsOn subprojects.copyPluginLibs
 
+
+/*
  * Merge and publish the plugins index file
  */
 task publishIndex( type: io.nextflow.gradle.tasks.GithubRepositoryPublisher ) {

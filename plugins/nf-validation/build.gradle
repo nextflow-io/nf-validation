@@ -16,19 +16,13 @@
 
 plugins {
     // Apply the groovy plugin to add support for Groovy
-    id 'groovy'
-    id 'java-library'
+    id 'io.nextflow.groovy-library-conventions'
     id 'idea'
 }
 
 group = 'io.nextflow'
 // DO NOT SET THE VERSION HERE
 // THE VERSION FOR PLUGINS IS DEFINED IN THE `/resources/META-INF/MANIFEST.NF` file
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
 
 idea {
     module.inheritOutputDirs = true
@@ -63,14 +57,14 @@ dependencies {
     api 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.1'
 
     // test configuration
-    testImplementation "org.codehaus.groovy:groovy:3.0.10"
-    testImplementation "org.codehaus.groovy:groovy-nio:3.0.10"
     testImplementation "io.nextflow:nextflow:$nextflowVersion"
-    testImplementation ("org.codehaus.groovy:groovy-test:3.0.10") { exclude group: 'org.codehaus.groovy' }
+    testImplementation "org.codehaus.groovy:groovy:$groovyVersion"
+    testImplementation "org.codehaus.groovy:groovy-nio:$groovyVersion"
+    testImplementation ("org.codehaus.groovy:groovy-test:$groovyVersion") { exclude group: 'org.codehaus.groovy' }
     testImplementation ("cglib:cglib-nodep:3.3.0")
     testImplementation ("org.objenesis:objenesis:3.1")
-    testImplementation ("org.spockframework:spock-core:2.0-M3-groovy-3.0") { exclude group: 'org.codehaus.groovy'; exclude group: 'net.bytebuddy' }
-    testImplementation ('org.spockframework:spock-junit4:2.0-M3-groovy-3.0') { exclude group: 'org.codehaus.groovy'; exclude group: 'net.bytebuddy' }
+    testImplementation ("org.spockframework:spock-core:2.2-groovy-3.0") { exclude group: 'org.codehaus.groovy'; exclude group: 'net.bytebuddy' }
+    testImplementation ('org.spockframework:spock-junit4:2.2-groovy-3.0') { exclude group: 'org.codehaus.groovy'; exclude group: 'net.bytebuddy' }
     testImplementation ('com.google.jimfs:jimfs:1.1')
 
     testImplementation(testFixtures("io.nextflow:nextflow:$nextflowVersion"))
@@ -86,4 +80,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-

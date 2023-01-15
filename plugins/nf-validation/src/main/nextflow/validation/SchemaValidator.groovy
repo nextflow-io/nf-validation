@@ -157,7 +157,7 @@ class SchemaValidator extends PluginExtensionPoint {
             for (p in properties) {
                 def String key = (String) p.key
                 expectedParams.push(key)
-                def Map property = properties[key]
+                def Map property = properties[key] as Map
                 if (property.containsKey('enum')) {
                     enums[key] = property['enum']
                 }
@@ -270,9 +270,9 @@ class SchemaValidator extends PluginExtensionPoint {
             def String param = params.help
             def Map get_param = [:]
             for (group in params_map.keySet()) {
-                def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+                def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
                 if (group_params.containsKey(param)) {
-                    get_param = group_params.get(param)
+                    get_param = group_params.get(param) as Map 
                 }
             }
             if (!get_param) {
@@ -299,9 +299,9 @@ class SchemaValidator extends PluginExtensionPoint {
         for (group in params_map.keySet()) {
             Integer num_params = 0
             String group_output = "$colors.underlined$colors.bold$group$colors.reset\n"
-            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+            def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
             for (String param in group_params.keySet()) {
-                def Map get_param = group_params.get(param)
+                def Map get_param = group_params.get(param) as Map 
                 def String type = '[' + get_param.type + ']'
                 def String enums_string = ""
                 if (get_param.enum != null) {
@@ -374,11 +374,11 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schema_filename)) )
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
-            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+            def Map group_params = params_map.get(group)  as Map // This gets the parameters of that particular group
             for (String param in group_params.keySet()) {
                 if (params.containsKey(param)) {
                     def String params_value = params.get(param)
-                    def Map group_params_value = group_params.get(param)
+                    def Map group_params_value = group_params.get(param) as Map 
                     def String schema_value = group_params_value.default
                     def String param_type   = group_params_value.type
                     if (schema_value != null) {
@@ -430,7 +430,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def LinkedHashMap params_map = paramsSummaryMap(workflow, schema_filename)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
-            def Map group_params = params_map.get(group)  // This gets the parameters of that particular group
+            def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group
             if (group_params) {
                 output += "$colors.bold$group$colors.reset\n"
                 for (String param in group_params.keySet()) {
