@@ -28,7 +28,7 @@ class SamplesheetConverter extends PluginExtensionPoint {
     }
 
     @Function
-    public static DataflowBroadcast validateAndConvertSamplesheet( 
+    DataflowBroadcast validateAndConvertSamplesheet( 
         Path samplesheetFile,
         Path schemaFile
     ) {

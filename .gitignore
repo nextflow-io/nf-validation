@@ -2,6 +2,7 @@
 .gradle
 .idea
 .nextflow
+.nextflow.log*
 
 # Ignore Gradle build output directory
 build
