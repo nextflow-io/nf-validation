@@ -1,6 +1,7 @@
 package nextflow.validation
 
-import groovyx.gpars.dataflow.DataflowBroadcast
+import groovyx.gpars.dataflow.DataflowWriteChannel
+import groovyx.gpars.dataflow.DataflowReadChannel
 import groovy.json.JsonSlurper
 import org.yaml.snakeyaml.Yaml
 import java.nio.file.Path
@@ -12,12 +13,13 @@ import nextflow.Channel
 import nextflow.Session
 import nextflow.Global
 import nextflow.plugin.extension.Function
+import nextflow.extension.MapOp
 
 @Slf4j
 @CompileStatic
 class SamplesheetConverter {
 
-    public static DataflowBroadcast convert( 
+    static DataflowWriteChannel convert( 
         Path samplesheetFile,
         Path schemaFile
     ) {
@@ -29,16 +31,14 @@ class SamplesheetConverter {
 
         def String fileType = _getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-        def DataflowBroadcast samplesheet
+        def List samplesheetList
 
         if(fileType == "yaml"){
-            def List yamlList = new Yaml().load((samplesheetFile.text))
-            samplesheet = Channel.fromList(yamlList) as DataflowBroadcast
+            samplesheetList = new Yaml().load((samplesheetFile.text))
         }
         else {
             Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
-            List listSamplesheet = fileSamplesheet.splitCsv(header:true, strip:true, sep:delimiter)
-            samplesheet = Channel.fromList(listSamplesheet) as DataflowBroadcast
+            samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:delimiter)
         }
 
         // Field checks + returning the channels
@@ -46,7 +46,7 @@ class SamplesheetConverter {
         def Boolean headerCheck = true
         def Integer sampleCount = 0
 
-        return samplesheet.each { Map<String,String> entry ->
+        return new MapOp(Channel.fromList(samplesheetList) as DataflowReadChannel, { Map<String,String> entry ->
 
             sampleCount++
 
@@ -130,7 +130,7 @@ class SamplesheetConverter {
             }
             output.add(0, meta)
             return output
-        }
+        }).apply()
 
     }
 

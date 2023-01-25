@@ -4,7 +4,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import groovyx.gpars.dataflow.DataflowBroadcast
+import groovyx.gpars.dataflow.DataflowWriteChannel
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
@@ -129,9 +129,8 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
-    @Function
     @Factory
-    public DataflowBroadcast validateAndConvertSamplesheet(
+    public DataflowWriteChannel validateAndConvertSamplesheet(
         Path samplesheetFile,
         Path schemaFile
     ) {
