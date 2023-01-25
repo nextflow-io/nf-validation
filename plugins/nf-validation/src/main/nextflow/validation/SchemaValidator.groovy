@@ -4,12 +4,14 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import groovyx.gpars.dataflow.DataflowBroadcast
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import nextflow.Global
 import nextflow.plugin.extension.Function
+import nextflow.plugin.extension.Factory
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.script.WorkflowMetadata
 import nextflow.Session
@@ -125,6 +127,15 @@ class SchemaValidator extends PluginExtensionPoint {
         } else {
             return "${baseDir}/${schema_filename}"
         }
+    }
+
+    @Function
+    @Factory
+    public DataflowBroadcast validateAndConvertSamplesheet(
+        Path samplesheetFile,
+        Path schemaFile
+    ) {
+        return SamplesheetConverter.convert(samplesheetFile, schemaFile)
     }
 
     /*

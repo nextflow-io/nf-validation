@@ -12,23 +12,12 @@ import nextflow.Channel
 import nextflow.Session
 import nextflow.Global
 import nextflow.plugin.extension.Function
-import nextflow.plugin.extension.PluginExtensionPoint
 
 @Slf4j
 @CompileStatic
-class SamplesheetConverter extends PluginExtensionPoint {
+class SamplesheetConverter {
 
-    @Override
-    protected void init(Session session) {
-        // only called in operators
-    }
-
-    Session getSession(){
-        Global.getSession() as Session
-    }
-
-    @Function
-    DataflowBroadcast validateAndConvertSamplesheet( 
+    public static DataflowBroadcast convert( 
         Path samplesheetFile,
         Path schemaFile
     ) {
