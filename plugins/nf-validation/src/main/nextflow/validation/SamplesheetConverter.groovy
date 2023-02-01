@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture
 import org.yaml.snakeyaml.Yaml
 
 import nextflow.Channel
-import nextflow.extension.MapOp
 import nextflow.Global
 import nextflow.Nextflow
 import nextflow.plugin.extension.Function
