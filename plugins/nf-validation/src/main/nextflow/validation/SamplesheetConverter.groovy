@@ -1,37 +1,40 @@
 package nextflow.validation
 
-import groovyx.gpars.dataflow.DataflowWriteChannel
-import groovyx.gpars.dataflow.DataflowReadChannel
 import groovy.json.JsonSlurper
-import org.yaml.snakeyaml.Yaml
-import java.nio.file.Path
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import groovyx.gpars.dataflow.DataflowReadChannel
+import groovyx.gpars.dataflow.DataflowWriteChannel
+import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
+import org.yaml.snakeyaml.Yaml
 
-import nextflow.Nextflow
 import nextflow.Channel
-import nextflow.Session
-import nextflow.Global
-import nextflow.plugin.extension.Function
 import nextflow.extension.MapOp
+import nextflow.Global
+import nextflow.Nextflow
+import nextflow.plugin.extension.Function
+import nextflow.Session
+
 
 @Slf4j
 @CompileStatic
 class SamplesheetConverter {
 
-    static DataflowWriteChannel convert( 
-        Path samplesheetFile,
+    static addToChannel(
+        final DataflowWriteChannel channel, 
+        Path samplesheetFile, 
         Path schemaFile
-    ) {
+        ) {
 
         def Map schema = (Map) new JsonSlurper().parseText(schemaFile.text)
         def Map<String, Map<String, String>> schemaFields = schema["properties"]
-        def List<String> allFields = schemaFields.keySet().collect()
+        def Set<String> allFields = schemaFields.keySet()
         def List<String> requiredFields = schema["required"]
 
         def String fileType = _getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-        def List samplesheetList
+        def List<Map<String,String>> samplesheetList
 
         if(fileType == "yaml"){
             samplesheetList = new Yaml().load((samplesheetFile.text))
@@ -45,93 +48,83 @@ class SamplesheetConverter {
         def Map uniques = [:]
         def Boolean headerCheck = true
         def Integer sampleCount = 0
-
-        return new MapOp(Channel.fromList(samplesheetList) as DataflowReadChannel, { Map<String,String> entry ->
-
-            sampleCount++
-
-            // Check the header once for CSV/TSV and for every sample for YAML
-            if(headerCheck) {
-                def List<String> entryKeys = entry.keySet().collect()
-                def List<String> differences = allFields.plus(entryKeys)
-                differences.removeAll(allFields.intersect(entryKeys))
-
+        def future = CompletableFuture.runAsync({
+            def outputs = samplesheetList.collect { Map row ->
+                def Set rowKeys = row.keySet()
+                def Set differences = allFields - rowKeys
                 def String yamlInfo = fileType == "yaml" ? " for sample ${sampleCount}." : ""
 
-                def List<String> samplesheetDifferences = entryKeys.intersect(differences)
-                if(samplesheetDifferences.size() > 0) {
-                    throw new Exception("[Samplesheet Error] The samplesheet contains following unwanted field(s): ${samplesheetDifferences}${yamlInfo}")
+                def unexpectedFields = rowKeys - allFields
+                if(unexpectedFields.size() > 0) {
+                    throw new Exception("[Samplesheet Error] The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}")
                 }
 
-                def List<String> requiredDifferences = requiredFields.intersect(differences)
-                if(requiredDifferences.size() > 0) {
-                    throw new Exception("[Samplesheet Error] The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${requiredDifferences}${yamlInfo}")
+                def List<String> missingFields = requiredFields - rowKeys
+                if(missingFields.size() > 0) {
+                    throw new Exception("[Samplesheet Error] The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}")
                 }
 
-                if(fileType in ["csv", "tsv"]) {
-                    headerCheck = false
-                }
-            }
-
-            // Check required dependencies
-            def Map dependencies = schema["dependentRequired"]
-            if(dependencies) {
-                for( dependency in dependencies ){
-                    if(entry[dependency.key] != "" && entry[dependency.key]) {
-                        def List<String> missingValues = []
-                        for( String value in dependency.value ){
-                            if(entry[value] == "" || !(entry[value])) {
-                                missingValues.add(value)
+                // Check required dependencies
+                def Map dependencies = schema["dependentRequired"]
+                if(dependencies) {
+                    for( dependency in dependencies ){
+                        if(row[dependency.key] != "" && row[dependency.key]) {
+                            def List<String> missingValues = []
+                            for( String value in dependency.value ){
+                                if(row[value] == "" || !(row[value])) {
+                                    missingValues.add(value)
+                                }
+                            }
+                            if (missingValues) {
+                                throw new Exception("[Samplesheet Error] ${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.")
                             }
                         }
-                        if (missingValues) {
-                            throw new Exception("[Samplesheet Error] ${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.")
+                    }
+                }
+
+                def Map meta = [:]
+                def ArrayList output = []
+
+                for( Map.Entry<String, Map> field : schemaFields ){
+                    def String key = field.key
+                    def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
+                    def String metaNames = field['value']['meta']
+                    
+                    def String input = row[key]
+
+                    if((input == null || input == "") && key in requiredFields){
+                        throw new Exception("[Samplesheet Error] Sample ${sampleCount} does not contain an input for required field '${key}'.")
+                    }
+                    else if(!(input ==~ regexPattern) && input != '' && input) {
+                        throw new Exception("[Samplesheet Error] The '${key}' value for sample ${sampleCount} does not match the pattern '${regexPattern}'.")
+                    }
+                    else if(field['value']['unique']){
+                        if(!(key in uniques)){
+                            List<String> emptyList = []
+                            uniques[key] = emptyList
+                        }
+                        if(input in uniques[key] && input){
+                            throw new Exception("[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.")
+                        }
+                        uniques[key] = (List<String>) uniques[key] + [input]
+                    }
+
+                    if(metaNames) {
+                        for(name : metaNames.tokenize(',')) {
+                            meta[name] = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : null
                         }
                     }
+                    else {
+                        def inputFile = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : []
+                        output.add(inputFile)
+                    }
                 }
+                output
             }
 
-            def Map meta = [:]
-            def ArrayList output = []
-
-            for( Map.Entry<String, Map> field : schemaFields ){
-                def String key = field.key
-                def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
-                def String metaNames = field['value']['meta']
-                
-                def String input = entry[key]
-
-                if((input == null || input == "") && key in requiredFields){
-                    throw new Exception("[Samplesheet Error] Sample ${sampleCount} does not contain an input for required field '${key}'.")
-                }
-                else if(!(input ==~ regexPattern) && input != '' && input) {
-                    throw new Exception("[Samplesheet Error] The '${key}' value for sample ${sampleCount} does not match the pattern '${regexPattern}'.")
-                }
-                else if(field['value']['unique']){
-                    if(!(key in uniques)){
-                        List<String> emptyList = []
-                        uniques[key] = emptyList
-                    }
-                    if(input in uniques[key] && input){
-                        throw new Exception("[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.")
-                    }
-                    uniques[key] = (List<String>) uniques[key] + [input]
-                }
-
-                if(metaNames) {
-                    for(name : metaNames.tokenize(',')) {
-                        meta[name] = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : null
-                    }
-                }
-                else {
-                    def inputFile = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : []
-                    output.add(inputFile)
-                }
-            }
-            output.add(0, meta)
-            return output
-        }).apply()
-
+            outputs.each { channel.bind(it) }
+            channel.bind(Channel.STOP)
+        })
     }
 
     // Function to infer the file type of the samplesheet

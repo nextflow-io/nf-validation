@@ -9,9 +9,10 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import nextflow.extension.CH
 import nextflow.Global
-import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.Factory
+import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.script.WorkflowMetadata
 import nextflow.Session
@@ -134,7 +135,9 @@ class SchemaValidator extends PluginExtensionPoint {
         Path samplesheetFile,
         Path schemaFile
     ) {
-        return SamplesheetConverter.convert(samplesheetFile, schemaFile)
+        final channel = CH.create()
+        session.addIgniter { -> SamplesheetConverter.addToChannel(channel, samplesheetFile, schemaFile) }
+        channel
     }
 
     /*
