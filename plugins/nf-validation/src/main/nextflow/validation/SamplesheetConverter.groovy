@@ -22,10 +22,12 @@ import nextflow.Session
 class SamplesheetConverter {
 
     private static List<String> errors = []
+    private static List<String> schemaErrors = []
     private static List<String> warnings = []
 
-    static boolean hasErrors() { errors.size()>0 }
-    static List<String> getErrors() { errors }
+    static boolean hasErrors() { errors.size()>0 || schemaErrors.size()>0 }
+    static List<String> getErrors() { errors.collect { "[Samplesheet Error] ${it}".toString() } }
+    static List<String> getSchemaErrors() { schemaErrors.collect { "[Samplesheet Schema Error] ${it}".toString() } }
 
     static boolean hasWarnings() { warnings.size()>0 }
     static List<String> getWarnings() { warnings }
@@ -71,12 +73,12 @@ class SamplesheetConverter {
 
             def unexpectedFields = rowKeys - allFields
             if(unexpectedFields.size() > 0) {
-                this.errors << "[Samplesheet Error] The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}".toString()
+                this.errors << "The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}".toString()
             }
 
             def List<String> missingFields = requiredFields - rowKeys
             if(missingFields.size() > 0) {
-                this.errors << "[Samplesheet Error] The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
+                this.errors << "The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
             }
 
             // Check required dependencies
@@ -91,7 +93,7 @@ class SamplesheetConverter {
                             }
                         }
                         if (missingValues) {
-                            this.errors << "[Samplesheet Error] ${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.".toString()
+                            this.errors << "${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.".toString()
                         }
                     }
                 }
@@ -107,14 +109,14 @@ class SamplesheetConverter {
                 def String input = row[key]
 
                 if((input == null || input == "") && key in requiredFields){
-                    this.errors << "[Samplesheet Error] Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
+                    this.errors << "Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
                 }
                 else if(field['value']['unique']){
                     if(!(key in uniques)){
                         uniques[key] = []
                     }
                     if(input in uniques[key] && input){
-                        this.errors << "[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.".toString()
+                        this.errors << "The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.".toString()
                     }
                     uniques[key].add(input)
                 }
@@ -142,7 +144,7 @@ class SamplesheetConverter {
         }
 
         if (this.hasErrors()) {
-            String message = "" + this.getErrors().join("\n")
+            String message = "" + this.getErrors().join("\n") + this.getSchemaErrors().join("\n")
             throw new SchemaValidationException(message, this.getErrors())
         }
 
@@ -164,7 +166,7 @@ class SamplesheetConverter {
         def Integer tabCount = header.count("\t")
 
         if ( commaCount == tabCount ){
-            this.errors << "[Samplesheet Error] Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString()
+            this.errors << "Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString()
         }
         if ( commaCount > tabCount ){
             return "csv"
@@ -195,21 +197,21 @@ class SamplesheetConverter {
 
         def List<String> supportedTypes = ["string", "integer", "boolean"]
         if(!(type in supportedTypes)) {
-            this.errors << "[Samplesheet Schema Error] The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
+            this.schemaErrors << "The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
         }
 
         if(type == "string" || !type) {
             if(!(input ==~ regexPattern) && input != '' && input) {
-                this.errors << "[Samplesheet Error] The '${key}' value for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
+                this.errors << "The '${key}' value for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
             }
             List<String> supportedFormats = ["file-path", "directory-path"]
             if(!(format in supportedFormats) && format) {
-                this.errors << "[Samplesheet Schema Error] The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
+                this.schemaErrors << "The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
             }
             if(format == "file-path" || format =="directory-path") {
                 def Path inputFile = Nextflow.file(input) as Path
                 if(!inputFile.exists()){
-                    this.errors << "[Samplesheet Error] The '${key}' file or directory (${input}) for sample ${this.getCount()} does not exist.".toString()
+                    this.errors << "The '${key}' file or directory (${input}) for sample ${this.getCount()} does not exist.".toString()
                 }
                 return inputFile
             }
@@ -221,7 +223,7 @@ class SamplesheetConverter {
             try {
                 return input as Integer
             } catch(java.lang.NumberFormatException e) {
-                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
+                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
             }
         }
         else if(type == "boolean") {
@@ -232,7 +234,7 @@ class SamplesheetConverter {
                 return false
             }
             else {
-                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${this.getCount()} is not a valid boolean.".toString()
+                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid boolean.".toString()
             }
         }
     }
