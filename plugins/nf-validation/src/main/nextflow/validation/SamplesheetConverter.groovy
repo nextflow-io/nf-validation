@@ -53,7 +53,7 @@ class SamplesheetConverter {
         }
 
         // Field checks + returning the channels
-        def Map uniques = [:]
+        def Map<String,List<String>> uniques = [:]
         def Boolean headerCheck = true
         def Integer sampleCount = 0
         
@@ -108,13 +108,12 @@ class SamplesheetConverter {
                 }
                 else if(field['value']['unique']){
                     if(!(key in uniques)){
-                        List<String> emptyList = []
-                        uniques[key] = emptyList
+                        uniques[key] = []
                     }
                     if(input in uniques[key] && input){
                         this.errors << "[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.".toString()
                     }
-                    uniques[key] = (List<String>) uniques[key] + [input]
+                    uniques[key].add(input)
                 }
 
                 if(metaNames) {
