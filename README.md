@@ -3,6 +3,8 @@
 This plugins implement a validation Nextlow pipeline parameters
 based on [nf-core JSON schema](https://nf-co.re/pipeline_schema_builder).
 
+It can also validate and convert a samplesheet to a Nextflow channel ready to use. Supported samplesheet formats are CSV, TSV and YAML (simple).
+
 ## Get started 
 
 To compile and run the tests use the following command: 
@@ -99,12 +101,13 @@ You can find more information about JSON Schemas in their official [documentatio
 
 ## Functions
 
-nf-validation includes four different functions that you can include in your pipeline. Those functions can be used to:
+nf-validation includes five different functions that you can include in your pipeline. Those functions can be used to:
 
 - `validateParameters()` - validate user-provided parameters
 - `paramsHelp()` - print a help message
 - `paramsSummaryMap()` - summarize pipeline parameters
 - `paramsSummaryLog()` - return summarized pipeline parameters as a string
+- `validateAndConvertSamplesheet()` - validate and convert a samplesheet
 
 ### validateParameters
 
@@ -218,4 +221,19 @@ This function requires an argument providing the a WorkflowMetadata object. It c
 
 ```nextflow
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
+```
+
+### validateAndConvertSamplesheet
+
+This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema used for the parameters. More information on this can be found in the [samplesheet docs](docs/samplesheetDocs.md).
+
+#### Usage
+
+The function requires two different inputs: the samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
+
+```nextflow
+validateAndConvertSamplesheet(
+   file('path/to/samplesheet', checkIfExists:true),
+   file('path/to/schema', checkIfExists:true)
+)
 ```
