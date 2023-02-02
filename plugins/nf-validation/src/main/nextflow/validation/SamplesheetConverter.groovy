@@ -7,6 +7,7 @@ import groovyx.gpars.dataflow.DataflowReadChannel
 import groovyx.gpars.dataflow.DataflowWriteChannel
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 import org.yaml.snakeyaml.Yaml
 
 import nextflow.Channel
@@ -20,8 +21,16 @@ import nextflow.Session
 @CompileStatic
 class SamplesheetConverter {
 
-    static addToChannel(
-        final DataflowWriteChannel channel, 
+    private static List<String> errors = []
+    private static List<String> warnings = []
+
+    static boolean hasErrors() { errors.size()>0 }
+    static List<String> getErrors() { errors }
+
+    static boolean hasWarnings() { warnings.size()>0 }
+    static List<String> getWarnings() { warnings }
+
+    static List convertToList(
         Path samplesheetFile, 
         Path schemaFile
         ) {
@@ -47,83 +56,95 @@ class SamplesheetConverter {
         def Map uniques = [:]
         def Boolean headerCheck = true
         def Integer sampleCount = 0
-        def future = CompletableFuture.runAsync({
-            def outputs = samplesheetList.collect { Map row ->
-                def Set rowKeys = row.keySet()
-                def Set differences = allFields - rowKeys
-                def String yamlInfo = fileType == "yaml" ? " for sample ${sampleCount}." : ""
+        
+        def List outputs = samplesheetList.collect { Map row ->
+            def Set rowKeys = row.keySet()
+            def Set differences = allFields - rowKeys
+            def String yamlInfo = fileType == "yaml" ? " for sample ${sampleCount}." : ""
 
-                def unexpectedFields = rowKeys - allFields
-                if(unexpectedFields.size() > 0) {
-                    throw new Exception("[Samplesheet Error] The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}")
-                }
-
-                def List<String> missingFields = requiredFields - rowKeys
-                if(missingFields.size() > 0) {
-                    throw new Exception("[Samplesheet Error] The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}")
-                }
-
-                // Check required dependencies
-                def Map dependencies = schema["dependentRequired"]
-                if(dependencies) {
-                    for( dependency in dependencies ){
-                        if(row[dependency.key] != "" && row[dependency.key]) {
-                            def List<String> missingValues = []
-                            for( String value in dependency.value ){
-                                if(row[value] == "" || !(row[value])) {
-                                    missingValues.add(value)
-                                }
-                            }
-                            if (missingValues) {
-                                throw new Exception("[Samplesheet Error] ${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.")
-                            }
-                        }
-                    }
-                }
-
-                def Map meta = [:]
-                def ArrayList output = []
-
-                for( Map.Entry<String, Map> field : schemaFields ){
-                    def String key = field.key
-                    def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
-                    def String metaNames = field['value']['meta']
-
-                    def String input = row[key]
-
-                    if((input == null || input == "") && key in requiredFields){
-                        throw new Exception("[Samplesheet Error] Sample ${sampleCount} does not contain an input for required field '${key}'.")
-                    }
-                    else if(!(input ==~ regexPattern) && input != '' && input) {
-                        throw new Exception("[Samplesheet Error] The '${key}' value for sample ${sampleCount} does not match the pattern '${regexPattern}'.")
-                    }
-                    else if(field['value']['unique']){
-                        if(!(key in uniques)){
-                            List<String> emptyList = []
-                            uniques[key] = emptyList
-                        }
-                        if(input in uniques[key] && input){
-                            throw new Exception("[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.")
-                        }
-                        uniques[key] = (List<String>) uniques[key] + [input]
-                    }
-
-                    if(metaNames) {
-                        for(name : metaNames.tokenize(',')) {
-                            meta[name] = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : null
-                        }
-                    }
-                    else {
-                        def inputFile = (input != '' && input) ? _checkAndTransform(input, field, sampleCount) : field['value']['default'] ? _checkAndTransform(field['value']['default'] as String, field, sampleCount) : []
-                        output.add(inputFile)
-                    }
-                }
-                output.add(0, meta)
-                return output
+            def unexpectedFields = rowKeys - allFields
+            if(unexpectedFields.size() > 0) {
+                this.errors << "[Samplesheet Error] The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}".toString()
             }
-            outputs.each { channel.bind(it) }
-            channel.bind(Channel.STOP)
-        })
+
+            def List<String> missingFields = requiredFields - rowKeys
+            if(missingFields.size() > 0) {
+                this.errors << "[Samplesheet Error] The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
+            }
+
+            // Check required dependencies
+            def Map dependencies = schema["dependentRequired"]
+            if(dependencies) {
+                for( dependency in dependencies ){
+                    if(row[dependency.key] != "" && row[dependency.key]) {
+                        def List<String> missingValues = []
+                        for( String value in dependency.value ){
+                            if(row[value] == "" || !(row[value])) {
+                                missingValues.add(value)
+                            }
+                        }
+                        if (missingValues) {
+                            this.errors << "[Samplesheet Error] ${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.".toString()
+                        }
+                    }
+                }
+            }
+
+            def Map meta = [:]
+            def ArrayList output = []
+
+            for( Map.Entry<String, Map> field : schemaFields ){
+                def String key = field.key
+                def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
+                def String metaNames = field['value']['meta']
+
+                def String input = row[key]
+
+                if((input == null || input == "") && key in requiredFields){
+                    this.errors << "[Samplesheet Error] Sample ${sampleCount} does not contain an input for required field '${key}'.".toString()
+                }
+                else if(!(input ==~ regexPattern) && input != '' && input) {
+                    this.errors << "[Samplesheet Error] The '${key}' value for sample ${sampleCount} does not match the pattern '${regexPattern}'.".toString()
+                }
+                else if(field['value']['unique']){
+                    if(!(key in uniques)){
+                        List<String> emptyList = []
+                        uniques[key] = emptyList
+                    }
+                    if(input in uniques[key] && input){
+                        this.errors << "[Samplesheet Error] The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.".toString()
+                    }
+                    uniques[key] = (List<String>) uniques[key] + [input]
+                }
+
+                if(metaNames) {
+                    for(name : metaNames.tokenize(',')) {
+                        meta[name] = (input != '' && input) ? 
+                                _checkAndTransform(input, field, sampleCount) : 
+                            field['value']['default'] ? 
+                                _checkAndTransform(field['value']['default'] as String, field, sampleCount) : 
+                                null
+                    }
+                }
+                else {
+                    def inputFile = (input != '' && input) ? 
+                            _checkAndTransform(input, field, sampleCount) : 
+                        field['value']['default'] ? 
+                            _checkAndTransform(field['value']['default'] as String, field, sampleCount) : 
+                            []
+                    output.add(inputFile)
+                }
+            }
+            output.add(0, meta)
+            return output
+        }
+
+        if (this.hasErrors()) {
+            String message = "" + this.getErrors().join("\n")
+            throw new SchemaValidationException(message, this.getErrors())
+        }
+
+        return outputs
     }
 
     // Function to infer the file type of the samplesheet
@@ -141,7 +162,7 @@ class SamplesheetConverter {
         def Integer tabCount = header.count("\t")
 
         if ( commaCount == tabCount ){
-            throw new Exception("[Samplesheet Error] Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).")
+            this.errors << "[Samplesheet Error] Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString()
         }
         if ( commaCount > tabCount ){
             return "csv"
@@ -172,18 +193,18 @@ class SamplesheetConverter {
 
         def List<String> supportedTypes = ["string", "integer", "boolean"]
         if(!(type in supportedTypes)) {
-            throw new Exception("[Samplesheet Schema Error] The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}")
+            this.errors << "[Samplesheet Schema Error] The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
         }
 
         if(type == "string" || !type) {
             List<String> supportedFormats = ["file-path", "directory-path"]
             if(!(format in supportedFormats) && format) {
-                throw new Exception("[Samplesheet Schema Error] The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.")
+                this.errors << "[Samplesheet Schema Error] The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
             }
             if(format == "file-path" || format =="directory-path") {
                 def Path inputFile = Nextflow.file(input) as Path
                 if(!inputFile.exists()){
-                    throw new Exception("[Samplesheet Error] The '${key}' file or directory (${input}) for sample ${sampleCount} does not exist.")
+                    this.errors << "[Samplesheet Error] The '${key}' file or directory (${input}) for sample ${sampleCount} does not exist.".toString()
                 }
                 return inputFile
             }
@@ -195,7 +216,7 @@ class SamplesheetConverter {
             try {
                 return input as Integer
             } catch(java.lang.NumberFormatException e) {
-                throw new Exception("[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid integer.")
+                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid integer.".toString()
             }
         }
         else if(type == "boolean") {
@@ -206,7 +227,7 @@ class SamplesheetConverter {
                 return false
             }
             else {
-                throw new Exception("[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid boolean.")
+                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid boolean.".toString()
             }
         }
     }

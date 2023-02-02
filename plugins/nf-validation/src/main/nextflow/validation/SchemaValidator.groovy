@@ -10,6 +10,7 @@ import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import nextflow.extension.CH
+import nextflow.Channel
 import nextflow.Global
 import nextflow.plugin.extension.Factory
 import nextflow.plugin.extension.Function
@@ -136,8 +137,14 @@ class SchemaValidator extends PluginExtensionPoint {
         Path schemaFile
     ) {
         final channel = CH.create()
-        session.addIgniter {SamplesheetConverter.addToChannel(channel, samplesheetFile, schemaFile) }
-        channel
+        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+        session.addIgniter {
+            arrayChannel.each { 
+                channel.bind(it) 
+            }
+            channel.bind(Channel.STOP)
+        }
+        return channel
     }
 
     /*
