@@ -30,6 +30,12 @@ class SamplesheetConverter {
     static boolean hasWarnings() { warnings.size()>0 }
     static List<String> getWarnings() { warnings }
 
+    private static Integer sampleCount = 0
+
+    static resetCount(){ sampleCount = 0 }
+    static increaseCount(){ sampleCount++ }
+    static Integer getCount(){ sampleCount }
+
     static List convertToList(
         Path samplesheetFile, 
         Path schemaFile
@@ -40,7 +46,7 @@ class SamplesheetConverter {
         def Set<String> allFields = schemaFields.keySet()
         def List<String> requiredFields = schema["required"]
 
-        def String fileType = _getFileType(samplesheetFile)
+        def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> samplesheetList
 
@@ -55,12 +61,13 @@ class SamplesheetConverter {
         // Field checks + returning the channels
         def Map<String,List<String>> uniques = [:]
         def Boolean headerCheck = true
-        def Integer sampleCount = 0
+        resetCount()
         
         def List outputs = samplesheetList.collect { Map row ->
+            increaseCount()
             def Set rowKeys = row.keySet()
             def Set differences = allFields - rowKeys
-            def String yamlInfo = fileType == "yaml" ? " for sample ${sampleCount}." : ""
+            def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
 
             def unexpectedFields = rowKeys - allFields
             if(unexpectedFields.size() > 0) {
@@ -95,16 +102,12 @@ class SamplesheetConverter {
 
             for( Map.Entry<String, Map> field : schemaFields ){
                 def String key = field.key
-                def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
                 def String metaNames = field['value']['meta']
 
                 def String input = row[key]
 
                 if((input == null || input == "") && key in requiredFields){
-                    this.errors << "[Samplesheet Error] Sample ${sampleCount} does not contain an input for required field '${key}'.".toString()
-                }
-                else if(!(input ==~ regexPattern) && input != '' && input) {
-                    this.errors << "[Samplesheet Error] The '${key}' value for sample ${sampleCount} does not match the pattern '${regexPattern}'.".toString()
+                    this.errors << "[Samplesheet Error] Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
                 }
                 else if(field['value']['unique']){
                     if(!(key in uniques)){
@@ -119,17 +122,17 @@ class SamplesheetConverter {
                 if(metaNames) {
                     for(name : metaNames.tokenize(',')) {
                         meta[name] = (input != '' && input) ? 
-                                _checkAndTransform(input, field, sampleCount) : 
+                                checkAndTransform(input, field) : 
                             field['value']['default'] ? 
-                                _checkAndTransform(field['value']['default'] as String, field, sampleCount) : 
+                                checkAndTransform(field['value']['default'] as String, field) : 
                                 null
                     }
                 }
                 else {
                     def inputFile = (input != '' && input) ? 
-                            _checkAndTransform(input, field, sampleCount) : 
+                            checkAndTransform(input, field) : 
                         field['value']['default'] ? 
-                            _checkAndTransform(field['value']['default'] as String, field, sampleCount) : 
+                            checkAndTransform(field['value']['default'] as String, field) : 
                             []
                     output.add(inputFile)
                 }
@@ -147,7 +150,7 @@ class SamplesheetConverter {
     }
 
     // Function to infer the file type of the samplesheet
-    private static String _getFileType(
+    private static String getFileType(
         Path samplesheetFile
     ) {
         def String extension = samplesheetFile.getExtension()
@@ -155,7 +158,7 @@ class SamplesheetConverter {
             return extension == "yml" ? "yaml" : extension
         }
 
-        def String header = _getHeader(samplesheetFile)
+        def String header = getHeader(samplesheetFile)
 
         def Integer commaCount = header.count(",")
         def Integer tabCount = header.count("\t")
@@ -172,7 +175,7 @@ class SamplesheetConverter {
     }
 
     // Function to get the header from a CSV or TSV file
-    private static String _getHeader(
+    private static String getHeader(
         Path samplesheetFile
     ) {
         def String header
@@ -181,14 +184,14 @@ class SamplesheetConverter {
     }
 
     // Function to check and transform an input field from the samplesheet
-    private static _checkAndTransform(
+    private static checkAndTransform(
         String input,
-        Map.Entry<String, Map> field,
-        Integer sampleCount
+        Map.Entry<String, Map> field
     ) {
         def String type = field['value']['type']
         def String format = field['value']['format']
         def String key = field.key
+        def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
 
         def List<String> supportedTypes = ["string", "integer", "boolean"]
         if(!(type in supportedTypes)) {
@@ -196,6 +199,9 @@ class SamplesheetConverter {
         }
 
         if(type == "string" || !type) {
+            if(!(input ==~ regexPattern) && input != '' && input) {
+                this.errors << "[Samplesheet Error] The '${key}' value for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
+            }
             List<String> supportedFormats = ["file-path", "directory-path"]
             if(!(format in supportedFormats) && format) {
                 this.errors << "[Samplesheet Schema Error] The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
@@ -203,7 +209,7 @@ class SamplesheetConverter {
             if(format == "file-path" || format =="directory-path") {
                 def Path inputFile = Nextflow.file(input) as Path
                 if(!inputFile.exists()){
-                    this.errors << "[Samplesheet Error] The '${key}' file or directory (${input}) for sample ${sampleCount} does not exist.".toString()
+                    this.errors << "[Samplesheet Error] The '${key}' file or directory (${input}) for sample ${this.getCount()} does not exist.".toString()
                 }
                 return inputFile
             }
@@ -215,7 +221,7 @@ class SamplesheetConverter {
             try {
                 return input as Integer
             } catch(java.lang.NumberFormatException e) {
-                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid integer.".toString()
+                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
             }
         }
         else if(type == "boolean") {
@@ -226,7 +232,7 @@ class SamplesheetConverter {
                 return false
             }
             else {
-                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${sampleCount} is not a valid boolean.".toString()
+                this.errors << "[Samplesheet Error] The '${key}' value (${input}) for sample ${this.getCount()} is not a valid boolean.".toString()
             }
         }
     }
