@@ -88,7 +88,7 @@ class SamplesheetConverter {
                     def String key = field.key
                     def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
                     def String metaNames = field['value']['meta']
-                    
+
                     def String input = row[key]
 
                     if((input == null || input == "") && key in requiredFields){
@@ -118,9 +118,9 @@ class SamplesheetConverter {
                         output.add(inputFile)
                     }
                 }
-                output
+                output.add(0, meta)
+                return output
             }
-
             outputs.each { channel.bind(it) }
             channel.bind(Channel.STOP)
         })
