@@ -136,7 +136,7 @@ class SchemaValidator extends PluginExtensionPoint {
         Path schemaFile
     ) {
         final channel = CH.create()
-        session.addIgniter { -> SamplesheetConverter.addToChannel(channel, samplesheetFile, schemaFile) }
+        session.addIgniter {SamplesheetConverter.addToChannel(channel, samplesheetFile, schemaFile) }
         channel
     }
 
