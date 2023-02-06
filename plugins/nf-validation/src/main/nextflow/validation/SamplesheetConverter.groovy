@@ -212,7 +212,7 @@ class SamplesheetConverter {
         def String key = field.key
         def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
 
-        def List<String> supportedTypes = ["string", "integer", "boolean"]
+        def List<String> supportedTypes = ["string", "integer", "boolean", "number"]
         if(!(type in supportedTypes)) {
             this.schemaErrors << "The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
         }
@@ -237,11 +237,29 @@ class SamplesheetConverter {
             }
         }
         else if(type == "integer" || type == "number") {
+            def Integer result
             try {
-                return input as Integer
+                result = input as Integer
             } catch(java.lang.NumberFormatException e) {
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
             }
+
+            def Integer multipleOf = field['value']['multipleOf'] as Integer
+            if(multipleOf && result % multipleOf != 0){
+                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a multiple of ${multipleOf}.".toString()
+            }
+
+            def Integer maximum = field['value']['maximum'] as Integer
+            if(maximum && result >= maximum){
+                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is above the maximum amount of ${maximum}.".toString()
+            }
+
+            def Integer minimum = field['value']['minimum'] as Integer
+            if(minimum && result <= minimum){
+                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is below the minimum amount of ${minimum}.".toString()
+            }
+
+            return result
         }
         else if(type == "boolean") {
             if(input.toLowerCase() == "true") {

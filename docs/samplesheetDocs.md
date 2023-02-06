@@ -40,7 +40,9 @@ Integer inputs need to have `"type": "integer"` or `"type": "number"` specified 
 
 | Parameter | Description |
 |-----------|-------------|
-
+| multipleOf | An integer of which the input needs to be a multiple. This element needs to be greater than 0. |
+| maximum | An integer stating the inclusive maximum a number must be. |
+| minimum | An integer stating the inclusive minimum a number must be. |
 ### Boolean
 
 Boolean inputs need to have `"type": "boolean"` specified in its field.
