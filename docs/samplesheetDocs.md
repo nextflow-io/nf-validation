@@ -22,6 +22,8 @@ String inputs need to have `"type": "string"` specified in its field.
 |-----------|-------------|
 | pattern | The regex pattern to check on the current string. The default is `^.*$`. |
 | format | The format of the input value. To see all possibilities go to [Formats](#formats). The default is a plain string value. |
+| maxLength | A non-negative integer stating the inclusive maximum length a string input can be. |
+| minLength | A non-negative integer stating the inclusive minimum length a string input can be. |
 
 #### Formats
 

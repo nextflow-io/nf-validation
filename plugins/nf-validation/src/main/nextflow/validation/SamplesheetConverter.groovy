@@ -26,11 +26,11 @@ class SamplesheetConverter {
     private static List<String> warnings = []
 
     static boolean hasErrors() { errors.size()>0 || schemaErrors.size()>0 }
-    static List<String> getErrors() { errors.collect { "[Samplesheet Error] ${it}".toString() } }
-    static List<String> getSchemaErrors() { schemaErrors.collect { "[Samplesheet Schema Error] ${it}".toString() } }
+    static Set<String> getErrors() { errors.collect { "[Samplesheet Error] ${it}".toString() } as Set }
+    static Set<String> getSchemaErrors() { schemaErrors.collect { "[Samplesheet Schema Error] ${it}".toString() } as Set }
 
     static boolean hasWarnings() { warnings.size()>0 }
-    static List<String> getWarnings() { warnings.collect { "[Samplesheet Warning] ${it}".toString() } }
+    static Set<String> getWarnings() { warnings.collect { "[Samplesheet Warning] ${it}".toString() } as Set }
 
     private static Integer sampleCount = 0
 
@@ -156,7 +156,7 @@ class SamplesheetConverter {
         // check for errors
         if (this.hasErrors()) {
             String message = this.getErrors().join("\n").trim() + this.getSchemaErrors().join("\n").trim()
-            throw new SchemaValidationException(message, this.getErrors())
+            throw new SchemaValidationException(message, (this.getErrors() + this.getSchemaErrors()) as List)
         }
 
         // check for warnings
@@ -208,9 +208,7 @@ class SamplesheetConverter {
         Map.Entry<String, Map> field
     ) {
         def String type = field['value']['type']
-        def String format = field['value']['format']
         def String key = field.key
-        def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
 
         def List<String> supportedTypes = ["string", "integer", "boolean", "number"]
         if(!(type in supportedTypes)) {
@@ -218,23 +216,38 @@ class SamplesheetConverter {
         }
 
         if(type == "string" || !type) {
-            if(!(input ==~ regexPattern) && input != '' && input) {
-                this.errors << "The '${key}' value for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
+            def String result = input as String
+            
+            def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
+            if(!(result ==~ regexPattern) && result != '') {
+                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
             }
+
+            def Integer maxLength = field['value']['maxLength'] as Integer
+            if(maxLength && result.size() > maxLength){
+                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains more characters than the maximum amount of ${maxLength}.".toString()
+            }
+
+            def Integer minLength = field['value']['minLength'] as Integer
+            if(minLength && result.size() < minLength){
+                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains less characters than the minimum amount of ${minLength}.".toString()
+            }
+            
+            def String format = field['value']['format']
             List<String> supportedFormats = ["file-path", "directory-path"]
-            if(!(format in supportedFormats) && format) {
+            if(format && !(format in supportedFormats)) {
                 this.schemaErrors << "The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
             }
-            if(format == "file-path" || format =="directory-path") {
+            else if(format && (format == "file-path" || format =="directory-path")) {
                 def Path inputFile = Nextflow.file(input) as Path
                 if(!inputFile.exists()){
                     this.errors << "The '${key}' file or directory (${input}) for sample ${this.getCount()} does not exist.".toString()
                 }
                 return inputFile
             }
-            else {
-                return input as String
-            }
+
+            return result
+
         }
         else if(type == "integer" || type == "number") {
             def Integer result
@@ -250,12 +263,12 @@ class SamplesheetConverter {
             }
 
             def Integer maximum = field['value']['maximum'] as Integer
-            if(maximum && result >= maximum){
+            if(maximum && result > maximum){
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is above the maximum amount of ${maximum}.".toString()
             }
 
             def Integer minimum = field['value']['minimum'] as Integer
-            if(minimum && result <= minimum){
+            if(minimum && result < minimum){
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is below the minimum amount of ${minimum}.".toString()
             }
 
