@@ -110,8 +110,6 @@ class SamplesheetConverter {
 
             for( Map.Entry<String, Map> field : schemaFields ){
                 def String key = field.key
-                def String metaNames = field['value']['meta']
-
                 def String input = row[key]
 
                 if((input == null || input == "") && key in requiredFields){
@@ -127,6 +125,12 @@ class SamplesheetConverter {
                     uniques[key].add(input)
                 }
 
+                def List enumeration = field['value']['enum'] as List
+                if(enumeration && !(enumeration.contains(input))){
+                    this.errors << "The '${key}' value for sample ${this.getCount()} needs to be one of ${enumeration}, but is '${input}'.".toString()
+                }
+
+                def String metaNames = field['value']['meta']
                 if(metaNames) {
                     for(name : metaNames.tokenize(',')) {
                         meta[name] = (input != '' && input) ? 
@@ -232,7 +236,7 @@ class SamplesheetConverter {
                 return input as String
             }
         }
-        else if(type == "integer") {
+        else if(type == "integer" || type == "number") {
             try {
                 return input as Integer
             } catch(java.lang.NumberFormatException e) {
