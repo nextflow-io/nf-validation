@@ -14,6 +14,7 @@ These schema specifications can be used on any type of input:
 | unique | Whether or not the field should contain a unique value over the entire samplesheet. The default is `false`. |
 | type | The type of the input value. The input will be automatically converted to this type. All types have unique schema specifications that can be used validate further on these inputs. See the next parts for information on these specifications. The default is `string`. |
 | enum | An array containing at least one element, where the input has to match exactly one of these elements. The elements can be any type. |
+| deprecated | A boolean variable stating that the field is deprecated and will be removed in the nearby future. This will throw a warning to the user that the current field is deprecated. The default value is `false` |
 
 ### String inputs
 String inputs need to have `"type": "string"` specified in its field.

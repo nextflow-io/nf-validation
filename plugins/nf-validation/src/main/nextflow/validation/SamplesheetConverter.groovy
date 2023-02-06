@@ -115,7 +115,12 @@ class SamplesheetConverter {
                 if((input == null || input == "") && key in requiredFields){
                     this.errors << "Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
                 }
-                else if(field['value']['unique']){
+
+                if(field['value']['deprecated']){
+                    this.warnings << "The '${key}' field is deprecated and will no longer be used in the future. Please check the official documentation of the pipeline for more information.".toString()
+                }
+                
+                if(field['value']['unique']){
                     if(!(key in uniques)){
                         uniques[key] = []
                     }
