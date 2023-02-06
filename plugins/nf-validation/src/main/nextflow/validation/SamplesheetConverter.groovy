@@ -30,7 +30,7 @@ class SamplesheetConverter {
     static List<String> getSchemaErrors() { schemaErrors.collect { "[Samplesheet Schema Error] ${it}".toString() } }
 
     static boolean hasWarnings() { warnings.size()>0 }
-    static List<String> getWarnings() { warnings }
+    static List<String> getWarnings() { warnings.collect { "[Samplesheet Warning] ${it}".toString() } }
 
     private static Integer sampleCount = 0
 
@@ -71,14 +71,20 @@ class SamplesheetConverter {
             def Set differences = allFields - rowKeys
             def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
 
-            def unexpectedFields = rowKeys - allFields
-            if(unexpectedFields.size() > 0) {
-                this.errors << "The samplesheet contains following unwanted field(s): ${unexpectedFields}${yamlInfo}".toString()
-            }
+            if(headerCheck) {
+                def unexpectedFields = rowKeys - allFields
+                if(unexpectedFields.size() > 0) {
+                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
+                }
 
-            def List<String> missingFields = requiredFields - rowKeys
-            if(missingFields.size() > 0) {
-                this.errors << "The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
+                def List<String> missingFields = requiredFields - rowKeys
+                if(missingFields.size() > 0) {
+                    this.errors << "The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
+                }
+
+                if(fileType != 'yaml'){
+                    headerCheck = false
+                }
             }
 
             // Check required dependencies
@@ -143,9 +149,16 @@ class SamplesheetConverter {
             return output
         }
 
+        // check for errors
         if (this.hasErrors()) {
-            String message = "" + this.getErrors().join("\n") + this.getSchemaErrors().join("\n")
+            String message = this.getErrors().join("\n").trim() + this.getSchemaErrors().join("\n").trim()
             throw new SchemaValidationException(message, this.getErrors())
+        }
+
+        // check for warnings
+        if( this.hasWarnings() ) {
+            def msg = this.getWarnings().join('\n').trim()
+            log.warn(msg)
         }
 
         return outputs
