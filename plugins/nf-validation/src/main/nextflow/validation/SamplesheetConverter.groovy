@@ -89,24 +89,6 @@ class SamplesheetConverter {
                 }
             }
 
-            // Check required dependencies
-            def Map dependencies = schema["dependentRequired"]
-            if(dependencies) {
-                for( dependency in dependencies ){
-                    if(row[dependency.key] != "" && row[dependency.key]) {
-                        def List<String> missingValues = []
-                        for( String value in dependency.value ){
-                            if(row[value] == "" || !(row[value])) {
-                                missingValues.add(value)
-                            }
-                        }
-                        if (missingValues) {
-                            this.errors << "${dependency.value} field(s) should be defined when '${dependency.key}' is specified, but  the field(s) ${missingValues} are/is not defined.".toString()
-                        }
-                    }
-                }
-            }
-
             def Map meta = [:]
             def ArrayList output = []
 
@@ -122,6 +104,20 @@ class SamplesheetConverter {
                 // Check if the field is deprecated
                 if(field['value']['deprecated']){
                     this.warnings << "The '${key}' field is deprecated and will no longer be used in the future. Please check the official documentation of the pipeline for more information.".toString()
+                }
+
+                // Check required dependencies
+                def List<String> dependencies = field['value']["dependentRequired"] as List<String>
+                if(input && dependencies) {
+                    def List<String> missingValues = []
+                    for( dependency in dependencies ){
+                        if(row[dependency] == "" || !(row[dependency])) {
+                            missingValues.add(dependency)
+                        }
+                    }
+                    if (missingValues) {
+                        this.errors << "${dependencies} field(s) should be defined when '${key}' is specified, but  the field(s) ${missingValues} is/are not defined.".toString()
+                    }
                 }
                 
                 // Check if the field is unique

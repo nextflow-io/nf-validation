@@ -15,6 +15,7 @@ These schema specifications can be used on any type of input:
 | type | The type of the input value. The input will be automatically converted to this type. All types have unique schema specifications that can be used validate further on these inputs. See the next parts for information on these specifications. The default is `string`. |
 | enum | An array containing at least one element, where the input has to match exactly one of these elements. The elements can be any type. |
 | deprecated | A boolean variable stating that the field is deprecated and will be removed in the nearby future. This will throw a warning to the user that the current field is deprecated. The default value is `false` |
+| dependentRequired | An array containing names of other fields. The validator will check if these fields are filled in and throw an error if they aren't. When the current fields isn't supplied, this check will be skipped. |
 
 ### String inputs
 String inputs need to have `"type": "string"` specified in its field.
@@ -56,13 +57,4 @@ Boolean inputs need to have `"type": "boolean"` specified in its field.
 
 ## Required fields
 All names of the required fields should be specified as an array under `required`.
-
-## Dependent required fields
-All dependencies should be defined under `dependentRequired` as a map with key:value pairs, where the key is the row to check the dependencies for if a value has been given and value is a list of rows to check as a dependency for the key. e.g.:
-```json
-"dependentRequired": {
-    "bed": ["crai"]
-}
-```
-This code will check if the `bed` field has been filled in and if so, it will check for the dependency `crai` and give an error if the dependency is empty or not supplied.
 
