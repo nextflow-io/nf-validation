@@ -61,7 +61,8 @@ class SamplesheetConverter {
         }
 
         // Field checks + returning the channels
-        def Map<String,List<String>> uniques = [:]
+        def Map<String,List<String>> booleanUniques = [:]
+        def Map<String,List<Map<String,String>>> listUniques = [:]
         def Boolean headerCheck = true
         resetCount()
         
@@ -71,6 +72,7 @@ class SamplesheetConverter {
             def Set differences = allFields - rowKeys
             def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
 
+            // Check the header (CSV/TSV) or present fields (YAML)
             if(headerCheck) {
                 def unexpectedFields = rowKeys - allFields
                 if(unexpectedFields.size() > 0) {
@@ -112,29 +114,46 @@ class SamplesheetConverter {
                 def String key = field.key
                 def String input = row[key]
 
+                // Check if the required fields exist
                 if((input == null || input == "") && key in requiredFields){
                     this.errors << "Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
                 }
 
+                // Check if the field is deprecated
                 if(field['value']['deprecated']){
                     this.warnings << "The '${key}' field is deprecated and will no longer be used in the future. Please check the official documentation of the pipeline for more information.".toString()
                 }
                 
-                if(field['value']['unique']){
-                    if(!(key in uniques)){
-                        uniques[key] = []
+                // Check if the field is unique
+                def unique = field['value']['unique']
+                def Boolean uniqueIsList = unique instanceof ArrayList
+                if(unique && !uniqueIsList){
+                    if(!(key in booleanUniques)){
+                        booleanUniques[key] = []
                     }
-                    if(input in uniques[key] && input){
-                        this.errors << "The '${key}' value needs to be unique. '${input}' was found twice in the samplesheet.".toString()
+                    if(input in booleanUniques[key] && input){
+                        this.errors << "The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString()
                     }
-                    uniques[key].add(input)
+                    booleanUniques[key].add(input)
+                }
+                else if(unique && uniqueIsList) {
+                    def Map<String,String> newMap = row.subMap([key] + (List) unique)
+                    if(!(key in listUniques)){
+                        listUniques[key] = []
+                    }
+                    if(newMap in listUniques[key] && input){
+                        this.errors << "The combination of '${key}' with fields ${unique} needs to be unique. ${newMap} was found at least twice.".toString()
+                    }
+                    listUniques[key].add(newMap)
                 }
 
+                // Check enumeration
                 def List enumeration = field['value']['enum'] as List
-                if(enumeration && !(enumeration.contains(input))){
+                if(input && enumeration && !(enumeration.contains(input))){
                     this.errors << "The '${key}' value for sample ${this.getCount()} needs to be one of ${enumeration}, but is '${input}'.".toString()
                 }
 
+                // Convert field to a meta field or add it as an input to the channel
                 def String metaNames = field['value']['meta']
                 if(metaNames) {
                     for(name : metaNames.tokenize(',')) {
@@ -220,24 +239,29 @@ class SamplesheetConverter {
             this.schemaErrors << "The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
         }
 
+        // Check and convert string values
         if(type == "string" || !type) {
             def String result = input as String
             
+            // Check the regex pattern
             def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
             if(!(result ==~ regexPattern) && result != '') {
                 this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
             }
 
+            // Check the inclusive maximum length
             def Integer maxLength = field['value']['maxLength'] as Integer
             if(maxLength && result.size() > maxLength){
                 this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains more characters than the maximum amount of ${maxLength}.".toString()
             }
 
+            // Check the inclusive minimum length
             def Integer minLength = field['value']['minLength'] as Integer
             if(minLength && result.size() < minLength){
                 this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains less characters than the minimum amount of ${minLength}.".toString()
             }
             
+            // Check and convert to the desired format
             def String format = field['value']['format']
             List<String> supportedFormats = ["file-path", "directory-path"]
             if(format && !(format in supportedFormats)) {
@@ -251,10 +275,15 @@ class SamplesheetConverter {
                 return inputFile
             }
 
+            // Return the plain string value (if no format is supplied)
             return result
 
         }
+
+        // Check and convert integer values
         else if(type == "integer" || type == "number") {
+
+            // Convert the string value to an integer value
             def Integer result
             try {
                 result = input as Integer
@@ -262,24 +291,32 @@ class SamplesheetConverter {
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
             }
 
+            // Check if the value is a multiple of the integer specified in multipleOf
             def Integer multipleOf = field['value']['multipleOf'] as Integer
             if(multipleOf && result % multipleOf != 0){
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a multiple of ${multipleOf}.".toString()
             }
 
+            // Check the inclusive maximum value
             def Integer maximum = field['value']['maximum'] as Integer
             if(maximum && result > maximum){
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is above the maximum amount of ${maximum}.".toString()
             }
 
+            // Check the inclusive minimum value
             def Integer minimum = field['value']['minimum'] as Integer
             if(minimum && result < minimum){
                 this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is below the minimum amount of ${minimum}.".toString()
             }
 
+            // Return the integer
             return result
         }
+
+        // Check and convert boolean values
         else if(type == "boolean") {
+
+            // Convert and return the boolean value
             if(input.toLowerCase() == "true") {
                 return true
             }

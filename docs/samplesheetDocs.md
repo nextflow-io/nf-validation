@@ -11,7 +11,7 @@ These schema specifications can be used on any type of input:
 | Parameter | Description |
 |-----------|-------------|
 | meta | The current field will be considered a meta value when this parameter is present. This parameter should contain a comma-delimited list of the meta fields to use this value for. The default is no meta for each field. |
-| unique | Whether or not the field should contain a unique value over the entire samplesheet. The default is `false`. |
+| unique | Whether or not the field should contain a unique value over the entire samplesheet. An array can also be given to this parameter. This array should contain other field names that should be unique in combination with the current field. The default is `false`. |
 | type | The type of the input value. The input will be automatically converted to this type. All types have unique schema specifications that can be used validate further on these inputs. See the next parts for information on these specifications. The default is `string`. |
 | enum | An array containing at least one element, where the input has to match exactly one of these elements. The elements can be any type. |
 | deprecated | A boolean variable stating that the field is deprecated and will be removed in the nearby future. This will throw a warning to the user that the current field is deprecated. The default value is `false` |
