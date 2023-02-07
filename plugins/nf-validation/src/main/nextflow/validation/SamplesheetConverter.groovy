@@ -25,12 +25,14 @@ class SamplesheetConverter {
     private static List<String> schemaErrors = []
     private static List<String> warnings = []
 
-    static boolean hasErrors() { errors.size()>0 || schemaErrors.size()>0 }
-    static Set<String> getErrors() { errors.collect { "[Samplesheet Error] ${it}".toString() } as Set }
-    static Set<String> getSchemaErrors() { schemaErrors.collect { "[Samplesheet Schema Error] ${it}".toString() } as Set }
+    static boolean hasErrors() { errors.size()>0 }
+    static Set<String> getErrors() { errors.sort().collect { "\t${it}".toString() } as Set }
+
+    static boolean hasSchemaErrors() { schemaErrors.size()>0 }
+    static Set<String> getSchemaErrors() { schemaErrors.sort().collect { "\t${it}".toString() } as Set }
 
     static boolean hasWarnings() { warnings.size()>0 }
-    static Set<String> getWarnings() { warnings.collect { "[Samplesheet Warning] ${it}".toString() } as Set }
+    static Set<String> getWarnings() { warnings.sort().collect { "\t${it}".toString() } as Set }
 
     private static Integer sampleCount = 0
 
@@ -173,15 +175,21 @@ class SamplesheetConverter {
             return output
         }
 
-        // check for errors
+        // check for samplesheet errors
         if (this.hasErrors()) {
-            String message = this.getErrors().join("\n").trim() + this.getSchemaErrors().join("\n").trim()
-            throw new SchemaValidationException(message, (this.getErrors() + this.getSchemaErrors()) as List)
+            String message = "Samplesheet errors:\n" + this.getErrors().join("\n")
+            throw new SchemaValidationException(message, this.getErrors() as List)
+        }
+
+        // check for schema errors
+        if (this.hasSchemaErrors()) {
+            String message = "Samplesheet schema errors:\n" + this.getSchemaErrors().join("\n")
+            throw new SchemaValidationException(message, this.getSchemaErrors() as List)
         }
 
         // check for warnings
         if( this.hasWarnings() ) {
-            def msg = this.getWarnings().join('\n').trim()
+            def msg = "Samplesheet warnings:\n" + this.getWarnings().join('\n')
             log.warn(msg)
         }
 
