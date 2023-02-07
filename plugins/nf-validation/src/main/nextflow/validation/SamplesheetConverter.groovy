@@ -179,9 +179,9 @@ class SamplesheetConverter {
                 if(this.getErrors()){ continue }
 
                 // Convert field to a meta field or add it as an input to the channel
-                def String metaNames = field['value']['meta']
+                def List<String> metaNames = field['value']['meta'] as List<String>
                 if(metaNames) {
-                    for(name : metaNames.tokenize(',')) {
+                    for(name : metaNames) {
                         meta[name] = (input != '' && input) ? 
                                 transform(input, field) : 
                             field['value']['default'] ? 
