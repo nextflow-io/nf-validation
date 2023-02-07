@@ -1,14 +1,26 @@
 package nextflow.validation
 
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import groovyx.gpars.dataflow.DataflowReadChannel
 import groovyx.gpars.dataflow.DataflowWriteChannel
+
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+
 import org.yaml.snakeyaml.Yaml
+import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.PrimitiveValidationStrategy
+import org.everit.json.schema.ValidationException
+import org.everit.json.schema.SchemaException
+import org.everit.json.schema.Validator
+import org.everit.json.schema.Schema
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 
 import nextflow.Channel
 import nextflow.Global
@@ -40,15 +52,27 @@ class SamplesheetConverter {
     static increaseCount(){ sampleCount++ }
     static Integer getCount(){ sampleCount }
 
+    static Validator validator = Validator.builder()
+                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                    .build();
+
     static List convertToList(
         Path samplesheetFile, 
         Path schemaFile
         ) {
 
-        def Map schema = (Map) new JsonSlurper().parseText(schemaFile.text)
-        def Map<String, Map<String, String>> schemaFields = schema["properties"]
+        JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
+        SchemaLoader schemaLoader = SchemaLoader.builder()
+                .useDefaults(true) //TODO investigate why this isn't working
+                .schemaJson(rawSchema)
+                .build()
+
+        Schema schema = schemaLoader.load().build()
+
+        def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
+        def Map<String, Map<String, String>> schemaFields = schemaMap["properties"]
         def Set<String> allFields = schemaFields.keySet()
-        def List<String> requiredFields = schema["required"]
+        def List<String> requiredFields = schemaMap["required"]
 
         def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
@@ -67,9 +91,22 @@ class SamplesheetConverter {
         def Map<String,List<Map<String,String>>> listUniques = [:]
         def Boolean headerCheck = true
         resetCount()
-        
-        def List outputs = samplesheetList.collect { Map row ->
+
+        def List outputs = samplesheetList.collect { Map<String,String> row ->
             increaseCount()
+
+            JSONObject jsonRow = new JSONObject(row)
+
+            try {
+                this.validator.performValidation(schema, jsonRow)
+            } 
+            catch (ValidationException e) {
+                e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
+            }
+            catch (SchemaException e) {
+                this.schemaErrors << e.getMessage()
+            }
+
             def Set rowKeys = row.keySet()
             def Set differences = allFields - rowKeys
             def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
@@ -79,11 +116,6 @@ class SamplesheetConverter {
                 def unexpectedFields = rowKeys - allFields
                 if(unexpectedFields.size() > 0) {
                     this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
-                }
-
-                def List<String> missingFields = requiredFields - rowKeys
-                if(missingFields.size() > 0) {
-                    this.errors << "The samplesheet requires '${requiredFields.join(",")}' as header field(s), but is missing these: ${missingFields}${yamlInfo}".toString()
                 }
 
                 if(fileType != 'yaml'){
@@ -97,11 +129,6 @@ class SamplesheetConverter {
             for( Map.Entry<String, Map> field : schemaFields ){
                 def String key = field.key
                 def String input = row[key]
-
-                // Check if the required fields exist
-                if((input == null || input == "") && key in requiredFields){
-                    this.errors << "Sample ${this.getCount()} does not contain an input for required field '${key}'.".toString()
-                }
 
                 // Check if the field is deprecated
                 if(field['value']['deprecated']){
@@ -118,7 +145,7 @@ class SamplesheetConverter {
                         }
                     }
                     if (missingValues) {
-                        this.errors << "${dependencies} field(s) should be defined when '${key}' is specified, but  the field(s) ${missingValues} is/are not defined.".toString()
+                        this.errors << addSample("${dependencies} field(s) should be defined when '${key}' is specified, but the field(s) ${missingValues} is/are not defined.".toString())
                     }
                 }
                 
@@ -130,7 +157,7 @@ class SamplesheetConverter {
                         booleanUniques[key] = []
                     }
                     if(input in booleanUniques[key] && input){
-                        this.errors << "The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString()
+                        this.errors << addSample("The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString())
                     }
                     booleanUniques[key].add(input)
                 }
@@ -140,33 +167,33 @@ class SamplesheetConverter {
                         listUniques[key] = []
                     }
                     if(newMap in listUniques[key] && input){
-                        this.errors << "The combination of '${key}' with fields ${unique} needs to be unique. ${newMap} was found at least twice.".toString()
+                        this.errors << addSample("The combination of '${key}' with fields ${unique} needs to be unique. ${newMap} was found at least twice.".toString())
                     }
                     listUniques[key].add(newMap)
                 }
 
                 // Check enumeration
-                def List enumeration = field['value']['enum'] as List
-                if(input && enumeration && !(enumeration.contains(input))){
-                    this.errors << "The '${key}' value for sample ${this.getCount()} needs to be one of ${enumeration}, but is '${input}'.".toString()
-                }
+                // def List enumeration = field['value']['enum'] as List
+                // if(input && enumeration && !(enumeration.contains(input))){
+                //     this.errors << "The '${key}' value for sample ${this.getCount()} needs to be one of ${enumeration}, but is '${input}'.".toString()
+                // }
 
                 // Convert field to a meta field or add it as an input to the channel
                 def String metaNames = field['value']['meta']
                 if(metaNames) {
                     for(name : metaNames.tokenize(',')) {
                         meta[name] = (input != '' && input) ? 
-                                checkAndTransform(input, field) : 
+                                transform(input, field) : 
                             field['value']['default'] ? 
-                                checkAndTransform(field['value']['default'] as String, field) : 
+                                transform(field['value']['default'] as String, field) : 
                                 null
                     }
                 }
                 else {
                     def inputFile = (input != '' && input) ? 
-                            checkAndTransform(input, field) : 
+                            transform(input, field) : 
                         field['value']['default'] ? 
-                            checkAndTransform(field['value']['default'] as String, field) : 
+                            transform(field['value']['default'] as String, field) : 
                             []
                     output.add(inputFile)
                 }
@@ -211,7 +238,7 @@ class SamplesheetConverter {
         def Integer tabCount = header.count("\t")
 
         if ( commaCount == tabCount ){
-            this.errors << "Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString()
+            throw new Exception("Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString())
         }
         if ( commaCount > tabCount ){
             return "csv"
@@ -230,90 +257,37 @@ class SamplesheetConverter {
         return header
     }
 
-    // Function to check and transform an input field from the samplesheet
-    private static checkAndTransform(
+    // Function to transform an input field from the samplesheet to its desired type
+    private static transform(
         String input,
         Map.Entry<String, Map> field
     ) {
         def String type = field['value']['type']
         def String key = field.key
 
-        def List<String> supportedTypes = ["string", "integer", "boolean", "number"]
-        if(!(type in supportedTypes)) {
-            this.schemaErrors << "The type '${type}' specified for ${key} is not supported. Please specify one of these instead: ${supportedTypes}".toString()
-        }
-
         // Check and convert string values
         if(type == "string" || !type) {
             def String result = input as String
             
-            // Check the regex pattern
-            def String regexPattern = field['value']['pattern'] && field['value']['pattern'] != '' ? field['value']['pattern'] : '^.*$'
-            if(!(result ==~ regexPattern) && result != '') {
-                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does not match the pattern '${regexPattern}'.".toString()
-            }
-
-            // Check the inclusive maximum length
-            def Integer maxLength = field['value']['maxLength'] as Integer
-            if(maxLength && result.size() > maxLength){
-                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains more characters than the maximum amount of ${maxLength}.".toString()
-            }
-
-            // Check the inclusive minimum length
-            def Integer minLength = field['value']['minLength'] as Integer
-            if(minLength && result.size() < minLength){
-                this.errors << "The '${key}' value (${result}) for sample ${this.getCount()} does contains less characters than the minimum amount of ${minLength}.".toString()
-            }
-            
             // Check and convert to the desired format
             def String format = field['value']['format']
-            List<String> supportedFormats = ["file-path", "directory-path"]
-            if(format && !(format in supportedFormats)) {
-                this.schemaErrors << "The string format '${format}' specified for ${key} is not supported. Please specify one of these instead: ${supportedFormats} or don't supply a format for a simple string.".toString()
-            }
-            else if(format && (format == "file-path" || format =="directory-path")) {
+            if(format && (format == "file-path" || format =="directory-path")) {
                 def Path inputFile = Nextflow.file(input) as Path
                 if(!inputFile.exists()){
-                    this.errors << "The '${key}' file or directory (${input}) for sample ${this.getCount()} does not exist.".toString()
+                    this.errors << addSample("The '${key}' file or directory (${input}) does not exist.".toString())
                 }
                 return inputFile
             }
 
-            // Return the plain string value (if no format is supplied)
+            // Return the plain string value
             return result
-
         }
 
         // Check and convert integer values
         else if(type == "integer" || type == "number") {
 
-            // Convert the string value to an integer value
-            def Integer result
-            try {
-                result = input as Integer
-            } catch(java.lang.NumberFormatException e) {
-                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid integer.".toString()
-            }
-
-            // Check if the value is a multiple of the integer specified in multipleOf
-            def Integer multipleOf = field['value']['multipleOf'] as Integer
-            if(multipleOf && result % multipleOf != 0){
-                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a multiple of ${multipleOf}.".toString()
-            }
-
-            // Check the inclusive maximum value
-            def Integer maximum = field['value']['maximum'] as Integer
-            if(maximum && result > maximum){
-                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is above the maximum amount of ${maximum}.".toString()
-            }
-
-            // Check the inclusive minimum value
-            def Integer minimum = field['value']['minimum'] as Integer
-            if(minimum && result < minimum){
-                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is below the minimum amount of ${minimum}.".toString()
-            }
-
-            // Return the integer
+            // Convert the string value to an integer value and return it
+            def Integer result = input as Integer
             return result
         }
 
@@ -324,12 +298,13 @@ class SamplesheetConverter {
             if(input.toLowerCase() == "true") {
                 return true
             }
-            else if(input.toLowerCase() == "false") {
-                return false
-            }
-            else {
-                this.errors << "The '${key}' value (${input}) for sample ${this.getCount()} is not a valid boolean.".toString()
-            }
+            return false
         }
+    }
+
+    private static String addSample (
+        String message
+    ) {
+        return "Sample ${this.getCount()}: ${message}".toString()
     }
 }
