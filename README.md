@@ -225,7 +225,7 @@ paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 
 ### validateAndConvertSamplesheet
 
-This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema used for the parameters. More information on this can be found in the [samplesheet docs](docs/samplesheetDocs.md).
+This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema (and supports draft 4-7). More information on this can be found in the [samplesheet docs](docs/samplesheetDocs.md).
 
 #### Usage
 
