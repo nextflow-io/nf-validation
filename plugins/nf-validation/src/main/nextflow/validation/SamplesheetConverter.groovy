@@ -92,9 +92,11 @@ class SamplesheetConverter {
         def Boolean headerCheck = true
         resetCount()
 
-        def List outputs = samplesheetList.collect { Map<String,String> row ->
+        def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
             increaseCount()
 
+            Boolean errorsFound = false
+            Map<String,String> row = fullRow.findAll { it.value != "" }
             JSONObject jsonRow = new JSONObject(row)
 
             try {
@@ -102,6 +104,7 @@ class SamplesheetConverter {
             } 
             catch (ValidationException e) {
                 e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
+                errorsFound = true
             }
             catch (SchemaException e) {
                 this.schemaErrors << e.getMessage()
@@ -172,11 +175,8 @@ class SamplesheetConverter {
                     listUniques[key].add(newMap)
                 }
 
-                // Check enumeration
-                // def List enumeration = field['value']['enum'] as List
-                // if(input && enumeration && !(enumeration.contains(input))){
-                //     this.errors << "The '${key}' value for sample ${this.getCount()} needs to be one of ${enumeration}, but is '${input}'.".toString()
-                // }
+                // Don't continue to the conversion if a validation error occurs
+                if(this.getErrors()){ continue }
 
                 // Convert field to a meta field or add it as an input to the channel
                 def String metaNames = field['value']['meta']
