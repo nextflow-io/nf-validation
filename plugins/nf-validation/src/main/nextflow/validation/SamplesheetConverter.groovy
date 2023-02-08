@@ -63,7 +63,6 @@ class SamplesheetConverter {
 
         JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
         SchemaLoader schemaLoader = SchemaLoader.builder()
-                .useDefaults(true) //TODO investigate why this isn't working
                 .schemaJson(rawSchema)
                 .build()
 
