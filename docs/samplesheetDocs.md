@@ -45,6 +45,7 @@ These schema specifications can be used on any type of input:
 }
 ``` 
 will convert the `field` value to a meta value, resulting in the channel `[[id:value, sample:value]...]` 
+See [here](../plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the samplesheet.
         </td>
     </tr>
     <tr>
@@ -69,6 +70,7 @@ value1,value3
 value1,value2
 ```
 both checks will fail. `field1` isn't unique since `value1` has been found more than once. `field2` isn't unique in combination with `field1` because the `value1,value2` combination has been found more than once.
+See [here](../plugins/nf-validation/src/testResources/schema_input.json#L42-49) for an example in the samplesheet.
         </td>
     </tr>
     <tr>
@@ -104,6 +106,7 @@ value1,
 ,value2
 ```
 The first row will pass the check because both fields are set. The second row will fail because `field1` is set, but `field2` isn't and `field1` is dependent on `field2`. The third row will pass the check because `field1` isn't set.
+See [here](../plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the samplesheet.
         </td>
     </tr>
 </table>
@@ -126,4 +129,5 @@ You can use the formats like this:
     "format":"file-path"
 }
 ```
+See [here](../plugins/nf-validation/src/testResources/schema_input.json#L33-41) for an example in the samplesheet.
 
