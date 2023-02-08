@@ -175,9 +175,6 @@ class SamplesheetConverter {
                     listUniques[key].add(newMap)
                 }
 
-                // Don't continue to the conversion if a validation error occurs
-                if(this.getErrors()){ continue }
-
                 // Convert field to a meta field or add it as an input to the channel
                 def List<String> metaNames = field['value']['meta'] as List<String>
                 if(metaNames) {
@@ -285,6 +282,9 @@ class SamplesheetConverter {
 
         // Check and convert integer values
         else if(type == "integer" || type == "number") {
+
+            // Stop conversion if there are errors (prevents NullpointerExceptions)
+            if(this.getErrors()){ return }
 
             // Convert the string value to an integer value and return it
             def Integer result = input as Integer
