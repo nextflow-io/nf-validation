@@ -95,7 +95,6 @@ class SamplesheetConverter {
         def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
             increaseCount()
 
-            Boolean errorsFound = false
             Map<String,String> row = fullRow.findAll { it.value != "" }
             JSONObject jsonRow = new JSONObject(row)
 
@@ -103,8 +102,12 @@ class SamplesheetConverter {
                 this.validator.performValidation(schema, jsonRow)
             } 
             catch (ValidationException e) {
-                e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
-                errorsFound = true
+                if(e.getCausingExceptions().size() > 0){
+                    e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
+                }
+                else {
+                    this.errors << addSample("${e.getMessage()}".toString())
+                }
             }
             catch (SchemaException e) {
                 this.schemaErrors << e.getMessage()
@@ -283,7 +286,7 @@ class SamplesheetConverter {
         // Check and convert integer values
         else if(type == "integer" || type == "number") {
 
-            // Stop conversion if there are errors (prevents NullpointerExceptions)
+            // Stop conversion if there are errors (prevents unwanted exceptions)
             if(this.getErrors()){ return }
 
             // Convert the string value to an integer value and return it
