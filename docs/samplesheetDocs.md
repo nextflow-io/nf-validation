@@ -5,7 +5,7 @@ This page will describe the custom function that are implemented in this plugin 
 An example samplesheet can be found [here](../plugins/nf-validation/src/testResources/schema_input.json).
 
 ## Properties
-All fields should be present in the `properties` section. These should be in the order you want for the output channel e.g. for this the example schema the output channel will contain following fields in that exact order:
+All fields should be present in the `properties` section. Fields that are present in the samplesheet, but not in the schema will be ignored and produce a warning. These should be in the order you want for the output channel e.g. for this the example schema the output channel will contain following fields in that exact order:
 | name | type | contents |
 |------|------|----------|
 | meta | List | This will contain all values that are flagged with `meta` in the samplesheet. In the example this will contain the `string1`, `string2`, `integer1`, `integer2`, `boolean1` and `boolean2` values converted to their correct type (as specified in the samplesheet) |
