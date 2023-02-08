@@ -2,10 +2,30 @@
 
 This page will describe the custom function that are implemented in this plugin for samplesheet validation and conversion. All functionality from JSON schema draft 4-7 is supported. For these functions, see the [official JSON schema docs](https://json-schema.org/).
 
-Example samplesheets can be found in the [references](references/) folder.
+An example samplesheet can be found [here](../plugins/nf-validation/src/testResources/schema_input.json).
 
 ## Properties
-All fields should be present in the `properties` section. These should be in the order you want for the output channel e.g. for this [schema](references/samplesheet_schema.json) the output channel will look like `[[id:sample, sample:sample], cram, crai, bed, ped]`.
+All fields should be present in the `properties` section. These should be in the order you want for the output channel e.g. for this the example schema the output channel will contain following fields in that exact order:
+| name | type | contents |
+|------|------|----------|
+| meta | List | This will contain all values that are flagged with `meta` in the samplesheet. In the example this will contain the `string1`, `string2`, `integer1`, `integer2`, `boolean1` and `boolean2` values converted to their correct type (as specified in the samplesheet) |
+| string | String | The value given in `string` as a String type |
+| number | Integer/Number | The value given in `integer` as an Integer type |
+| boolean | Boolean | The value given in `boolean` as a Boolean type |
+| file | Nextflow.File | The value given in `file` as a Nextflow File type |
+| directory | Nextflow.File | The value given in `directory` as a Nextflow type |
+| uniqueField | String | The value given in `uniqueField` as a String type, which needs to be unique across all entries in the samplesheet |
+| uniqueDependentField | Integer | The value given in `uniqueDependentField` as an Integer type, which needs to be unique in combination with `uniqueField` across all entries |
+| nonExistingField | String | The value given in `nonExistingField` as a String type, which will default to `itDoesExist` if no value has been given here. |
+
+A real use example of this will look like this when printed with `.view()`:
+```
+[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, path/to/test.txt, path/to/testDir, unique1, 1, itDoesExist]
+[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], itDoesExist]
+[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], unique2, 1, itDoesExist]
+[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, path/to/test.txt, path/to/testDir, unique3, 1, itDoesExist]
+
+```
 
 ### Global parameters
 These schema specifications can be used on any type of input:
