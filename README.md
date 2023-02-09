@@ -107,7 +107,7 @@ nf-validation includes five different functions that you can include in your pip
 - `paramsHelp()` - print a help message
 - `paramsSummaryMap()` - summarize pipeline parameters
 - `paramsSummaryLog()` - return summarized pipeline parameters as a string
-- `validateAndConvertSamplesheet()` - validate and convert a samplesheet
+- `validateAndConvertSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
 
 ### validateParameters
 
