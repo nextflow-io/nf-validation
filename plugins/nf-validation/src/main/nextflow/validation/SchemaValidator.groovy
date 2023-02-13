@@ -215,7 +215,10 @@ class SchemaValidator extends PluginExtensionPoint {
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        final schema = SchemaLoader.load(rawSchema)
+        final schema = SchemaLoader.builder()
+                .addFormatValidator("file-path", new FilePathValidator())
+                .addFormatValidator("directory-path", new DirectoryPathValidator())
+                .schemaJson(rawSchema)
 
         // check for warnings
         if( this.hasWarnings() ) {

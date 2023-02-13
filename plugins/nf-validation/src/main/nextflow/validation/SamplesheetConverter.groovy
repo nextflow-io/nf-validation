@@ -64,6 +64,8 @@ class SamplesheetConverter {
         JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
         SchemaLoader schemaLoader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
+                .addFormatValidator("file-path", new FilePathValidator())
+                .addFormatValidator("directory-path", new DirectoryPathValidator())
                 .build()
 
         Schema schema = schemaLoader.load().build()
@@ -270,11 +272,8 @@ class SamplesheetConverter {
             
             // Check and convert to the desired format
             def String format = field['value']['format']
-            if(format && (format == "file-path" || format =="directory-path")) {
+            if(format && (format == "file-path" || format == "directory-path")) {
                 def Path inputFile = Nextflow.file(input) as Path
-                if(!inputFile.exists()){
-                    this.errors << addSample("The '${key}' file or directory (${input}) does not exist.".toString())
-                }
                 return inputFile
             }
 
