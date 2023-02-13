@@ -1,6 +1,6 @@
 # Samplesheet JSON schema
 
-This page will describe the custom function that are implemented in this plugin for samplesheet validation and conversion. All functionality from JSON schema draft 4-7 is supported. For these functions, see the [official JSON schema docs](https://json-schema.org/).
+This page will describe the custom functions that are implemented in this plugin for samplesheet validation and conversion. All functionality from JSON schema draft 4-7 is supported. For these functions, see the [official JSON schema docs](https://json-schema.org/).
 
 An example samplesheet can be found [here](../plugins/nf-validation/src/testResources/schema_input.json).
 
