@@ -269,14 +269,14 @@ class SchemaValidator extends PluginExtensionPoint {
                     def Path file_path = Nextflow.file(params[key]) as Path
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-                    def List<Map<String,String>> file_content
+                    def List<Map<String,String>> fileContent
                     if(fileType == "yaml"){
-                        file_content = new Yaml().load((file_path.text))
+                        fileContent = new Yaml().load((file_path.text))
                     }
                     else {
-                        file_content = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
                     }
-                    if (validateFile(params, key, file_content, schema_name, baseDir)) {
+                    if (validateFile(params, key, fileContent, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
@@ -288,7 +288,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Function to validate a file by its schema
     //
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    boolean validateFile(Map params, String param_name, Object file_content, String schema_filename, String baseDir) {
+    boolean validateFile(Map params, String paramName, Object fileContent, String schema_filename, String baseDir) {
 
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
@@ -296,7 +296,7 @@ class SchemaValidator extends PluginExtensionPoint {
         final schema = SchemaLoader.load(rawSchema)
 
         // Convert the groovy object to a JSONArray
-        def jsonObj = new JsonBuilder(file_content)
+        def jsonObj = new JsonBuilder(fileContent)
         JSONArray arrayJSON = new JSONArray(jsonObj.toString())
         // Convert to JSONObject
         def objJSON = new JSONObject(arrayJSON)
@@ -338,7 +338,7 @@ class SchemaValidator extends PluginExtensionPoint {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, objJSON, enums)
             def msg = "${colors.red}The following invalid values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-            log.error("ERROR: Validation of '$param_name' file failed!")
+            log.error("ERROR: Validation of '$paramName' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
 
