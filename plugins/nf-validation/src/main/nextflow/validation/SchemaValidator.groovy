@@ -224,9 +224,13 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // check for warnings
         if( this.hasWarnings() ) {
-            def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
+            def msg = "The following invalid input values have been detected:\n\n" + this.getWarnings().join('\n').trim() + "\n\n"
             log.warn(msg)
         }
+
+        // Colors
+        def Boolean monochrome_logs = params.monochrome_logs
+        def colors = logColours(monochrome_logs)
 
         // Validate
         try {
@@ -241,14 +245,14 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             if (this.hasErrors()) {
                 // Needed when fail_unrecognised_params is true
-                def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+                def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
                 log.error("ERROR: Validation of pipeline parameters failed!")
                 throw new SchemaValidationException(msg, this.getErrors())
             }
         } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
-            def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+            def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
@@ -293,8 +297,30 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(file_content)
-        JSONArray objJSON = new JSONArray(jsonObj.toString())
+        JSONArray arrayJSON = new JSONArray(jsonObj.toString())
+        // Convert to JSONObject
+        def objJSON = new JSONObject(arrayJSON)
 
+        //=====================================================================//
+        // Check for params with expected values
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map schemaParams = (Map) parsed.get('definitions')
+
+        // Collect expected parameters from the schema
+        def enums = [:]
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('enum')) {
+                    enums[key] = property['enum']
+                }
+            }
+        }
+
+        //=====================================================================//
         // Validate
         try {
             if (params.lenient_mode) {
@@ -302,23 +328,16 @@ class SchemaValidator extends PluginExtensionPoint {
                 Validator validator = Validator.builder()
                     .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
                     .build();
-                validator.performValidation(schema, objJSON);
+                validator.performValidation(schema, arrayJSON);
             } else {
-                schema.validate(objJSON)
-            }
-            if (this.hasErrors()) {
-                // Needed when fail_unrecognised_params is true
-                def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
-                log.error("ERROR: Validation of pipeline parameters failed!")
-                throw new SchemaValidationException(msg, this.getErrors())
+                schema.validate(arrayJSON)
             }
         } catch (ValidationException e) {
             def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
-            def msg = "\n=${colors.red}====   ERROR: Validation of '$param_name' file failed!   =============================\n"
-            msg += "=${colors.red}==================================================================================${colors.reset}\n\n"
-            e.getCausingExceptions().stream().map(ValidationException::getMessage).forEach(System.out::println)
+            collectErrors(exceptionJSON, objJSON, enums)
+            def msg = "${colors.red}The following invalid values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of '$param_name' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
