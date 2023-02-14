@@ -223,7 +223,7 @@ class SamplesheetConverter {
     }
 
     // Function to infer the file type of the samplesheet
-    private static String getFileType(
+    public static String getFileType(
         Path samplesheetFile
     ) {
         def String extension = samplesheetFile.getExtension()
@@ -248,7 +248,7 @@ class SamplesheetConverter {
     }
 
     // Function to get the header from a CSV or TSV file
-    private static String getHeader(
+    public static String getHeader(
         Path samplesheetFile
     ) {
         def String header

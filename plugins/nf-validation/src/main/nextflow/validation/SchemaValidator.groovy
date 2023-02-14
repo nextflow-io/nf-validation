@@ -12,6 +12,7 @@ import java.util.regex.Pattern
 import nextflow.extension.CH
 import nextflow.Channel
 import nextflow.Global
+import nextflow.Nextflow
 import nextflow.plugin.extension.Factory
 import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.PluginExtensionPoint
@@ -26,6 +27,10 @@ import org.everit.json.schema.Validator
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import org.yaml.snakeyaml.Yaml
+
+import static SamplesheetConverter.getHeader
+import static SamplesheetConverter.getFileType
 
 @Slf4j
 @CompileStatic
@@ -247,7 +252,80 @@ class SchemaValidator extends PluginExtensionPoint {
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
+
+        //=====================================================================//
+        // Look for other schemas to validate
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('schema')) {
+                    def String schema_name = property['schema']
+                    def Path file_path = Nextflow.file(params[key]) as Path
+                    def String fileType = SamplesheetConverter.getFileType(file_path)
+                    def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+                    def List<Map<String,String>> file_content
+                    if(fileType == "yaml"){
+                        file_content = new Yaml().load((file_path.text))
+                    }
+                    else {
+                        file_content = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                    }
+                    if (validateFile(params, key, file_content, schema_name, baseDir)) {
+                        log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
+                    }
+                }
+            }
+        }
     }
+
+    //
+    // Function to validate a file by its schema
+    //
+    /* groovylint-disable-next-line UnusedPrivateMethodParameter */
+    boolean validateFile(Map params, String param_name, Object file_content, String schema_filename, String baseDir) {
+
+        // Load the schema
+        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        final rawSchema = new JSONObject(new JSONTokener(schema_string))
+        final schema = SchemaLoader.load(rawSchema)
+
+        // Convert the groovy object to a JSONArray
+        def jsonObj = new JsonBuilder(file_content)
+        JSONArray objJSON = new JSONArray(jsonObj.toString())
+
+        // Validate
+        try {
+            if (params.lenient_mode) {
+                // Create new validator with LENIENT mode 
+                Validator validator = Validator.builder()
+                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                    .build();
+                validator.performValidation(schema, objJSON);
+            } else {
+                schema.validate(objJSON)
+            }
+            if (this.hasErrors()) {
+                // Needed when fail_unrecognised_params is true
+                def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+                log.error("ERROR: Validation of pipeline parameters failed!")
+                throw new SchemaValidationException(msg, this.getErrors())
+            }
+        } catch (ValidationException e) {
+            def Boolean monochrome_logs = params.monochrome_logs
+            def colors = logColours(monochrome_logs)
+            JSONObject exceptionJSON = (JSONObject) e.toJSON()
+            def msg = "\n=${colors.red}====   ERROR: Validation of '$param_name' file failed!   =============================\n"
+            msg += "=${colors.red}==================================================================================${colors.reset}\n\n"
+            e.getCausingExceptions().stream().map(ValidationException::getMessage).forEach(System.out::println)
+            log.error("ERROR: Validation of '$param_name' file failed!")
+            throw new SchemaValidationException(msg, this.getErrors())
+        }
+
+        return true
+    }
+
 
     //
     // Wrap too long text
