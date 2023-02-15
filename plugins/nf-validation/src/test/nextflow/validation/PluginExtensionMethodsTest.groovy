@@ -51,6 +51,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         pluginsMode ? System.setProperty('pf4j.mode',pluginsMode) : System.clearProperty('pf4j.mode')
     }
 
+    // 
+    // Params validation tests
+    //
+
     def 'should import functions' () {
         given:
         def  SCRIPT_TEXT = '''
@@ -370,6 +374,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    //
+    // --help argument tests
+    //
+
     def 'should print a help message' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
@@ -489,6 +497,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    //
+    // Summary of params tests
+    //
+
     def 'should print params summary' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
@@ -522,5 +534,31 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         noExceptionThrown()
         stdout.size() == 11
         stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
+    }
+
+    // 
+    // Samplesheet validation tests
+    //
+
+    def 'should validate a schema from an input file' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
     }
 }
