@@ -319,7 +319,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, objJSON, enums)
-            def msg = "${colors.red}The following invalid values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+            def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of '$paramName' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
@@ -598,6 +598,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }
             }
+            errors.unique()
         }
         for (ex in causingExceptions) {
             def JSONObject exception = (JSONObject) ex
