@@ -175,19 +175,9 @@ class SchemaValidator extends PluginExtensionPoint {
         def specifiedParamKeys = params.keySet()
 
         // Collect expected parameters from the schema
-        def expectedParams = []
-        def enums = [:]
-        for (group in schemaParams) {
-            def Map properties = (Map) group.value['properties']
-            for (p in properties) {
-                def String key = (String) p.key
-                expectedParams.push(key)
-                def Map property = properties[key] as Map
-                if (property.containsKey('enum')) {
-                    enums[key] = property['enum']
-                }
-            }
-        }
+        def enumsTuple = collectEnums(schemaParams)
+        def List expectedParams = (List) enumsTuple[0]
+        def Map enums = (Map) enumsTuple[1]
 
         // Add known expected parameters from the pipeline
         expectedParams.push('fail_unrecognised_params')
@@ -308,17 +298,9 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map schemaParams = (Map) parsed.get('definitions')
 
         // Collect expected parameters from the schema
-        def enums = [:]
-        for (group in schemaParams) {
-            def Map properties = (Map) group.value['properties']
-            for (p in properties) {
-                def String key = (String) p.key
-                def Map property = properties[key] as Map
-                if (property.containsKey('enum')) {
-                    enums[key] = property['enum']
-                }
-            }
-        }
+        def enumsTuple = collectEnums(schemaParams)
+        def List expectedParams = (List) enumsTuple[0]
+        def Map enums = (Map) enumsTuple[1]
 
         //=====================================================================//
         // Validate
@@ -343,6 +325,27 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         return true
+    }
+
+
+    //
+    // Function to collect enums (options) of a parameter and expected parameters (present in the schema)
+    //
+    Tuple collectEnums(Map schemaParams) {
+        def expectedParams = []
+        def enums = [:]
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                expectedParams.push(key)
+                def Map property = properties[key] as Map
+                if (property.containsKey('enum')) {
+                    enums[key] = property['enum']
+                }
+            }
+        }
+        return new Tuple (expectedParams, enums)
     }
 
 
