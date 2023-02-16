@@ -544,7 +544,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = 'src/testResources/correct.csv'
+            params.input = 'src/testResources/samplesheet.csv'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -559,6 +559,54 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
+        !stdout
+    }
+
+    def 'should fail because of wrong file pattern' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/samplesheet_wrong_pattern.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following errors have been detected:\n\n* --0/fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* --1/fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
+        !stdout
+    }
+
+    def 'should fail because of missing required value' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/samplesheet_no_required.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following errors have been detected:\n\n* --0/sample: string [] does not match pattern ^\\S+$ ()\n* --1/sample: string [] does not match pattern ^\\S+$ ()\n\n'''
         !stdout
     }
 }

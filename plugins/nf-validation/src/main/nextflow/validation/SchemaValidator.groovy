@@ -287,9 +287,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(fileContent)
-        JSONArray arrayJSON = new JSONArray(jsonObj.toString())
-        // Convert to JSONObject
-        def objJSON = new JSONObject(arrayJSON)
+        def JSONArray arrayJSON = new JSONArray(jsonObj.toString())
 
         //=====================================================================//
         // Check for params with expected values
@@ -318,7 +316,9 @@ class SchemaValidator extends PluginExtensionPoint {
             def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
-            collectErrors(exceptionJSON, objJSON, enums)
+            JSONObject objectJSON = new JSONObject();
+            objectJSON.put("objects",arrayJSON);            
+            collectErrors(exceptionJSON, objectJSON, enums)
             def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of '$paramName' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
@@ -569,6 +569,10 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
         def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
+        def JSONArray valuesJSON = new JSONArray ()
+        if (paramsJSON.has('objects')) {
+            valuesJSON = (JSONArray) paramsJSON['objects']
+        } 
         if (causingExceptions.length() == 0) {
             def String message = (String) exJSON['message']
             def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
@@ -585,7 +589,15 @@ class SchemaValidator extends PluginExtensionPoint {
             // Error with specific param
             else {
                 def String param = (String) exJSON['pointerToViolation'] - ~/^#\//
-                def param_val = paramsJSON[param].toString()
+                def param_val = ""
+                if (paramsJSON.has('objects')) {
+                    def paramSplit = param.tokenize( '/' )
+                    int indexInt = paramSplit[0] as int
+                    String paramString = paramSplit[1] as String
+                    param_val = valuesJSON[indexInt][paramString].toString()
+                } else {
+                    param_val = paramsJSON[param].toString()
+                }
                 if (enums.containsKey(param)) {
                     def error_msg = "* --${param}: '${param_val}' is not a valid choice (Available choices"
                     def List enums_param = (List) enums[param]
