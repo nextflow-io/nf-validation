@@ -7,6 +7,7 @@
         "properties": {
             "sample": {
                 "type": "string",
+                "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces"
             },
             "fastq_1": {

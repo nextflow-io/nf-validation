@@ -606,7 +606,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* --0/sample: string [] does not match pattern ^\\S+$ ()\n* --1/sample: string [] does not match pattern ^\\S+$ ()\n\n'''
+        error.message == '''The following errors have been detected:\n\n* Missing required parameter: --sample\n\n'''
         !stdout
     }
 }
