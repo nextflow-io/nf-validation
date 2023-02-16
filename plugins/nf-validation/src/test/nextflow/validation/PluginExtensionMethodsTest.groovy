@@ -606,7 +606,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* Missing required parameter: --sample\n\n'''
+        error.message == '''The following errors have been detected:\n\n* Missing required value: sample\n\n'''
         !stdout
     }
 }

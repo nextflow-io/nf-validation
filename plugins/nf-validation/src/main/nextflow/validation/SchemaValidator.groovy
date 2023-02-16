@@ -570,8 +570,10 @@ class SchemaValidator extends PluginExtensionPoint {
     private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
         def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
         def JSONArray valuesJSON = new JSONArray ()
+        def String validationType = "parameter: --"
         if (paramsJSON.has('objects')) {
             valuesJSON = (JSONArray) paramsJSON['objects']
+            validationType = "value: "
         } 
         if (causingExceptions.length() == 0) {
             def String message = (String) exJSON['message']
@@ -580,7 +582,7 @@ class SchemaValidator extends PluginExtensionPoint {
             // Missing required param
             if(m.matches()){
                 def List l = m[0] as ArrayList
-                errors << "* Missing required parameter: --${l[1]}".toString()
+                errors << "* Missing required ${validationType}${l[1]}".toString()
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
