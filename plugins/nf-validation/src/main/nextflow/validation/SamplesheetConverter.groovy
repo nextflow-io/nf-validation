@@ -143,7 +143,7 @@ class SamplesheetConverter {
                     booleanUniques[key].add(input)
                 }
                 else if(unique && uniqueIsList) {
-                    def Map<String,String> newMap = row.subMap([key] + (List) unique)
+                    def Map<String,String> newMap = (Map) row.subMap((List) [key] + (List) unique)
                     if(!(key in listUniques)){
                         listUniques[key] = []
                     }
