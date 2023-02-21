@@ -25,6 +25,7 @@ To test with Nextflow for development purpose:
 
    ```
    cd .. && https://github.com/nextflow-io/nextflow
+   cd nextflow && ./gradlew exportClasspath
    ``` 
 
 2. Append to the `settings.gradle` in this project the following line:
@@ -70,7 +71,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog } from 'plugin/nf-validation'
+include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog, validateAndConvertSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -84,6 +85,9 @@ validateParameters()
 
 // Print parameter summary log to screen
 log.info paramsSummaryLog(workflow)
+
+// Obtain an input channel from a sample sheet
+ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json)
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -192,6 +196,26 @@ By default, when printing the help message only a selection of attributes are pr
 ```bash
 nextflow run my_pipeline --help param_name
 ```
+
+### Validate an input file provided by params with another JSON schema
+
+By provided the `schema` field in one off the parameters, the function will automatically validate the provided file using this JSON schema. It can validate CSV, TSV and simple YAML files.
+The path of the schema file must be relative to the root of the pipeline directory. See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
+
+```json
+{
+"properties": {
+      "input": {
+         "type": "string",
+         "format": "file-path",
+         "pattern": "^\\S+\\.csv$",
+         "schema": "src/testResources/samplesheet_schema.json",
+         "description": "Path to comma-separated file containing information about the samples in the experiment.",
+      }
+}
+```
+
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
 
 ### paramsSummaryMap
 
