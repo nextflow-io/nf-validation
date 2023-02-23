@@ -168,6 +168,9 @@ class SchemaValidator extends PluginExtensionPoint {
         expectedParams.push('validationFailUnrecognisedParams')
         expectedParams.push('validationLenientMode')
 
+        def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
+        def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
+
         for (String specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
@@ -183,7 +186,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                if (params.validationFailUnrecognisedParams) {
+                if (failUnrecognisedParams) {
                     errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
                 } else {
                     warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
@@ -205,7 +208,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Validate
         try {
-            if (params.validationLenientMode) {
+            if (lenientMode) {
                 // Create new validator with LENIENT mode 
                 Validator validator = Validator.builder()
                     .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
