@@ -51,7 +51,6 @@ class SchemaValidator extends PluginExtensionPoint {
             'quiet',
             'syslog',
             'v',
-            'version',
 
             // Options for `nextflow run` command
             'ansi',
@@ -183,6 +182,9 @@ class SchemaValidator extends PluginExtensionPoint {
         expectedParams.push('fail_unrecognised_params')
         expectedParams.push('lenient_mode')
 
+        def Boolean lenient_mode = params.lenient_mode ? params.lenient_mode : false
+        def Boolean fail_unrecognised_params = params.fail_unrecognised_params ? params.fail_unrecognised_params : false
+
         for (String specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
@@ -198,7 +200,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                if (params.fail_unrecognised_params) {
+                if (fail_unrecognised_params) {
                     errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
                 } else {
                     warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
@@ -224,7 +226,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Validate
         try {
-            if (params.lenient_mode) {
+            if (lenient_mode) {
                 // Create new validator with LENIENT mode 
                 Validator validator = Validator.builder()
                     .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
@@ -300,10 +302,13 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = (List) enumsTuple[0]
         def Map enums = (Map) enumsTuple[1]
 
+        // Declare variables
+        def Boolean lenient_mode = params.lenient_mode ? params.lenient_mode : false
+
         //=====================================================================//
         // Validate
         try {
-            if (params.lenient_mode) {
+            if (lenient_mode) {
                 // Create new validator with LENIENT mode 
                 Validator validator = Validator.builder()
                     .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
