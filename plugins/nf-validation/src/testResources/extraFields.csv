@@ -1,0 +1,5 @@
+metaString,metaInteger,metaBoolean,string,number,boolean,file,directory,uniqueField,uniqueDependentField,extraField
+fullField,10,true,string1,25,false,src/testResources/test.txt,src/testResources/testDir,unique1,1
+,,,string1,25,false,,,,,
+dependentRequired,10,true,string1,25,false,,,unique2,1
+extraField,10,true,string1,25,false,src/testResources/test.txt,src/testResources/testDir,unique3,1

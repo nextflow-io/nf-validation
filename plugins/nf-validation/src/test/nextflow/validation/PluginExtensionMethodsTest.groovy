@@ -51,6 +51,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         pluginsMode ? System.setProperty('pf4j.mode',pluginsMode) : System.clearProperty('pf4j.mode')
     }
 
+    // 
+    // Params validation tests
+    //
+
     def 'should import functions' () {
         given:
         def  SCRIPT_TEXT = '''
@@ -73,6 +77,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('src/testResources/nextflow_schema.json')
@@ -87,7 +92,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --input\n* Missing required parameter: --outdir"
+        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --input\n* Missing required parameter: --outdir\n\n"
         !stdout
     }
 
@@ -168,6 +173,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
             params.xyz = '/some/path'
@@ -186,7 +192,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --xyz: /some/path"
+        error.message == "The following invalid input values have been detected:\n\n* --xyz: /some/path\n\n"
         !stdout
     }
 
@@ -194,6 +200,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             params.input = '/some/path/input.csv'
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
@@ -210,7 +217,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --outdir: expected type: String, found: Integer (10)"
+        error.message == "The following invalid input values have been detected:\n\n* --outdir: expected type: String, found: Integer (10)\n\n"
         !stdout
     }
 
@@ -243,6 +250,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
             params.publish_dir_mode = 'incorrect'
@@ -261,7 +269,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )"
+        error.message == "The following invalid input values have been detected:\n\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )\n\n"
         !stdout
     }
 
@@ -318,6 +326,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
             params.max_cpus = 1.2
@@ -335,7 +344,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --max_cpus: expected type: Integer, found: BigDecimal (1.2)"
+        error.message == "The following invalid input values have been detected:\n\n* --max_cpus: expected type: Integer, found: BigDecimal (1.2)\n\n"
         !stdout
     }
 
@@ -343,6 +352,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
             params.max_memory = '10'
@@ -360,9 +370,13 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$ (10)'''
+        error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$ (10)\n\n'''
         !stdout
     }
+
+    //
+    // --help argument tests
+    //
 
     def 'should print a help message' () {
         given:
@@ -483,6 +497,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    //
+    // Summary of params tests
+    //
+
     def 'should print params summary' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
@@ -516,5 +534,79 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         noExceptionThrown()
         stdout.size() == 11
         stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
+    }
+
+    // 
+    // Samplesheet validation tests
+    //
+
+    def 'should validate a schema from an input file' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/samplesheet.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should fail because of wrong file pattern' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/samplesheet_wrong_pattern.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following errors have been detected:\n\n* --0/fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* --1/fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
+        !stdout
+    }
+
+    def 'should fail because of missing required value' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/samplesheet_no_required.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following errors have been detected:\n\n* Missing required value: sample\n\n'''
+        !stdout
     }
 }

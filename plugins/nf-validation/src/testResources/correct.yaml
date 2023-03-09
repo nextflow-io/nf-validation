@@ -1,0 +1,33 @@
+- metaString: fullField
+  metaInteger: 10
+  metaBoolean: true
+  string: string1
+  number: 25
+  boolean: false
+  file: src/testResources/test.txt
+  directory: src/testResources/testDir
+  uniqueField: unique1
+  uniqueDependentField: 1
+- string: string1
+  number: 25
+  boolean: false
+- metaString: dependentRequired
+  metaInteger: 10
+  metaBoolean: true
+  string: string1
+  number: 25
+  boolean: false
+  file:
+  directory:
+  uniqueField: unique2
+  uniqueDependentField: 1
+- metaString: extraField
+  metaInteger: 10
+  metaBoolean: true
+  string: string1
+  number: 25
+  boolean: false
+  file: src/testResources/test.txt
+  directory: src/testResources/testDir
+  uniqueField: unique3
+  uniqueDependentField: 1

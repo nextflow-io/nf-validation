@@ -4,11 +4,16 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import groovyx.gpars.dataflow.DataflowWriteChannel
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import nextflow.extension.CH
+import nextflow.Channel
 import nextflow.Global
+import nextflow.Nextflow
+import nextflow.plugin.extension.Factory
 import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.script.WorkflowMetadata
@@ -22,6 +27,10 @@ import org.everit.json.schema.Validator
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import org.yaml.snakeyaml.Yaml
+
+import static SamplesheetConverter.getHeader
+import static SamplesheetConverter.getFileType
 
 @Slf4j
 @CompileStatic
@@ -126,6 +135,22 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
+    @Factory
+    public DataflowWriteChannel validateAndConvertSamplesheet(
+        Path samplesheetFile,
+        Path schemaFile
+    ) {
+        final channel = CH.create()
+        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+        session.addIgniter {
+            arrayChannel.each { 
+                channel.bind(it) 
+            }
+            channel.bind(Channel.STOP)
+        }
+        return channel
+    }
+
     /*
     * Function to loop over all parameters defined in schema and check
     * whether the given parameters adhere to the specifications
@@ -149,19 +174,9 @@ class SchemaValidator extends PluginExtensionPoint {
         def specifiedParamKeys = params.keySet()
 
         // Collect expected parameters from the schema
-        def expectedParams = []
-        def enums = [:]
-        for (group in schemaParams) {
-            def Map properties = (Map) group.value['properties']
-            for (p in properties) {
-                def String key = (String) p.key
-                expectedParams.push(key)
-                def Map property = properties[key] as Map
-                if (property.containsKey('enum')) {
-                    enums[key] = property['enum']
-                }
-            }
-        }
+        def enumsTuple = collectEnums(schemaParams)
+        def List expectedParams = (List) enumsTuple[0]
+        def Map enums = (Map) enumsTuple[1]
 
         // Add known expected parameters from the pipeline
         expectedParams.push('validationFailUnrecognisedParams')
@@ -201,9 +216,13 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // check for warnings
         if( this.hasWarnings() ) {
-            def msg = "The following invalid input values have been detected:\n" + this.getWarnings().join('\n').trim()
+            def msg = "The following invalid input values have been detected:\n\n" + this.getWarnings().join('\n').trim() + "\n\n"
             log.warn(msg)
         }
+
+        // Colors
+        def Boolean monochrome_logs = params.monochrome_logs
+        def colors = logColours(monochrome_logs)
 
         // Validate
         try {
@@ -218,18 +237,119 @@ class SchemaValidator extends PluginExtensionPoint {
             }
             if (this.hasErrors()) {
                 // Needed when validationFailUnrecognisedParams is true
-                def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+                def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
                 log.error("ERROR: Validation of pipeline parameters failed!")
                 throw new SchemaValidationException(msg, this.getErrors())
             }
         } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             collectErrors(exceptionJSON, paramsJSON, enums)
-            def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
+            def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
+
+        //=====================================================================//
+        // Look for other schemas to validate
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('schema')) {
+                    def String schema_name = property['schema']
+                    def Path file_path = Nextflow.file(params[key]) as Path
+                    def String fileType = SamplesheetConverter.getFileType(file_path)
+                    def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+                    def List<Map<String,String>> fileContent
+                    if(fileType == "yaml"){
+                        fileContent = new Yaml().load((file_path.text))
+                    }
+                    else {
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                    }
+                    if (validateFile(params, key, fileContent, schema_name, baseDir)) {
+                        log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
+                    }
+                }
+            }
+        }
     }
+
+    //
+    // Function to validate a file by its schema
+    //
+    /* groovylint-disable-next-line UnusedPrivateMethodParameter */
+    boolean validateFile(Map params, String paramName, Object fileContent, String schema_filename, String baseDir) {
+
+        // Load the schema
+        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        final rawSchema = new JSONObject(new JSONTokener(schema_string))
+        final schema = SchemaLoader.load(rawSchema)
+
+        // Convert the groovy object to a JSONArray
+        def jsonObj = new JsonBuilder(fileContent)
+        def JSONArray arrayJSON = new JSONArray(jsonObj.toString())
+
+        //=====================================================================//
+        // Check for params with expected values
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map schemaParams = (Map) ["items": parsed.get('items')] 
+
+        // Collect expected parameters from the schema
+        def enumsTuple = collectEnums(schemaParams)
+        def List expectedParams = (List) enumsTuple[0]
+        def Map enums = (Map) enumsTuple[1]
+
+        //=====================================================================//
+        // Validate
+        try {
+            if (params.lenient_mode) {
+                // Create new validator with LENIENT mode 
+                Validator validator = Validator.builder()
+                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                    .build();
+                validator.performValidation(schema, arrayJSON);
+            } else {
+                schema.validate(arrayJSON)
+            }
+        } catch (ValidationException e) {
+            def Boolean monochrome_logs = params.monochrome_logs
+            def colors = logColours(monochrome_logs)
+            JSONObject exceptionJSON = (JSONObject) e.toJSON()
+            JSONObject objectJSON = new JSONObject();
+            objectJSON.put("objects",arrayJSON);            
+            collectErrors(exceptionJSON, objectJSON, enums)
+            def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+            log.error("ERROR: Validation of '$paramName' file failed!")
+            throw new SchemaValidationException(msg, this.getErrors())
+        }
+
+        return true
+    }
+
+
+    //
+    // Function to collect enums (options) of a parameter and expected parameters (present in the schema)
+    //
+    Tuple collectEnums(Map schemaParams) {
+        def expectedParams = []
+        def enums = [:]
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                expectedParams.push(key)
+                def Map property = properties[key] as Map
+                if (property.containsKey('enum')) {
+                    enums[key] = property['enum']
+                }
+            }
+        }
+        return new Tuple (expectedParams, enums)
+    }
+
 
     //
     // Wrap too long text
@@ -451,6 +571,12 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
         def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
+        def JSONArray valuesJSON = new JSONArray ()
+        def String validationType = "parameter: --"
+        if (paramsJSON.has('objects')) {
+            valuesJSON = (JSONArray) paramsJSON['objects']
+            validationType = "value: "
+        } 
         if (causingExceptions.length() == 0) {
             def String message = (String) exJSON['message']
             def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
@@ -458,7 +584,7 @@ class SchemaValidator extends PluginExtensionPoint {
             // Missing required param
             if(m.matches()){
                 def List l = m[0] as ArrayList
-                errors << "* Missing required parameter: --${l[1]}".toString()
+                errors << "* Missing required ${validationType}${l[1]}".toString()
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
@@ -467,7 +593,15 @@ class SchemaValidator extends PluginExtensionPoint {
             // Error with specific param
             else {
                 def String param = (String) exJSON['pointerToViolation'] - ~/^#\//
-                def param_val = paramsJSON[param].toString()
+                def param_val = ""
+                if (paramsJSON.has('objects')) {
+                    def paramSplit = param.tokenize( '/' )
+                    int indexInt = paramSplit[0] as int
+                    String paramString = paramSplit[1] as String
+                    param_val = valuesJSON[indexInt][paramString].toString()
+                } else {
+                    param_val = paramsJSON[param].toString()
+                }
                 if (enums.containsKey(param)) {
                     def error_msg = "* --${param}: '${param_val}' is not a valid choice (Available choices"
                     def List enums_param = (List) enums[param]
@@ -480,6 +614,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }
             }
+            errors.unique()
         }
         for (ex in causingExceptions) {
             def JSONObject exception = (JSONObject) ex
