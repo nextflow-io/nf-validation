@@ -177,7 +177,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
             params.xyz = '/some/path'
-            params.fail_unrecognised_params = true
+            params.validationFailUnrecognisedParams = true
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -303,7 +303,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = '/some/path/input.csv'
             params.outdir = '/some/path'
-            params.lenient_mode = true
+            params.validationLenientMode = true
             params.max_cpus = '4'
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -417,7 +417,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             include { paramsHelp } from 'plugin/nf-validation'
-            params.show_hidden_params = true
+            params.validationShowHiddenParams = true
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
             def help_msg = paramsHelp(command, '$schema')
