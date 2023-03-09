@@ -125,27 +125,27 @@ validateParameters('custom_nextflow_schema.json')
 
 There are two specific params that affect the behavior of this function:
 
-##### `fail_unrecognised_params`
+##### `validationFailUnrecognisedParams`
 
-When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `fail_unrecognised_params` parameter.
+When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `validationFailUnrecognisedParams` parameter.
 ```bash
-nextflow run my_pipeline --fail_unrecognised_params
+nextflow run my_pipeline --validationFailUnrecognisedParams
 ```
 or specifying it in the configuration file
 ```nextflow
-params.fail_unrecognised_params = true
+params.validationFailUnrecognisedParams = true
 ```
 
-##### `lenient_mode`
+##### `validationLenientMode`
 
 The lenient mode of JSON Schema validation tries to cast parameters to their correct type. For example, providing an integer as a string won't fail when using such mode. You can find more information [here](https://github.com/everit-org/json-schema#lenient-mode).
 
 ```bash
-nextflow run my_pipeline --lenient_mode
+nextflow run my_pipeline --validationLenientMode
 ```
 or specifying it in the configuration file
 ```nextflow
-params.lenient_mode = true
+params.validationLenientMode = true
 ```
 
 ### paramsHelp
@@ -170,16 +170,16 @@ if (params.help) {
 
 #### Options
 
-##### `show_hidden_params`
+##### `validationShowHiddenParams`
 
-Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `show_hidden_params` parameter.
+Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `validationShowHiddenParams` parameter.
 
 ```bash
-nextflow run my_pipeline --help --show_hidden_params
+nextflow run my_pipeline --help --validationShowHiddenParams
 ```
 or specifying it in the configuration file
 ```nextflow
-params.show_hidden_params = true
+params.validationShowHiddenParams = true
 ```
 
 ##### Show the complete information for one parameter

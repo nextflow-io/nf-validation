@@ -164,8 +164,11 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         // Add known expected parameters from the pipeline
-        expectedParams.push('fail_unrecognised_params')
-        expectedParams.push('lenient_mode')
+        expectedParams.push('validationFailUnrecognisedParams')
+        expectedParams.push('validationLenientMode')
+
+        def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
+        def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
 
         for (String specifiedParam in specifiedParamKeys) {
             // nextflow params
@@ -182,7 +185,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                if (params.fail_unrecognised_params) {
+                if (failUnrecognisedParams) {
                     errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
                 } else {
                     warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
@@ -204,7 +207,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Validate
         try {
-            if (params.lenient_mode) {
+            if (lenientMode) {
                 // Create new validator with LENIENT mode 
                 Validator validator = Validator.builder()
                     .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
@@ -214,7 +217,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 schema.validate(paramsJSON)
             }
             if (this.hasErrors()) {
-                // Needed when fail_unrecognised_params is true
+                // Needed when validationFailUnrecognisedParams is true
                 def msg = "The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim()
                 log.error("ERROR: Validation of pipeline parameters failed!")
                 throw new SchemaValidationException(msg, this.getErrors())
@@ -320,7 +323,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 if (description_default.length() > dec_linewidth){
                     description_default = wrapText(description_default, dec_linewidth, desc_indent)
                 }
-                if (get_param.hidden && !params.show_hidden_params) {
+                if (get_param.hidden && !params.validationShowHiddenParams) {
                     num_hidden += 1
                     continue;
                 }
@@ -333,7 +336,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         if (num_hidden > 0){
-            output += "$colors.dim !! Hiding $num_hidden params, use --show_hidden_params to show them !!\n$colors.reset"
+            output += "$colors.dim !! Hiding $num_hidden params, use --validationShowHiddenParams to show them !!\n$colors.reset"
         }
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
         return output
