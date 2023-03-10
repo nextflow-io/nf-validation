@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/testpipeline/master/nextflow_schema.json",
+    "title": "nf-core/testpipeline pipeline parameters",
+    "description": "this is a test",
+    "type": "object",
+    "definitions": {
+        "nested parameters": {
+            "title": "Some nested parameters",
+            "type": "object",
+            "properties": {
+                "foo": { 
+                    "type": "integer", 
+                    "default": 2 
+                },
+                "baz": {
+                    "type": "object",
+                    "properties": {
+                        "qux": { 
+                            "type": "integer", 
+                            "default": 1 
+                        },
+                        "grault": { 
+                            "type": "string", 
+                            "default": "garply" 
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

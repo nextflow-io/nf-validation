@@ -11,6 +11,13 @@ import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
+
+import nextflow.cli.CmdRun
+import java.nio.file.Files
+import nextflow.Session
+import nextflow.Global
+
+
 /**
  * @author : jorge <jorge.aguilera@seqera.io>
  *
@@ -20,6 +27,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
     @Rule
     OutputCapture capture = new OutputCapture()
 
+    Session getSession(){
+        Global.getSession() as Session
+    }
 
     @Shared String pluginsMode
 
@@ -372,6 +382,75 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$ (10)\n\n'''
         !stdout
+    }
+
+    //
+    // Nested parameters tests
+    //
+
+    def 'should validate a schema with nested params' () {
+        given:
+        def schema = Path.of('src/testResources/nested_parameters_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+        and:
+        def ENV = [
+                NXF_PARAMS_FILE:'src/testResources/nested_paramteres.yml',
+        ]
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should find validation errors in nested param' () {
+        given:
+        def schema = Path.of('src/testResources/nexted_parameters_fail_schema.json').toAbsolutePath().toString()
+        def folder = Files.createTempDirectory('test')
+        def YAML = '''
+            foo: bar
+            baz:
+                qux: corge
+                grault: garply
+            '''.stripIndent()
+        def  SCRIPT_TEXT = """
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+
+            println(params.baz)
+            println(params.foo)
+        """
+
+        when:
+        def file = folder.resolve('params.yaml')
+        file.text = YAML
+        and:
+        def cmd = new CmdRun(sysEnv: [NXF_PARAMS_FILE: file.toString()])
+        def params = cmd.parsedParams()
+        session.params = params
+        and:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        //params.foo == "bar"
+        def error = thrown(SchemaValidationException)
+        //error.message == "The following invalid input values have been detected:\n\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )\n\n"
+        //!stdout
     }
 
     //

@@ -250,7 +250,7 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         //=====================================================================//
-        // Look for other schemas to validate
+        // Look for other schemas or nested params to validate
         for (group in schemaParams) {
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
@@ -271,7 +271,9 @@ class SchemaValidator extends PluginExtensionPoint {
                     if (validateFile(params, key, fileContent, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
-                }
+                }/* else if (property.containesKey('properties')) {
+                    validateNestedSchema(params, properties)
+                }*/
             }
         }
     }
@@ -332,6 +334,106 @@ class SchemaValidator extends PluginExtensionPoint {
         return true
     }
 
+    //
+    // Function to validate a nested schema
+    //
+    /*void validateNestedSchema(Map params, Map schema) {
+
+        def String baseDir = session.baseDir
+
+        // Clean the parameters
+        def cleanedParams = cleanParameters(params)
+        // Convert to JSONObject
+        def paramsJSON = new JSONObject(new JsonBuilder(cleanedParams).toString())
+
+        // Collect expected parameters from the schema
+        def enumsTuple = collectEnums(schemaParams) //TODO: run this function without groups for loop
+        def List expectedParams = (List) enumsTuple[0]
+        def Map enums = (Map) enumsTuple[1]
+
+        def Boolean lenient_mode = params.lenient_mode ? params.lenient_mode : false
+        def Boolean fail_unrecognised_params = params.fail_unrecognised_params ? params.fail_unrecognised_params : false
+
+        def specifiedParamKeys = params.keySet()
+
+        for (String specifiedParam in specifiedParamKeys) {
+            // unexpected params
+            def String schema_ignore_params = params.schema_ignore_params
+            def List params_ignore = schema_ignore_params ? schema_ignore_params.split(',') + 'schema_ignore_params' as List : []
+            def expectedParamsLowerCase = expectedParams.collect{ it -> 
+                def String p = it
+                p.replace("-", "").toLowerCase() 
+            }
+            def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
+            def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
+            if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
+                if (fail_unrecognised_params) {
+                    errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                } else {
+                    warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                }
+            }
+        }
+
+        // check for warnings
+        if( this.hasWarnings() ) {
+            def msg = "The following invalid input values have been detected:\n\n" + this.getWarnings().join('\n').trim() + "\n\n"
+            log.warn(msg)
+        }
+
+        // Colors
+        def Boolean monochrome_logs = params.monochrome_logs
+        def colors = logColours(monochrome_logs)
+
+        // Validate
+        try {
+            if (lenient_mode) {
+                // Create new validator with LENIENT mode 
+                Validator validator = Validator.builder()
+                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                    .build();
+                validator.performValidation(schema, paramsJSON);
+            } else {
+                schema.validate(paramsJSON)
+            }
+            if (this.hasErrors()) {
+                // Needed when fail_unrecognised_params is true
+                def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+                log.error("ERROR: Validation of pipeline parameters failed!")
+                throw new SchemaValidationException(msg, this.getErrors())
+            }
+        } catch (ValidationException e) {
+            JSONObject exceptionJSON = (JSONObject) e.toJSON()
+            collectErrors(exceptionJSON, paramsJSON, enums)
+            def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+            log.error("ERROR: Validation of pipeline parameters failed!")
+            throw new SchemaValidationException(msg, this.getErrors())
+        }
+
+        //=====================================================================//
+        // Look for other schemas or nested parameters to validate
+            for (p in schema) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('schema')) {
+                    def String schema_name = property['schema']
+                    def Path file_path = Nextflow.file(params[key]) as Path
+                    def String fileType = SamplesheetConverter.getFileType(file_path)
+                    def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+                    def List<Map<String,String>> fileContent
+                    if(fileType == "yaml"){
+                        fileContent = new Yaml().load((file_path.text))
+                    }
+                    else {
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                    }
+                    if (validateFile(params, key, fileContent, schema_name, baseDir)) {
+                        log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
+                    }
+                }
+            }
+
+    }*/
 
     //
     // Function to collect enums (options) of a parameter and expected parameters (present in the schema)
