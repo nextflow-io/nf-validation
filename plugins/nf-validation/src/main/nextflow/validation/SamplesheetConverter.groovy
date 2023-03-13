@@ -16,7 +16,6 @@ import org.everit.json.schema.loader.SchemaLoader
 import org.everit.json.schema.PrimitiveValidationStrategy
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.SchemaException
-import org.everit.json.schema.Validator
 import org.everit.json.schema.Schema
 import org.json.JSONArray
 import org.json.JSONObject
@@ -52,10 +51,6 @@ class SamplesheetConverter {
     static increaseCount(){ sampleCount++ }
     static Integer getCount(){ sampleCount }
 
-    static Validator validator = Validator.builder()
-                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-                    .build();
-
     static List convertToList(
         Path samplesheetFile, 
         Path schemaFile
@@ -69,11 +64,10 @@ class SamplesheetConverter {
                 .build()
 
         Schema schema = schemaLoader.load().build()
-
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
-        def Map<String, Map<String, String>> schemaFields = schemaMap["properties"]
+        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
         def Set<String> allFields = schemaFields.keySet()
-        def List<String> requiredFields = schemaMap["required"]
+        def List<String> requiredFields = (List) schemaMap["items"]["required"]
 
         def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
@@ -97,25 +91,7 @@ class SamplesheetConverter {
             increaseCount()
 
             Map<String,String> row = fullRow.findAll { it.value != "" }
-            JSONObject jsonRow = new JSONObject(row)
-
-            try {
-                this.validator.performValidation(schema, jsonRow)
-            } 
-            catch (ValidationException e) {
-                if(e.getCausingExceptions().size() > 0){
-                    e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
-                }
-                else {
-                    this.errors << addSample("${e.getMessage()}".toString())
-                }
-            }
-            catch (SchemaException e) {
-                this.schemaErrors << e.getMessage()
-            }
-
             def Set rowKeys = row.keySet()
-            def Set differences = allFields - rowKeys
             def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
 
             // Check the header (CSV/TSV) or present fields (YAML)
@@ -169,7 +145,7 @@ class SamplesheetConverter {
                     booleanUniques[key].add(input)
                 }
                 else if(unique && uniqueIsList) {
-                    def Map<String,String> newMap = row.subMap([key] + (List) unique)
+                    def Map<String,String> newMap = (Map) row.subMap((List) [key] + (List) unique)
                     if(!(key in listUniques)){
                         listUniques[key] = []
                     }
@@ -225,7 +201,7 @@ class SamplesheetConverter {
     }
 
     // Function to infer the file type of the samplesheet
-    private static String getFileType(
+    public static String getFileType(
         Path samplesheetFile
     ) {
         def String extension = samplesheetFile.getExtension()
@@ -250,7 +226,7 @@ class SamplesheetConverter {
     }
 
     // Function to get the header from a CSV or TSV file
-    private static String getHeader(
+    public static String getHeader(
         Path samplesheetFile
     ) {
         def String header

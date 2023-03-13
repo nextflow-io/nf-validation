@@ -1,6 +1,6 @@
 # nf-validation 
 
-This plugins implement a validation Nextlow pipeline parameters
+This Nextlow plugins implements a validation of pipeline parameters
 based on [nf-core JSON schema](https://nf-co.re/pipeline_schema_builder).
 
 It can also validate and convert a samplesheet to a Nextflow channel ready to use. Supported samplesheet formats are CSV, TSV and YAML (simple).
@@ -25,6 +25,7 @@ To test with Nextflow for development purpose:
 
    ```
    cd .. && https://github.com/nextflow-io/nextflow
+   cd nextflow && ./gradlew exportClasspath
    ``` 
 
 2. Append to the `settings.gradle` in this project the following line:
@@ -70,7 +71,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog } from 'plugin/nf-validation'
+include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog, validateAndConvertSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -84,6 +85,9 @@ validateParameters()
 
 // Print parameter summary log to screen
 log.info paramsSummaryLog(workflow)
+
+// Obtain an input channel from a sample sheet
+ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json)
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -128,27 +132,27 @@ validateParameters('custom_nextflow_schema.json')
 
 There are two specific params that affect the behavior of this function:
 
-##### `fail_unrecognised_params`
+##### `validationFailUnrecognisedParams`
 
-When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `fail_unrecognised_params` parameter.
+When parameters which are not specified in the JSON Schema are provided, the parameter validation returns a `WARNING`. To force the pipeline execution fail returning an `ERROR` instead, you can provide the  `validationFailUnrecognisedParams` parameter.
 ```bash
-nextflow run my_pipeline --fail_unrecognised_params
+nextflow run my_pipeline --validationFailUnrecognisedParams
 ```
 or specifying it in the configuration file
 ```nextflow
-params.fail_unrecognised_params = true
+params.validationFailUnrecognisedParams = true
 ```
 
-##### `lenient_mode`
+##### `validationLenientMode`
 
 The lenient mode of JSON Schema validation tries to cast parameters to their correct type. For example, providing an integer as a string won't fail when using such mode. You can find more information [here](https://github.com/everit-org/json-schema#lenient-mode).
 
 ```bash
-nextflow run my_pipeline --lenient_mode
+nextflow run my_pipeline --validationLenientMode
 ```
 or specifying it in the configuration file
 ```nextflow
-params.lenient_mode = true
+params.validationLenientMode = true
 ```
 
 ### paramsHelp
@@ -173,16 +177,16 @@ if (params.help) {
 
 #### Options
 
-##### `show_hidden_params`
+##### `validationShowHiddenParams`
 
-Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `show_hidden_params` parameter.
+Params that are defined to be hidden in the JSON Schema are not shown in the help message. In order to show these parameters you can use the `validationShowHiddenParams` parameter.
 
 ```bash
-nextflow run my_pipeline --help --show_hidden_params
+nextflow run my_pipeline --help --validationShowHiddenParams
 ```
 or specifying it in the configuration file
 ```nextflow
-params.show_hidden_params = true
+params.validationShowHiddenParams = true
 ```
 
 ##### Show the complete information for one parameter
@@ -192,6 +196,26 @@ By default, when printing the help message only a selection of attributes are pr
 ```bash
 nextflow run my_pipeline --help param_name
 ```
+
+### Validate an input file provided by params with another JSON schema
+
+By provided the `schema` field in one off the parameters, the function will automatically validate the provided file using this JSON schema. It can validate CSV, TSV and simple YAML files.
+The path of the schema file must be relative to the root of the pipeline directory. See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
+
+```json
+{
+"properties": {
+      "input": {
+         "type": "string",
+         "format": "file-path",
+         "pattern": "^\\S+\\.csv$",
+         "schema": "src/testResources/samplesheet_schema.json",
+         "description": "Path to comma-separated file containing information about the samples in the experiment.",
+      }
+}
+```
+
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
 
 ### paramsSummaryMap
 
@@ -237,3 +261,5 @@ validateAndConvertSamplesheet(
    file('path/to/schema', checkIfExists:true)
 )
 ```
+
+Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).
