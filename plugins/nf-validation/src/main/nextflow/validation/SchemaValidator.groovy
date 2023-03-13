@@ -290,7 +290,12 @@ class SchemaValidator extends PluginExtensionPoint {
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        final schema = SchemaLoader.load(rawSchema)
+        final SchemaLoader schemaLoader = SchemaLoader.builder()
+            .schemaJson(rawSchema)
+            .addFormatValidator("file-path", new FilePathValidator())
+            .addFormatValidator("directory-path", new DirectoryPathValidator())
+            .build()
+        final schema = schemaLoader.load().build()
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(fileContent)
@@ -317,6 +322,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     .build();
                 validator.performValidation(schema, arrayJSON);
             } else {
+                println(arrayJSON)
                 schema.validate(arrayJSON)
             }
         } catch (ValidationException e) {
