@@ -100,8 +100,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
@@ -123,8 +123,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -148,8 +148,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
             params.schema_ignore_params = 'xyz'
             include { validateParameters } from 'plugin/nf-validation'
@@ -174,8 +174,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
             params.validationFailUnrecognisedParams = true
             include { validateParameters } from 'plugin/nf-validation'
@@ -201,7 +201,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            params.input = '/some/path/input.csv'
+            params.input = 'src/testResources/correct.csv'
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -225,8 +225,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.max_memory = '10.GB'
             params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
@@ -251,8 +251,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.publish_dir_mode = 'incorrect'
             params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
@@ -277,8 +277,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.max_cpus = 12
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -301,8 +301,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.validationLenientMode = true
             params.max_cpus = '4'
             include { validateParameters } from 'plugin/nf-validation'
@@ -327,8 +327,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -353,8 +353,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            params.input = '/some/path/input.csv'
-            params.outdir = '/some/path'
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
             params.max_memory = '10'
             include { validateParameters } from 'plugin/nf-validation'
             
