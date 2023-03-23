@@ -254,7 +254,7 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException(msg, this.getErrors())
         }
 
-        //=====================================================================//
+        /*//=====================================================================//
         // Look for other schemas to validate
         for (group in schemaParams) {
             def Map properties = (Map) group.value['properties']
@@ -278,7 +278,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                 }
             }
-        }
+        }*/
     }
 
     //
