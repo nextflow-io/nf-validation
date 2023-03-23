@@ -9,9 +9,6 @@ public class DirectoryPathValidator implements FormatValidator {
 
     @Override
     public Optional<String> validate(final String subject) {
-        if (subject.length() == 0) {
-            return Optional.empty()
-        }
         Path file = Nextflow.file(subject) as Path
         if (!file.exists()) {
             return Optional.of("the directory '${subject}' does not exist" as String)
