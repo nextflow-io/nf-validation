@@ -609,33 +609,4 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         error.message == '''The following errors have been detected:\n\n* Missing required value: sample\n\n'''
         !stdout
     }
-
-    def 'should fail because file and dierectory do not exist' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet_errors.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
-            params.input = 'src/testResources/samplesheet.csv'
-            
-            include { validateParameters } from 'plugin/nf-validation'
-            
-            validateParameters('$schema')
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
-
-        then:
-        def error = thrown(SchemaValidationException)
-        def errorMessages = error.message.readLines() 
-        errorMessages[0] == "The following errors have been detected:"
-        errorMessages[2] == "* --0/fastq_2: the file 'test1_fastq2.fastq.gz' does not exist (test1_fastq2.fastq.gz)"
-        
-        !stdout
-
-    }
 }

@@ -12,7 +12,7 @@ public class FilePathValidator implements FormatValidator {
         if (subject.length() == 0) {
             return Optional.empty()
         }
-        Path file = Nextflow.file(subject) as Path      
+        Path file = Nextflow.file(subject) as Path  
         if (!file.exists()) {
             return Optional.of("the file '${subject}' does not exist" as String)
         }

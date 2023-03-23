@@ -315,16 +315,11 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Validate
         try {
-            if (params.lenient_mode) {
-                // Create new validator with LENIENT mode 
-                Validator validator = Validator.builder()
-                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-                    .build();
-                validator.performValidation(schema, arrayJSON);
-            } else {
-                println(arrayJSON)
-                schema.validate(arrayJSON)
-            }
+            // Create new validator with LENIENT mode 
+            Validator validator = Validator.builder()
+                .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                .build();
+            validator.performValidation(schema, arrayJSON);
         } catch (ValidationException e) {
             def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)

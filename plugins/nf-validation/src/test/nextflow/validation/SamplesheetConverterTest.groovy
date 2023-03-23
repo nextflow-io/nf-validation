@@ -12,7 +12,7 @@ import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
 /**
- * @author : Nicolas Vannieuwkerke
+ * @author : jorge <jorge.aguilera@seqera.io>
  *
  */
 class SamplesheetConverterTest extends Dsl2Spec{
@@ -80,7 +80,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
-    def 'should work fine - TSV' () {
+        def 'should work fine - TSV' () {
         given:
         def SCRIPT_TEXT = '''
             include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
