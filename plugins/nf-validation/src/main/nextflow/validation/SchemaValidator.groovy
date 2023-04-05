@@ -271,7 +271,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         fileContent = new Yaml().load((file_path.text))
                     }
                     else {
-                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter, types:true)
                     }
                     if (validateFile(params, key, fileContent, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
@@ -294,7 +294,12 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(fileContent)
-        def JSONArray arrayJSON = new JSONArray(jsonObj.toString())
+        // Remove all null values from JSON object
+        jsonObj = jsonObj.toString()
+        while (jsonObj.contains("null")) {
+            jsonObj = jsonObj.replaceAll("(.*)(\".*?\":null,?)", '$1')
+        }
+        def JSONArray arrayJSON = new JSONArray(jsonObj)
 
         //=====================================================================//
         // Check for params with expected values
