@@ -32,6 +32,7 @@ import org.yaml.snakeyaml.Yaml
 import static SamplesheetConverter.getHeader
 import static SamplesheetConverter.getFileType
 
+
 @Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -271,7 +272,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         fileContent = new Yaml().load((file_path.text))
                     }
                     else {
-                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter, types:true)
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter, typesStrict:variableTypes(schema_name, baseDir))
                     }
                     if (validateFile(params, key, fileContent, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
@@ -280,6 +281,38 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
     }
+
+
+    //
+    // Function to obtain the variable types of properties from a JSON Schema
+    //
+    Map variableTypes(String schema_filename, String baseDir) {
+        def Map variableTypes = [:]
+        def String type = ''
+
+        // Read the schema
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+
+        // Obtain the type of each variable in the schema
+        def Map properties = (Map) parsed['items']['properties']
+        for (p in properties) {
+            def String key = (String) p.key
+            def Map property = properties[key] as Map
+            if (property.containsKey('type')) {
+                if (property['type'] == 'number') {
+                    type = 'float'
+                }
+                else {
+                    type = property['type']
+                }
+                variableTypes[key] = type
+            }
+        }
+
+        return variableTypes
+    }
+
 
     //
     // Function to validate a file by its schema
