@@ -212,7 +212,12 @@ class SchemaValidator extends PluginExtensionPoint {
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        final schema = SchemaLoader.load(rawSchema)
+        final SchemaLoader schemaLoader = SchemaLoader.builder()
+                .schemaJson(rawSchema)
+                .addFormatValidator("file-path", new FilePathValidator())
+                .addFormatValidator("directory-path", new DirectoryPathValidator())
+                .build()
+        final schema = schemaLoader.load().build()
 
         // check for warnings
         if( this.hasWarnings() ) {
@@ -249,7 +254,7 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException(msg, this.getErrors())
         }
 
-        //=====================================================================//
+        /*//=====================================================================//
         // Look for other schemas to validate
         for (group in schemaParams) {
             def Map properties = (Map) group.value['properties']
@@ -273,7 +278,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                 }
             }
-        }
+        }*/
     }
 
     //
@@ -285,7 +290,12 @@ class SchemaValidator extends PluginExtensionPoint {
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        final schema = SchemaLoader.load(rawSchema)
+        final SchemaLoader schemaLoader = SchemaLoader.builder()
+            .schemaJson(rawSchema)
+            .addFormatValidator("file-path", new FilePathValidator())
+            .addFormatValidator("directory-path", new DirectoryPathValidator())
+            .build()
+        final schema = schemaLoader.load().build()
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(fileContent)
@@ -305,15 +315,11 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Validate
         try {
-            if (params.lenient_mode) {
-                // Create new validator with LENIENT mode 
-                Validator validator = Validator.builder()
-                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-                    .build();
-                validator.performValidation(schema, arrayJSON);
-            } else {
-                schema.validate(arrayJSON)
-            }
+            // Create new validator with LENIENT mode 
+            Validator validator = Validator.builder()
+                .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
+                .build();
+            validator.performValidation(schema, arrayJSON);
         } catch (ValidationException e) {
             def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)

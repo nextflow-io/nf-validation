@@ -197,7 +197,7 @@ By default, when printing the help message only a selection of attributes are pr
 nextflow run my_pipeline --help param_name
 ```
 
-### Validate an input file provided by params with another JSON schema
+<!--### Validate an input file provided by params with another JSON schema
 
 By provided the `schema` field in one off the parameters, the function will automatically validate the provided file using this JSON schema. It can validate CSV, TSV and simple YAML files.
 The path of the schema file must be relative to the root of the pipeline directory. See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
@@ -215,7 +215,7 @@ The path of the schema file must be relative to the root of the pipeline directo
 }
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).-->
 
 ### paramsSummaryMap
 
@@ -262,4 +262,4 @@ validateAndConvertSamplesheet(
 )
 ```
 
-Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).
+<!--Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).-->
