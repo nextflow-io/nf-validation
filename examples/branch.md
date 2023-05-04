@@ -1,6 +1,6 @@
 # Separate channel entries based on a condition
 
-You can use the `.branch()` operator to separate the channel entries based on a condition. This is especially useful when you can get multiple types of input data. 
+You can use the [`.branch()` operator](https://www.nextflow.io/docs/latest/operator.html#branch) to separate the channel entries based on a condition. This is especially useful when you can get multiple types of input data. 
 
 This example shows a channel which can have entries for WES or WGS data. These analysis are different so we want to separate the WES and WGS entries from eachother. We also don't want the `bed` file input for the WGS data, so the resulting channel with WGS data should not have this file in it.
 
