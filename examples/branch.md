@@ -11,7 +11,8 @@ This example shows a channel which can have entries for WES or WGS data. These a
 Channel.validateAndConvertSamplesheet(file("samplesheet.csv"), file("schema.json"))
     .branch { meta, bam, bai, bed ->
         WGS: meta.type == "WGS"
-            return [meta, bam, bai] // The original channel structure will be used when no return statement is used.
+            return [meta, bam, bai] 
+            // The original channel structure will be used when no return statement is used.
         WES: meta.type == "WES"
     }
     .set { input }
