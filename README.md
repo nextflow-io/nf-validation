@@ -256,10 +256,12 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 The function requires two different inputs: the samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
 
 ```nextflow
-validateAndConvertSamplesheet(
+Channel.validateAndConvertSamplesheet(
    file('path/to/samplesheet', checkIfExists:true),
    file('path/to/schema', checkIfExists:true)
 )
 ```
+
+For examples on how to process the created channel, see the [examples/](examples/) folder
 
 <!--Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).-->
