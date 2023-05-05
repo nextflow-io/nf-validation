@@ -5,48 +5,6 @@ based on [nf-core JSON schema](https://nf-co.re/pipeline_schema_builder).
 
 It can also validate and convert a samplesheet to a Nextflow channel ready to use. Supported samplesheet formats are CSV, TSV and YAML (simple).
 
-## Get started 
-
-To compile and run the tests use the following command: 
-
-
-```
-./gradlew check
-```      
-
-
-## Launch it with Nextflow 
-
-[WORK IN PROGRESS]
-
-To test with Nextflow for development purpose:
-
-1. Clone the Nextflow repo into a sibling directory  
-
-   ```
-   cd .. && https://github.com/nextflow-io/nextflow
-   cd nextflow && ./gradlew exportClasspath
-   ``` 
-
-2. Append to the `settings.gradle` in this project the following line:
-
-   ```
-   includeBuild('../nextflow')
-   ```                        
-   
-3. Compile the plugin code
-
-   ```
-   ./gradlew compileGroovy
-   ```
-   
-4. run nextflow with this command:
-
-    ```
-    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
-    ```
-
-
 ## Dependencies
 
 * Java 11 or later
@@ -265,3 +223,40 @@ Channel.validateAndConvertSamplesheet(
 For examples on how to process the created channel, see the [examples/](examples/) folder
 
 <!--Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).-->
+
+# Getting started with plugin dev
+
+To compile and run the tests use the following command: 
+
+```
+./gradlew check
+```      
+
+## Launch it with Nextflow 
+
+To test with Nextflow for development purpose:
+
+1. Clone the Nextflow repo into a sibling directory  
+
+   ```
+   cd .. && https://github.com/nextflow-io/nextflow
+   cd nextflow && ./gradlew exportClasspath
+   ``` 
+
+2. Append to the `settings.gradle` in this project the following line:
+
+   ```
+   includeBuild('../nextflow')
+   ```                        
+   
+3. Compile the plugin code
+
+   ```
+   ./gradlew compileGroovy
+   ```
+   
+4. run nextflow with this command:
+
+    ```
+    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
+    ```
