@@ -45,7 +45,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json)
+ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -228,7 +228,7 @@ For examples on how to process the created channel, see the [examples/](examples
 
 To compile and run the tests use the following command: 
 
-```
+```bash
 ./gradlew check
 ```      
 
@@ -238,25 +238,25 @@ To test with Nextflow for development purpose:
 
 1. Clone the Nextflow repo into a sibling directory  
 
-   ```
+   ```bash
    cd .. && https://github.com/nextflow-io/nextflow
    cd nextflow && ./gradlew exportClasspath
    ``` 
 
 2. Append to the `settings.gradle` in this project the following line:
 
-   ```
+   ```bash
    includeBuild('../nextflow')
    ```                        
    
 3. Compile the plugin code
 
-   ```
+   ```bash
    ./gradlew compileGroovy
    ```
    
 4. run nextflow with this command:
 
-    ```
+    ```bash
     ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
     ```
