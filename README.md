@@ -29,7 +29,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog, validateAndConvertSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; validateAndConvertSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
