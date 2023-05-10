@@ -258,8 +258,6 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Look for other schemas to validate
         for (group in schemaParams) {
-            print("files group $group\n")
-            print("files group value ${group.value}\n")
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
@@ -300,7 +298,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
 
         // Obtain the type of each variable in the schema
-        print("parsed $parsed")
         def Map properties = (Map) parsed['items']['properties']
         for (p in properties) {
             def String key = (String) p.key
@@ -429,8 +426,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def expectedParams = []
         def enums = [:]
         for (group in schemaParams) {
-            print("enums group $group\n")
-            print("enums group value ${group.value}\n")
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
