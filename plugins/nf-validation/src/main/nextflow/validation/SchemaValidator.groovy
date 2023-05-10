@@ -268,13 +268,16 @@ class SchemaValidator extends PluginExtensionPoint {
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
                     def List<Map<String,String>> fileContent
+                    def List<Map<String,String>> fileContentCasted = []
                     if(fileType == "yaml"){
                         fileContent = new Yaml().load((file_path.text))
                     }
                     else {
-                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter, typesStrict:variableTypes(schema_name, baseDir))
+                        Map types = variableTypes(schema_name, baseDir)
+                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                        fileContentCasted = castToType(fileContent, types)
                     }
-                    if (validateFile(params, key, fileContent, schema_name, baseDir)) {
+                    if (validateFile(params, key, fileContentCasted, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
@@ -311,6 +314,49 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         return variableTypes
+    }
+
+
+    //
+    // Cast a value to the provided type in a Strict mode
+    //
+    Set<String> VALID_BOOLEAN_VALUES = ['true', 'false'] as Set
+
+    List castToType(List<Map> rows, Map types) {
+        def List<Map> casted = []
+
+        for( Map row in rows) {
+            def Map castedRow = [:]
+
+            for (String key in row.keySet()) {
+                def String str = row[key]
+                def String type = types[key]
+
+                try {
+                    if( str == null || str == '' ) castedRow[key] = null
+                    else if( type.toLowerCase() == 'boolean' && str.toLowerCase() in VALID_BOOLEAN_VALUES ) castedRow[key] = str.toBoolean()
+                    else if( type.toLowerCase() == 'character' ) castedRow[key] = str.toCharacter()
+                    else if( type.toLowerCase() == 'short' && str.isNumber() ) castedRow[key] = str.toShort()
+                    else if( type.toLowerCase() == 'integer' && str.isInteger() ) castedRow[key] = str.toInteger()
+                    else if( type.toLowerCase() == 'long' && str.isLong() ) castedRow[key] = str.toLong()
+                    else if( type.toLowerCase() == 'float' && str.isFloat() ) castedRow[key] = str.toFloat()
+                    else if( type.toLowerCase() == 'double' && str.isDouble() ) castedRow[key] = str.toDouble()
+                    else if( type.toLowerCase() == 'string' ) castedRow[key] = str
+                    else {
+                        log.warn "Value $str is not of type $type: returning a string"
+                        castedRow[key] = str
+                    }
+                } catch( Exception e ) {
+                    log.warn "Unable to cast value $str to type $type: $e"
+                    castedRow[key] = str
+                }
+
+            }
+
+            casted = casted + castedRow
+        }
+
+        return casted
     }
 
 
