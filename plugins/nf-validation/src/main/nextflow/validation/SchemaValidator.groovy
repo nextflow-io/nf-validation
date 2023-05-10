@@ -343,7 +343,6 @@ class SchemaValidator extends PluginExtensionPoint {
                     else if( type.toLowerCase() == 'double' && str.isDouble() ) castedRow[key] = str.toDouble()
                     else if( type.toLowerCase() == 'string' ) castedRow[key] = str
                     else {
-                        log.warn "Value $str is not of type $type: returning a string"
                         castedRow[key] = str
                     }
                 } catch( Exception e ) {
