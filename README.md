@@ -5,48 +5,6 @@ based on [nf-core JSON schema](https://nf-co.re/pipeline_schema_builder).
 
 It can also validate and convert a samplesheet to a Nextflow channel ready to use. Supported samplesheet formats are CSV, TSV and YAML (simple).
 
-## Get started 
-
-To compile and run the tests use the following command: 
-
-
-```
-./gradlew check
-```      
-
-
-## Launch it with Nextflow 
-
-[WORK IN PROGRESS]
-
-To test with Nextflow for development purpose:
-
-1. Clone the Nextflow repo into a sibling directory  
-
-   ```
-   cd .. && https://github.com/nextflow-io/nextflow
-   cd nextflow && ./gradlew exportClasspath
-   ``` 
-
-2. Append to the `settings.gradle` in this project the following line:
-
-   ```
-   includeBuild('../nextflow')
-   ```                        
-   
-3. Compile the plugin code
-
-   ```
-   ./gradlew compileGroovy
-   ```
-   
-4. run nextflow with this command:
-
-    ```
-    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
-    ```
-
-
 ## Dependencies
 
 * Java 11 or later
@@ -71,7 +29,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog, validateAndConvertSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; validateAndConvertSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -87,7 +45,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json)
+ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -197,7 +155,7 @@ By default, when printing the help message only a selection of attributes are pr
 nextflow run my_pipeline --help param_name
 ```
 
-### Validate an input file provided by params with another JSON schema
+<!--### Validate an input file provided by params with another JSON schema
 
 By provided the `schema` field in one off the parameters, the function will automatically validate the provided file using this JSON schema. It can validate CSV, TSV and simple YAML files.
 The path of the schema file must be relative to the root of the pipeline directory. See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
@@ -215,7 +173,7 @@ The path of the schema file must be relative to the root of the pipeline directo
 }
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).-->
 
 ### paramsSummaryMap
 
@@ -256,10 +214,49 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 The function requires two different inputs: the samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
 
 ```nextflow
-validateAndConvertSamplesheet(
+Channel.validateAndConvertSamplesheet(
    file('path/to/samplesheet', checkIfExists:true),
    file('path/to/schema', checkIfExists:true)
 )
 ```
 
-Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).
+For examples on how to process the created channel, see the [examples/](examples/) folder
+
+<!--Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).-->
+
+# Getting started with plugin dev
+
+To compile and run the tests use the following command: 
+
+```bash
+./gradlew check
+```      
+
+## Launch it with Nextflow 
+
+To test with Nextflow for development purpose:
+
+1. Clone the Nextflow repo into a sibling directory  
+
+   ```bash
+   cd .. && https://github.com/nextflow-io/nextflow
+   cd nextflow && ./gradlew exportClasspath
+   ``` 
+
+2. Append to the `settings.gradle` in this project the following line:
+
+   ```bash
+   includeBuild('../nextflow')
+   ```                        
+   
+3. Compile the plugin code
+
+   ```bash
+   ./gradlew compileGroovy
+   ```
+   
+4. run nextflow with this command:
+
+    ```bash
+    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
+    ```

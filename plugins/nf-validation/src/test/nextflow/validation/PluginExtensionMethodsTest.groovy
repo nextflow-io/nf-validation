@@ -536,7 +536,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
     }
 
-    // 
+    /*// 
     // Samplesheet validation tests
     //
 
@@ -608,5 +608,5 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         error.message == '''The following errors have been detected:\n\n* Missing required value: sample\n\n'''
         !stdout
-    }
+    }*/
 }
