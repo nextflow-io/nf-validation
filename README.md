@@ -171,6 +171,7 @@ The path of the schema file must be relative to the root of the pipeline directo
          "description": "Path to comma-separated file containing information about the samples in the experiment.",
       }
 }
+}
 ```
 
 For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
