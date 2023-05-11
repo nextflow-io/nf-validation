@@ -96,11 +96,57 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
-    def 'should validate a schema' () {
+    def 'should validate a schema csv' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate a schema tsv' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.tsv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate a schema yaml' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.yaml'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
