@@ -177,11 +177,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "Samplesheet errors:"
-        errorMessages[1] == "\tSample 1: The 'directory' file or directory (non_exsiting_folder) does not exist."
-        errorMessages[2].startsWith("\tSample 1: The 'file' file or directory (non_existing_file.tsv) does not exist.")
-        errorMessages[3] == "\tSample 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
-        errorMessages[4] == "\tSample 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
-        errorMessages[5] == "\tSample 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
+        errorMessages[1] == "\tSample 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
+        errorMessages[2] == "\tSample 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
+        errorMessages[3] == "\tSample 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
         !stdout
     }
 

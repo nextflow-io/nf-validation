@@ -60,15 +60,13 @@ class SamplesheetConverter {
         JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
         SchemaLoader schemaLoader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
-                .addFormatValidator("file-path", new FilePathValidator())
-                .addFormatValidator("directory-path", new DirectoryPathValidator())
                 .build()
 
         Schema schema = schemaLoader.load().build()
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
-        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["properties"]
+        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
         def Set<String> allFields = schemaFields.keySet()
-        def List<String> requiredFields = (List) schemaMap["required"]
+        def List<String> requiredFields = (List) schemaMap["items"]["required"]
 
         def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null

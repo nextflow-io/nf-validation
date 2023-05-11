@@ -311,6 +311,9 @@ class SchemaValidator extends PluginExtensionPoint {
                 }
                 variableTypes[key] = type
             }
+            else {
+                variableTypes[key] = 'string' // If there isn't a type specifyed, return 'string' to avoid having a null value
+            }
         }
 
         return variableTypes
