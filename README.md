@@ -174,7 +174,7 @@ The path of the schema file must be relative to the root of the pipeline directo
 }
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`validateAndConvertSamplesheet`](#validateandconvertsamplesheet).
 
 ### paramsSummaryMap
 
@@ -223,7 +223,7 @@ Channel.validateAndConvertSamplesheet(
 
 For examples on how to process the created channel, see the [examples/](examples/) folder
 
-Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).
+Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](#validateparameters) with the [`schema` field provided](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
 # Getting started with plugin dev
 
