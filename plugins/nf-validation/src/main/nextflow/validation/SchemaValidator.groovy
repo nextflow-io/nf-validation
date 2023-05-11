@@ -670,13 +670,18 @@ class SchemaValidator extends PluginExtensionPoint {
             validationType = "value: "
         } 
         if (causingExceptions.length() == 0) {
+            def String pointer = (String) exJSON['pointerToViolation'] - ~/^#\//
             def String message = (String) exJSON['message']
             def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
             def Matcher m = message =~ p
             // Missing required param
             if(m.matches()){
                 def List l = m[0] as ArrayList
-                errors << "* Missing required ${validationType}${l[1]}".toString()
+                if (pointer.isNumber()) {
+                    errors << "* -- Entry ${pointer.replace('/', ' - ')}: Missing required ${validationType}${l[1]}".toString()
+                } else {
+                    errors << "* Missing required ${validationType}${l[1]}".toString()
+                }
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
