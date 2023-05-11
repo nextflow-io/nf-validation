@@ -704,7 +704,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                 } else {
                     if (param.contains('/')) {
-                        param = " Row ${param.replace('/', ' - ')}"
+                        param = " Entry ${param.replace('/', ' - ')}"
                     }
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }

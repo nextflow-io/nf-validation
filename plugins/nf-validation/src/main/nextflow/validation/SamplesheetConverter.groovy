@@ -281,6 +281,6 @@ class SamplesheetConverter {
     private static String addSample (
         String message
     ) {
-        return "Row ${this.getCount()}: ${message}".toString()
+        return "Entry ${this.getCount()}: ${message}".toString()
     }
 }
