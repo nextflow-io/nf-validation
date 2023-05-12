@@ -669,6 +669,7 @@ class SchemaValidator extends PluginExtensionPoint {
             valuesJSON = (JSONArray) paramsJSON['objects']
             validationType = "value: "
         } 
+        def Integer entryNumber = 0
         if (causingExceptions.length() == 0) {
             def String pointer = (String) exJSON['pointerToViolation'] - ~/^#\//
             def String message = (String) exJSON['message']
@@ -678,7 +679,9 @@ class SchemaValidator extends PluginExtensionPoint {
             if(m.matches()){
                 def List l = m[0] as ArrayList
                 if (pointer.isNumber()) {
-                    errors << "* -- Entry ${pointer.replace('/', ' - ')}: Missing required ${validationType}${l[1]}".toString()
+                    entryNumber = pointer.replace('/', ' - ') as Integer
+                    entryNumber = entryNumber + 1
+                    errors << "* -- Entry ${entryNumber}: Missing required ${validationType}${l[1]}".toString()
                 } else {
                     errors << "* Missing required ${validationType}${l[1]}".toString()
                 }
@@ -709,7 +712,10 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                 } else {
                     if (param.contains('/')) {
-                        param = " Entry ${param.replace('/', ' - ')}"
+                        entryNumber = param.split('/')[0] as Integer
+                        entryNumber = entryNumber + 1
+                        def String columnName = param.split('/')[1]
+                        param = " Entry ${entryNumber} - ${columnName}"
                     }
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }
