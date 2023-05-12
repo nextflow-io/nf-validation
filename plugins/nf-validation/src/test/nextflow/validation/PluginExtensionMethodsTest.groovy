@@ -628,7 +628,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* -- Entry 0 - fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* -- Entry 1 - fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
+        error.message == '''The following errors have been detected:\n\n* -- Entry 1 - fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* -- Entry 2 - fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
         !stdout
     }
 
@@ -652,7 +652,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* -- Entry 0: Missing required value: sample\n* -- Entry 1: Missing required value: sample\n\n'''
+        error.message == '''The following errors have been detected:\n\n* -- Entry 1: Missing required value: sample\n* -- Entry 2: Missing required value: sample\n\n'''
         !stdout
     }
 }
