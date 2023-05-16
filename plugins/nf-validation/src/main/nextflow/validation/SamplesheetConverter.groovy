@@ -60,6 +60,8 @@ class SamplesheetConverter {
         JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
         SchemaLoader schemaLoader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
+                .addFormatValidator("file-path", new FilePathValidator())
+                .addFormatValidator("directory-path", new DirectoryPathValidator())
                 .build()
 
         Schema schema = schemaLoader.load().build()
