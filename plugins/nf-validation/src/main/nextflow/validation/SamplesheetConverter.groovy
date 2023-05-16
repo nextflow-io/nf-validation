@@ -57,14 +57,6 @@ class SamplesheetConverter {
         Path schemaFile
         ) {
 
-        JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
-        SchemaLoader schemaLoader = SchemaLoader.builder()
-                .schemaJson(rawSchema)
-                .addFormatValidator("file-path", new FilePathValidator())
-                .addFormatValidator("directory-path", new DirectoryPathValidator())
-                .build()
-
-        Schema schema = schemaLoader.load().build()
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
         def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
         def Set<String> allFields = schemaFields.keySet()
