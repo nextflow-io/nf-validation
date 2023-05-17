@@ -6,6 +6,7 @@
   boolean: false
   file: src/testResources/test.txt
   directory: src/testResources/testDir
+  path: src/testResources/test.txt
   uniqueField: unique1
   uniqueDependentField: 1
 - string: string1
@@ -29,5 +30,6 @@
   boolean: false
   file: src/testResources/test.txt
   directory: src/testResources/testDir
+  path: src/testResources/testDir
   uniqueField: unique3
   uniqueDependentField: 1
