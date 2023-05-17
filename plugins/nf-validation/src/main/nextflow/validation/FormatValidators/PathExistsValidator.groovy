@@ -5,13 +5,13 @@ import java.nio.file.Path
 import org.everit.json.schema.FormatValidator
 import nextflow.Nextflow
 
-public class DirectoryPathValidator implements FormatValidator {
+public class PathExistsValidator implements FormatValidator {
 
     @Override
     public Optional<String> validate(final String subject) {
-        Path file = Nextflow.file(subject) as Path
-        if (!file.isDirectory()) {
-            return Optional.of("'${subject}' is not a directory, but a file" as String)
+        Path file = Nextflow.file(subject) as Path  
+        if (!file.exists()) {
+            return Optional.of("the file or directory '${subject}' does not exist" as String)
         }
         return Optional.empty()
     }

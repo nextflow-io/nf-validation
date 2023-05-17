@@ -12,7 +12,7 @@ import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
 /**
- * @author : jorge <jorge.aguilera@seqera.io>
+ * @author : Nicolas Vannieuwkerke <nicolas.vannieuwkerke@ugent.be>
  *
  */
 class SamplesheetConverterTest extends Dsl2Spec{
@@ -74,10 +74,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], itDoesExist]")
-        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
         def 'should work fine - TSV' () {
@@ -99,10 +99,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], itDoesExist]")
-        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'should work fine - YAML' () {
@@ -124,10 +124,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], itDoesExist]")
-        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'extra field' () {
@@ -150,10 +150,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         then:
         noExceptionThrown()
         stdout.contains("\tThe samplesheet contains following unchecked field(s): [extraField]")
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], itDoesExist]")
-        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique3, 1, itDoesExist]" as String)
     }
 
     def 'errors' () {
@@ -178,17 +178,18 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "Samplesheet errors:"
         errorMessages[1] == "\tSample 1: #/boolean: expected type: Boolean, found: String"
-        errorMessages[2] == "\tSample 1: #/directory: the directory 'non_exsiting_folder' does not exist"
+        errorMessages[2] == "\tSample 1: #/directory: 'src/testResources/test.txt' is not a directory"
         errorMessages[3] == "\tSample 1: #/file: 2 schema violations found"
         errorMessages[4] == "\tSample 1: #/number: expected type: Number, found: String"
-        errorMessages[5] == "\tSample 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
-        errorMessages[6] == "\tSample 2: #: required key [boolean] not found"
-        errorMessages[7] == "\tSample 2: #: required key [number] not found"
-        errorMessages[8] == "\tSample 2: #: required key [string] not found"
-        errorMessages[9] == "\tSample 3: #/metaBoolean: expected type: Boolean, found: String"
-        errorMessages[10] == "\tSample 3: #/metaInteger: expected type: Integer, found: String"
-        errorMessages[11] == "\tSample 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
-        errorMessages[12] == "\tSample 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
+        errorMessages[5] == "\tSample 1: #/path: the file or directory 'non_existing_path' does not exist"
+        errorMessages[6] == "\tSample 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
+        errorMessages[7] == "\tSample 2: #: required key [boolean] not found"
+        errorMessages[8] == "\tSample 2: #: required key [number] not found"
+        errorMessages[9] == "\tSample 2: #: required key [string] not found"
+        errorMessages[10] == "\tSample 3: #/metaBoolean: expected type: Boolean, found: String"
+        errorMessages[11] == "\tSample 3: #/metaInteger: expected type: Integer, found: String"
+        errorMessages[12] == "\tSample 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
+        errorMessages[13] == "\tSample 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
         !stdout
     }
 

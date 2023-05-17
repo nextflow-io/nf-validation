@@ -65,7 +65,11 @@ class SamplesheetConverter {
         SchemaLoader schemaLoader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
                 .addFormatValidator("file-path", new FilePathValidator())
+                .addFormatValidator("file-path-exists", new FilePathExistsValidator())
                 .addFormatValidator("directory-path", new DirectoryPathValidator())
+                .addFormatValidator("directory-path-exists", new DirectoryPathExistsValidator())
+                .addFormatValidator("path", new PathValidator())
+                .addFormatValidator("path-exists", new PathExistsValidator())
                 .build()
 
         Schema schema = schemaLoader.load().build()
@@ -269,7 +273,7 @@ class SamplesheetConverter {
             
             // Check and convert to the desired format
             def String format = field['value']['format']
-            if(format && (format == "file-path" || format == "directory-path")) {
+            if(format && format.contains("path")) {
                 def Path inputFile = Nextflow.file(input) as Path
                 return inputFile
             }
