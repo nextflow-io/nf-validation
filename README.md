@@ -243,8 +243,6 @@ Channel.fromSamplesheet(
 
 For examples on how to process the created channel, see the [examples/](examples/) folder
 
-> **Note**  
-> Note that `fromSamplesheet()` does not validate a samplesheet. In order to fully validate the sample sheet you must always run [`validateParameters()`](#validateparameters) with the [`schema` field provided](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
 # Getting started with plugin dev
 

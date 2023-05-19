@@ -141,6 +141,27 @@ class SchemaValidator extends PluginExtensionPoint {
         Path samplesheetFile,
         Path schemaFile
     ) {
+
+        // Validate samplesheet
+        log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
+        def String baseDir = session.baseDir
+        def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
+        def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+        def List<Map<String,String>> fileContent
+        def List<Map<String,String>> fileContentCasted = []
+        if(fileType == "yaml"){
+            fileContent = new Yaml().load((samplesheetFile.text))
+        }
+        else {
+            Map types = variableTypes(schemaFile.toString(), baseDir)
+            fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
+            fileContentCasted = castToType(fileContent, types)
+        }
+        if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir)) {
+            log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
+        }
+
+        // Convert to channel
         final channel = CH.create()
         List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
         session.addIgniter {
@@ -161,6 +182,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = session.params
         def String baseDir = session.baseDir
+        log.debug "Starting parameters validation"
         
         // Clean the parameters
         def cleanedParams = cleanParameters(params)
@@ -265,6 +287,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 if (property.containsKey('schema')) {
                     def String schema_name = property['schema']
                     def Path file_path = Nextflow.file(params[key]) as Path
+                    log.debug "Starting validation: '$key': '$file_path' with '$schema_name'"
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
                     def List<Map<String,String>> fileContent
@@ -277,12 +300,14 @@ class SchemaValidator extends PluginExtensionPoint {
                         fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
                         fileContentCasted = castToType(fileContent, types)
                     }
-                    if (validateFile(params, key, fileContentCasted, schema_name, baseDir)) {
+                    if (validateFile(monochrome_logs, key, fileContentCasted, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
             }
         }
+
+        log.debug "Finishing parameters validation"
     }
 
 
@@ -366,7 +391,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Function to validate a file by its schema
     //
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    boolean validateFile(Map params, String paramName, Object fileContent, String schema_filename, String baseDir) {
+    boolean validateFile(Boolean monochrome_logs, String paramName, Object fileContent, String schema_filename, String baseDir) {
 
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
@@ -407,7 +432,6 @@ class SchemaValidator extends PluginExtensionPoint {
                 .build();
             validator.performValidation(schema, arrayJSON);
         } catch (ValidationException e) {
-            def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             JSONObject objectJSON = new JSONObject();
