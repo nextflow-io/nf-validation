@@ -232,7 +232,7 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 
 #### Usage
 
-The function requires two different inputs: the param used by the user to provide a samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
+The function requires two different inputs: the param used by the user to provide a samplesheet and the schema used for the samplesheet (the JSON Schema path defaults to '`assets/schema_input.json`'). Both files need to be passed through the `file()` function as input for this function.
 
 ```nextflow
 Channel.fromSamplesheet(

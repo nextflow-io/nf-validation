@@ -139,7 +139,7 @@ class SchemaValidator extends PluginExtensionPoint {
     @Factory
     public DataflowWriteChannel fromSamplesheet(
         Path samplesheetFile,
-        Path schemaFile
+        Path schemaFile='assets/schema_input.json' as Path
     ) {
 
         // Validate samplesheet
