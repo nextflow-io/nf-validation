@@ -137,7 +137,7 @@ class SchemaValidator extends PluginExtensionPoint {
     }
 
     @Factory
-    public DataflowWriteChannel validateAndConvertSamplesheet(
+    public DataflowWriteChannel fromSamplesheet(
         Path samplesheetFile,
         Path schemaFile
     ) {

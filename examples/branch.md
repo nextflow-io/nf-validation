@@ -9,7 +9,7 @@ This example shows a channel which can have entries for WES or WGS data. These a
 // [[id:example, type:WGS], WGS.bam, WGS.bam.bai, []]
 // [[id:example2, type:WES], WES.bam, WES.bam.bai, WES.bed]
 params.input = "samplesheet.csv"
-Channel.validateAndConvertSamplesheet(file(params.input), file("schema.json"))
+Channel.fromSamplesheet(file(params.input), file("schema.json"))
     .branch { meta, bam, bai, bed ->
         WGS: meta.type == "WGS"
             return [meta, bam, bai] 

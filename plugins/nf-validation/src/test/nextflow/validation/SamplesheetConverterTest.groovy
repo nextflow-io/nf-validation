@@ -58,10 +58,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-validation'
 
             workflow {
-                Channel.validateAndConvertSamplesheet(file('src/testResources/correct.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet(file('src/testResources/correct.csv'), file('src/testResources/schema_input.json')).view()
             }
         '''
 
@@ -83,10 +83,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def 'should work fine - TSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-validation'
 
             workflow {
-                Channel.validateAndConvertSamplesheet(file('src/testResources/correct.tsv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet(file('src/testResources/correct.tsv'), file('src/testResources/schema_input.json')).view()
             }
         '''
 
@@ -108,10 +108,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-validation'
 
             workflow {
-                Channel.validateAndConvertSamplesheet(file('src/testResources/correct.yaml'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet(file('src/testResources/correct.yaml'), file('src/testResources/schema_input.json')).view()
             }
         '''
 
@@ -133,10 +133,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'extra field' () {
         given:
         def SCRIPT_TEXT = '''
-            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-validation'
 
             workflow {
-                Channel.validateAndConvertSamplesheet(file('src/testResources/extraFields.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet(file('src/testResources/extraFields.csv'), file('src/testResources/schema_input.json')).view()
             }
         '''
 
@@ -159,10 +159,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'errors' () {
         given:
         def SCRIPT_TEXT = '''
-            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-validation'
 
             workflow {
-                Channel.validateAndConvertSamplesheet(file('src/testResources/errors.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet(file('src/testResources/errors.csv'), file('src/testResources/schema_input.json')).view()
             }
         '''
 

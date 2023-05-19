@@ -29,7 +29,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; validateAndConvertSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -45,7 +45,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
+ch_input = Channel.fromSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -69,7 +69,7 @@ nf-validation includes five different functions that you can include in your pip
 - `paramsHelp()` - print a help message
 - `paramsSummaryMap()` - summarize pipeline parameters
 - `paramsSummaryLog()` - return summarized pipeline parameters as a string
-- `validateAndConvertSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
+- `fromSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
 
 ### validateParameters
 
@@ -194,7 +194,7 @@ The path of the schema file must be relative to the root of the pipeline directo
 }
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`validateAndConvertSamplesheet`](#validateandconvertsamplesheet).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`fromSamplesheet`](#fromamplesheet).
 
 ### paramsSummaryMap
 
@@ -226,7 +226,7 @@ This function requires an argument providing the a WorkflowMetadata object. It c
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 ```
 
-### validateAndConvertSamplesheet
+### fromSamplesheet
 
 This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema (and supports draft 4-7). More information on this can be found in the [samplesheet docs](docs/samplesheetDocs.md).
 
@@ -235,7 +235,7 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 The function requires two different inputs: the param used by the user to provide a samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
 
 ```nextflow
-Channel.validateAndConvertSamplesheet(
+Channel.fromSamplesheet(
    file(params.input, checkIfExists:true),
    file('path/to/schema', checkIfExists:true)
 )
