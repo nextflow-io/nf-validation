@@ -45,7 +45,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.fromSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
+ch_input = Channel.fromSamplesheet("input")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -232,16 +232,14 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 
 #### Usage
 
-The function requires two different inputs: the param used by the user to provide a samplesheet and the schema used for the samplesheet (the JSON Schema path defaults to '`assets/schema_input.json`'). Both files need to be passed through the `file()` function as input for this function.
+The function requires the name of the param used by the user to provide a samplesheet. The path to the parameters JSON schema can also be provided, defaults to '`nextflow_schema.json`').
+The provided parameter must contain a ['`schema`' field](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
 ```nextflow
-Channel.fromSamplesheet(
-   file(params.input, checkIfExists:true),
-   file('path/to/schema', checkIfExists:true)
-)
+Channel.fromSamplesheet('input', 'custom_nextflow_schema.json')
 ```
 
-For examples on how to process the created channel, see the [examples/](examples/) folder
+For examples on how to process the created channel, see the [examples/](examples/) folder.
 
 
 # Getting started with plugin dev
