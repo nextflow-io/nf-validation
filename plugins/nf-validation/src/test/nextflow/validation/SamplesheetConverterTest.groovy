@@ -60,8 +60,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/correct.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/correct.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -85,8 +87,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/correct.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/correct.tsv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -110,8 +114,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/correct.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/correct.yaml'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -135,8 +141,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/extraFields.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/extraFields.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -161,8 +169,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/errors.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/errors.csv'), file('src/testResources/schema_input.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 

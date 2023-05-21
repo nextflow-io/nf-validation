@@ -136,15 +136,36 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
+    //
+    // Find a value in a nested map
+    //
+    def findDeep(Map m, String key) {
+        if (m.containsKey(key)) return m[key]
+        m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
+    }
+
     @Factory
     public DataflowWriteChannel fromSamplesheet(
-        Path samplesheetFile,
-        Path schemaFile='assets/schema_input.json' as Path
+        String samplesheetParam,
+        String schema_filename='nextflow_schema.json'
     ) {
 
-        // Validate samplesheet
-        log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
         def String baseDir = session.baseDir
+        def Map params = session.params
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
+        def Path samplesheetFile = params[samplesheetParam] as Path
+        def Path schemaFile = null
+        if (samplesheetValue.containsKey('schema')) {
+            schemaFile = samplesheetValue['schema'] as Path
+        } else {
+            log.error "Parameter '$samplesheetParam' does not contain a schema."
+        }
+
+        log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
+
+        // Validate samplesheet
         def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> fileContent
