@@ -200,7 +200,8 @@ class SamplesheetConverter {
                     output.add(inputFile)
                 }
             }
-            output.add(0, meta)
+            // Add meta to the output when a meta field has been created
+            if(meta != [:]) { output.add(0, meta) }
             return output
         }
 

@@ -156,6 +156,28 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique3, 1, itDoesExist]" as String)
     }
 
+    def 'no meta' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { validateAndConvertSamplesheet } from 'plugin/nf-validation'
+
+            workflow {
+                Channel.validateAndConvertSamplesheet(file('src/testResources/no_meta.csv'), file('src/testResources/no_meta_schema.json')).view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[test1, test2]")
+    }
+
     def 'errors' () {
         given:
         def SCRIPT_TEXT = '''
@@ -192,5 +214,4 @@ class SamplesheetConverterTest extends Dsl2Spec{
         errorMessages[13] == "\tSample 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
         !stdout
     }
-
 }
