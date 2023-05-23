@@ -158,7 +158,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Path samplesheetFile = params[samplesheetParam] as Path
         def Path schemaFile = null
         if (samplesheetValue.containsKey('schema')) {
-            schemaFile = samplesheetValue['schema'] as Path
+            schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
         } else {
             log.error "Parameter '$samplesheetParam' does not contain a schema."
         }
@@ -306,7 +306,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 def String key = (String) p.key
                 def Map property = properties[key] as Map
                 if (property.containsKey('schema')) {
-                    def String schema_name = property['schema']
+                    def String schema_name = getSchemaPath(baseDir, property['schema'].toString())
                     def Path file_path = Nextflow.file(params[key]) as Path
                     log.debug "Starting validation: '$key': '$file_path' with '$schema_name'"
                     def String fileType = SamplesheetConverter.getFileType(file_path)
