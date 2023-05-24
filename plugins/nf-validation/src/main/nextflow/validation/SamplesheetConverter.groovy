@@ -201,7 +201,7 @@ class SamplesheetConverter {
                 }
             }
             // Add meta to the output when a meta field has been created
-            if(meta != [:]) { output.add(0, meta) }
+            if(meta != [:]) { output.add(0, new ImmutableMap(meta)) }
             return output
         }
 
