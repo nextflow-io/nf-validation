@@ -1,4 +1,4 @@
-metaString,metaInteger,metaBoolean,string,number,boolean,file,directory,uniqueField,uniqueDependentField
-fullField,,true,1111,11,true,src/testResources/test.txt,src/testResources/testDir,non_unique,1
-,,,stringA,22,true,,,,,
-2222,1,false,string1,25,false,,,non_unique,1
+metaString,metaInteger,metaBoolean,string,number,boolean,file,directory,path,uniqueField,uniqueDependentField
+fullField,,true,1111,11,true,src/testResources/test.txt,src/testResources/testDir,non_existing_path,non_unique,1
+,,,,,,,,,,,
+2222,1,false,string1,25,false,,,,non_unique,1

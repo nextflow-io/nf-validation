@@ -168,7 +168,8 @@ class SamplesheetConverter {
                     output.add(inputFile)
                 }
             }
-            output.add(0, meta)
+            // Add meta to the output when a meta field has been created
+            if(meta != [:]) { output.add(0, meta) }
             return output
         }
 
@@ -241,7 +242,7 @@ class SamplesheetConverter {
             
             // Check and convert to the desired format
             def String format = field['value']['format']
-            if(format && (format == "file-path" || format == "directory-path")) {
+            if(format && format.contains("path")) {
                 def Path inputFile = Nextflow.file(input) as Path
                 return inputFile
             }

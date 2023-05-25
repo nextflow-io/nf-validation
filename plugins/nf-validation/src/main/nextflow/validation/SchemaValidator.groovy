@@ -420,8 +420,11 @@ class SchemaValidator extends PluginExtensionPoint {
         final SchemaLoader schemaLoader = SchemaLoader.builder()
             .schemaJson(rawSchema)
             .addFormatValidator("file-path", new FilePathValidator())
+            .addFormatValidator("file-path-exists", new FilePathExistsValidator())
             .addFormatValidator("directory-path", new DirectoryPathValidator())
-            .build()
+            .addFormatValidator("directory-path-exists", new DirectoryPathExistsValidator())
+            .addFormatValidator("path", new PathValidator())
+            .addFormatValidator("path-exists", new PathExistsValidator())            .build()
         final schema = schemaLoader.load().build()
 
         // Convert the groovy object to a JSONArray
