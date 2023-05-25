@@ -169,8 +169,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
+            params.input = 'src/testResources/no_meta.csv'
+
             workflow {
-                Channel.fromSamplesheet(file('src/testResources/no_meta.csv'), file('src/testResources/no_meta_schema.json')).view()
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
             }
         '''
 
@@ -212,6 +214,43 @@ class SamplesheetConverterTest extends Dsl2Spec{
         errorMessages[1] == "\tEntry 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
         errorMessages[2] == "\tEntry 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
         errorMessages[3] == "\tEntry 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
+        !stdout
+    }
+
+        def 'errors before channel conversion' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/errorsBeforeConversion.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines() 
+        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
+        errorMessages[2] == "* -- Entry 1 - number: expected type: Number, found: String (string)"
+        errorMessages[3] == "* -- Entry 1 - path: the file or directory 'non_existing_path' does not exist (non_existing_path)"
+        errorMessages[4] == "* -- Entry 1 - boolean: expected type: Boolean, found: String (20)"
+        errorMessages[5] == '* -- Entry 1 - file: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
+        errorMessages[6] == "* -- Entry 1 - file: the file 'non_existing_file.tsv' does not exist (non_existing_file.tsv)"
+        errorMessages[7] == "* -- Entry 1 - directory: 'src/testResources/test.txt' is not a directory (src/testResources/test.txt)"
+        errorMessages[8] == "* -- Entry 2: Missing required value: string"
+        errorMessages[9] == "* -- Entry 2: Missing required value: number"
+        errorMessages[10] == "* -- Entry 2: Missing required value: boolean"
+        errorMessages[11] == "* -- Entry 3 - metaBoolean: expected type: Boolean, found: String (3333)"
+        errorMessages[12] == "* -- Entry 3 - metaInteger: expected type: Integer, found: String (false)"
         !stdout
     }
 }
