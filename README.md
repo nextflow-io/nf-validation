@@ -194,7 +194,7 @@ The path of the schema file must be relative to the root of the pipeline directo
 }
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`fromSamplesheet`](#fromamplesheet).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`fromSamplesheet`](#fromSamplesheet).
 
 ### paramsSummaryMap
 
@@ -232,7 +232,7 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 
 #### Usage
 
-The function requires the name of the param used by the user to provide a samplesheet. The path to the parameters JSON schema can also be provided, defaults to '`nextflow_schema.json`').
+The function requires the name of the param used by the user to provide a samplesheet. The path to the parameters JSON schema can also be provided, defaults to `nextflow_schema.json`.
 The provided parameter must contain a ['`schema`' field](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
 ```nextflow
