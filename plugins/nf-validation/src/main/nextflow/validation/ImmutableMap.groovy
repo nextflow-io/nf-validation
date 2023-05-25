@@ -1,7 +1,7 @@
 package nextflow.validation
 
 // A class that works like Map, but returns an immutable copy with each method
-class ImmutableMap implements Map {
+class ImmutableMap extends LinkedHashMap {
 
     private Map internalMap
 
