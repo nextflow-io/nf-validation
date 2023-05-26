@@ -198,7 +198,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
-            params.immutable_meta = false
+            params.validationImmutableMeta = false
             params.input = 'src/testResources/correct.csv'
 
             workflow {
