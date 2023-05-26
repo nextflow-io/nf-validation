@@ -55,22 +55,22 @@ class ImmutableMap extends LinkedHashMap {
 
     @Override
     Object put(Object key, Object value) {
-        throw new UnsupportedOperationException("Instance of ImmutableMap is immutable")
+        throw new UnsupportedOperationException("Cannot .put() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap the specified entries appended to it.")
     }
 
     @Override
     void putAll(Map m) {
-        throw new UnsupportedOperationException("Instance of ImmutableMap is immutable")
+        throw new UnsupportedOperationException("Cannot .putAll() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap the specified entries appended to it.")
     }
 
     @Override
     Object remove(Object key) {
-        throw new UnsupportedOperationException("Instance of ImmutableMap is immutable")
+        throw new UnsupportedOperationException("Cannot .remove() items from an ImmutableMap, use .dropKey() or .dropKeys() instead to create a new ImmutableMap without the specified keys.")
     }
 
     @Override
     void clear() {
-        throw new UnsupportedOperationException("Instance of ImmutableMap is immutable")
+        throw new UnsupportedOperationException("Cannot clear an ImmutableMap.")
     }
 
     // Additional methods
@@ -88,6 +88,18 @@ class ImmutableMap extends LinkedHashMap {
     @Override
     int hashCode() {
         internalMap.hashCode()
+    }
+
+    // Additional methods for the ImmutableMap class
+
+    Map dropKeys(Collection keys) {
+        // Returns a new ImmutableMap without the keys specified in the collection
+        new ImmutableMap(internalMap - internalMap.subMap(keys))
+    }
+
+    Map dropKey(String key) {
+        // Returns a new ImmutableMap without the key specified in the collection
+        new ImmutableMap(internalMap - internalMap.subMap(key))
     }
 
     // Make sure ImmutableMap gets returned instead of Map
