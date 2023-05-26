@@ -11,7 +11,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; validateAndConvertSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -27,7 +27,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json")
+ch_input = Channel.fromSamplesheet("input")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
