@@ -5,7 +5,8 @@ Following code shows an example where a `cram` file and a `bed` file are given i
 
 ```groovy
 // example channel: [[id:example], example.cram, example.cram.crai, example.bed]
-Channel.validateAndConvertSamplesheet(file("samplesheet.csv"), file("schema.json"))
+params.input = "samplesheet.csv"
+Channel.fromSamplesheet("input")
     .multiMap { meta, cram, crai, bed ->
         cram: [meta, cram, crai]
         bed:  [meta, bed]

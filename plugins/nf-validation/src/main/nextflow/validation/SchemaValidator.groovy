@@ -32,6 +32,7 @@ import org.yaml.snakeyaml.Yaml
 import static SamplesheetConverter.getHeader
 import static SamplesheetConverter.getFileType
 
+
 @Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -135,11 +136,53 @@ class SchemaValidator extends PluginExtensionPoint {
         }
     }
 
+    //
+    // Find a value in a nested map
+    //
+    def findDeep(Map m, String key) {
+        if (m.containsKey(key)) return m[key]
+        m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
+    }
+
     @Factory
-    public DataflowWriteChannel validateAndConvertSamplesheet(
-        Path samplesheetFile,
-        Path schemaFile
+    public DataflowWriteChannel fromSamplesheet(
+        String samplesheetParam,
+        String schema_filename='nextflow_schema.json'
     ) {
+
+        def String baseDir = session.baseDir
+        def Map params = session.params
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
+        def Path samplesheetFile = params[samplesheetParam] as Path
+        def Path schemaFile = null
+        if (samplesheetValue.containsKey('schema')) {
+            schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+        } else {
+            log.error "Parameter '$samplesheetParam' does not contain a schema."
+        }
+
+        log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
+
+        // Validate samplesheet
+        def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
+        def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+        def List<Map<String,String>> fileContent
+        def List<Map<String,String>> fileContentCasted = []
+        if(fileType == "yaml"){
+            fileContent = new Yaml().load((samplesheetFile.text))
+        }
+        else {
+            Map types = variableTypes(schemaFile.toString(), baseDir)
+            fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
+            fileContentCasted = castToType(fileContent, types)
+        }
+        if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir)) {
+            log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
+        }
+
+        // Convert to channel
         final channel = CH.create()
         List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
         session.addIgniter {
@@ -160,6 +203,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = session.params
         def String baseDir = session.baseDir
+        log.debug "Starting parameters validation"
         
         // Clean the parameters
         def cleanedParams = cleanParameters(params)
@@ -254,7 +298,7 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException(msg, this.getErrors())
         }
 
-        /*//=====================================================================//
+        //=====================================================================//
         // Look for other schemas to validate
         for (group in schemaParams) {
             def Map properties = (Map) group.value['properties']
@@ -262,30 +306,113 @@ class SchemaValidator extends PluginExtensionPoint {
                 def String key = (String) p.key
                 def Map property = properties[key] as Map
                 if (property.containsKey('schema')) {
-                    def String schema_name = property['schema']
+                    def String schema_name = getSchemaPath(baseDir, property['schema'].toString())
                     def Path file_path = Nextflow.file(params[key]) as Path
+                    log.debug "Starting validation: '$key': '$file_path' with '$schema_name'"
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
                     def List<Map<String,String>> fileContent
+                    def List<Map<String,String>> fileContentCasted = []
                     if(fileType == "yaml"){
                         fileContent = new Yaml().load((file_path.text))
                     }
                     else {
+                        Map types = variableTypes(schema_name, baseDir)
                         fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                        fileContentCasted = castToType(fileContent, types)
                     }
-                    if (validateFile(params, key, fileContent, schema_name, baseDir)) {
+                    if (validateFile(monochrome_logs, key, fileContentCasted, schema_name, baseDir)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
             }
-        }*/
+        }
+
+        log.debug "Finishing parameters validation"
     }
+
+
+    //
+    // Function to obtain the variable types of properties from a JSON Schema
+    //
+    Map variableTypes(String schema_filename, String baseDir) {
+        def Map variableTypes = [:]
+        def String type = ''
+
+        // Read the schema
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+
+        // Obtain the type of each variable in the schema
+        def Map properties = (Map) parsed['items']['properties']
+        for (p in properties) {
+            def String key = (String) p.key
+            def Map property = properties[key] as Map
+            if (property.containsKey('type')) {
+                if (property['type'] == 'number') {
+                    type = 'float'
+                }
+                else {
+                    type = property['type']
+                }
+                variableTypes[key] = type
+            }
+            else {
+                variableTypes[key] = 'string' // If there isn't a type specifyed, return 'string' to avoid having a null value
+            }
+        }
+
+        return variableTypes
+    }
+
+
+    //
+    // Cast a value to the provided type in a Strict mode
+    //
+    Set<String> VALID_BOOLEAN_VALUES = ['true', 'false'] as Set
+
+    List castToType(List<Map> rows, Map types) {
+        def List<Map> casted = []
+
+        for( Map row in rows) {
+            def Map castedRow = [:]
+
+            for (String key in row.keySet()) {
+                def String str = row[key]
+                def String type = types[key]
+
+                try {
+                    if( str == null || str == '' ) castedRow[key] = null
+                    else if( type.toLowerCase() == 'boolean' && str.toLowerCase() in VALID_BOOLEAN_VALUES ) castedRow[key] = str.toBoolean()
+                    else if( type.toLowerCase() == 'character' ) castedRow[key] = str.toCharacter()
+                    else if( type.toLowerCase() == 'short' && str.isNumber() ) castedRow[key] = str.toShort()
+                    else if( type.toLowerCase() == 'integer' && str.isInteger() ) castedRow[key] = str.toInteger()
+                    else if( type.toLowerCase() == 'long' && str.isLong() ) castedRow[key] = str.toLong()
+                    else if( type.toLowerCase() == 'float' && str.isFloat() ) castedRow[key] = str.toFloat()
+                    else if( type.toLowerCase() == 'double' && str.isDouble() ) castedRow[key] = str.toDouble()
+                    else if( type.toLowerCase() == 'string' ) castedRow[key] = str
+                    else {
+                        castedRow[key] = str
+                    }
+                } catch( Exception e ) {
+                    log.warn "Unable to cast value $str to type $type: $e"
+                    castedRow[key] = str
+                }
+
+            }
+
+            casted = casted + castedRow
+        }
+
+        return casted
+    }
+
 
     //
     // Function to validate a file by its schema
     //
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    boolean validateFile(Map params, String paramName, Object fileContent, String schema_filename, String baseDir) {
+    boolean validateFile(Boolean monochrome_logs, String paramName, Object fileContent, String schema_filename, String baseDir) {
 
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
@@ -302,7 +429,12 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert the groovy object to a JSONArray
         def jsonObj = new JsonBuilder(fileContent)
-        def JSONArray arrayJSON = new JSONArray(jsonObj.toString())
+        // Remove all null values from JSON object
+        jsonObj = jsonObj.toString()
+        while (jsonObj.contains("null")) {
+            jsonObj = jsonObj.replaceAll("(.*)(\".*?\":null,?)", '$1')
+        }
+        def JSONArray arrayJSON = new JSONArray(jsonObj)
 
         //=====================================================================//
         // Check for params with expected values
@@ -324,7 +456,6 @@ class SchemaValidator extends PluginExtensionPoint {
                 .build();
             validator.performValidation(schema, arrayJSON);
         } catch (ValidationException e) {
-            def Boolean monochrome_logs = params.monochrome_logs
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             JSONObject objectJSON = new JSONObject();
@@ -586,14 +717,22 @@ class SchemaValidator extends PluginExtensionPoint {
             valuesJSON = (JSONArray) paramsJSON['objects']
             validationType = "value: "
         } 
+        def Integer entryNumber = 0
         if (causingExceptions.length() == 0) {
+            def String pointer = (String) exJSON['pointerToViolation'] - ~/^#\//
             def String message = (String) exJSON['message']
             def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
             def Matcher m = message =~ p
             // Missing required param
             if(m.matches()){
                 def List l = m[0] as ArrayList
-                errors << "* Missing required ${validationType}${l[1]}".toString()
+                if (pointer.isNumber()) {
+                    entryNumber = pointer.replace('/', ' - ') as Integer
+                    entryNumber = entryNumber + 1
+                    errors << "* -- Entry ${entryNumber}: Missing required ${validationType}${l[1]}".toString()
+                } else {
+                    errors << "* Missing required ${validationType}${l[1]}".toString()
+                }
             }
             // Other base-level error
             else if(exJSON['pointerToViolation'] == '#'){
@@ -620,6 +759,12 @@ class SchemaValidator extends PluginExtensionPoint {
                         errors << "${error_msg}: ${enums_param.join(', ')})".toString()
                     }
                 } else {
+                    if (param.contains('/')) {
+                        entryNumber = param.split('/')[0] as Integer
+                        entryNumber = entryNumber + 1
+                        def String columnName = param.split('/')[1]
+                        param = " Entry ${entryNumber} - ${columnName}"
+                    }
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }
             }
