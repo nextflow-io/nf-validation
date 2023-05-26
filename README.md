@@ -119,10 +119,14 @@ Formats can be used to check `string` values for certain properties.
 
 Following table shows all additional formats implemented in this plugin. These formats will also be converted to the correct type.
 
-| Format | Description |
-|-----------|-------------|
-| file-path | Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input |
-| directory-path | Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input. This is currently synonymous for `file-path`. |
+| Format | Description                                                                                                                                                                                                            |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| file-path | States if the provided value is a file. Does not check its existence.                                                                                                                                                  |
+| file-path-exists | Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.                                                           |
+| directory-path | States if the provided value is a directory. Does not check its existence.                                                                                                                                             |
+| directory-path-exists | Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input. This is currently synonymous for `file-path-exists`. |
+| path | States if the provided value is a path (file or directory). Does not check its existence.                                                                                                                              |
+| path-exists | Automatically checks if the path (file or directory) exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.                                       |
 
 You can use the formats like this:
 ```json
