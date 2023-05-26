@@ -548,7 +548,7 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     @Function
     String paramsHelp(String command, String schema_filename='nextflow_schema.json') {
-        def Map params = initialiseExpectedParams(session.params
+        def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
         def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
