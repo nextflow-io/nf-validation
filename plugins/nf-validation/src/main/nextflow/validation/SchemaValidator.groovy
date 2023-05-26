@@ -149,12 +149,13 @@ class SchemaValidator extends PluginExtensionPoint {
         Map options = null,
         String samplesheetParam
     ) {
-        // Set defaults for optional inputs
-        def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
-        def Boolean immutableMeta = options?.containsKey('immutable_meta') ? options.immutable_meta as Boolean : true
-
         def String baseDir = session.baseDir
         def Map params = session.params
+
+        // Set defaults for optional inputs
+        def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
+        def Boolean immutableMeta = "immutable_meta" in params ? params["immutable_meta"] as Boolean : options?.containsKey('immutable_meta') ? options.immutable_meta as Boolean : true
+
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
