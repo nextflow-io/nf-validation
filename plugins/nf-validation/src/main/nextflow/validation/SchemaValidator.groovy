@@ -235,8 +235,8 @@ class SchemaValidator extends PluginExtensionPoint {
                 errors << "You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'".toString()
             }
             // unexpected params
-            def String schema_ignore_params = params.schema_ignore_params
-            def List params_ignore = schema_ignore_params ? schema_ignore_params.split(',') + 'schema_ignore_params' as List : []
+            def String schemaIgnoreParams = params.validationSchemaIgnoreParams
+            def List params_ignore = schemaIgnoreParams ? schemaIgnoreParams.split(',') + 'schemaIgnoreParams' as List : []
             def expectedParamsLowerCase = expectedParams.collect{ it -> 
                 def String p = it
                 p.replace("-", "").toLowerCase() 
