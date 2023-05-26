@@ -55,7 +55,7 @@ class ImmutableMap extends LinkedHashMap {
 
     @Override
     Object put(Object key, Object value) {
-        throw new UnsupportedOperationException("Cannot .put() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap the specified entries appended to it.")
+        throw new UnsupportedOperationException("Cannot .put() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap with the specified entries appended to it.")
     }
 
     @Override

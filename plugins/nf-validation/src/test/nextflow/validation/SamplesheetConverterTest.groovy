@@ -11,6 +11,7 @@ import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
+
 /**
  * @author : Nicolas Vannieuwkerke <nicolas.vannieuwkerke@ugent.be>
  *
@@ -63,7 +64,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view().first().map {println(it[0].getClass())}
             }
         '''
 
@@ -72,7 +73,6 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
-                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
@@ -80,6 +80,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("class nextflow.validation.ImmutableMap")
     }
 
         def 'should work fine - TSV' () {
@@ -90,7 +91,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -99,7 +100,6 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
-                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
@@ -117,7 +117,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -126,7 +126,6 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
-                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
@@ -134,6 +133,120 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+    }
+
+    def 'immutable meta' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json")
+                    .map { 
+                        println(it[0].getClass())
+                        new_meta = it[0] + ["id":"test"]
+                        println(new_meta.getClass())
+                    }
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+
+        then:
+        noExceptionThrown() 
+        stdout.contains("class nextflow.validation.ImmutableMap")
+        !stdout.contains("class java.util.LinkedHashMap")
+    }
+
+    def 'mutable meta' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json", immutable_meta:false)
+                    .map { 
+                        println(it[0].getClass())
+                        new_meta = it[0] + ["id":"test"]
+                        println(new_meta.getClass())
+                    }
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+
+        then:
+        noExceptionThrown() 
+        !stdout.contains("class nextflow.validation.ImmutableMap")
+        stdout.contains("class java.util.LinkedHashMap")
+    }
+
+    def 'mutable meta - param' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.immutable_meta = false
+            params.input = 'src/testResources/correct.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json")
+                    .map { 
+                        println(it[0].getClass())
+                        new_meta = it[0] + ["id":"test"]
+                        println(new_meta.getClass())
+                    }
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+
+        then:
+        noExceptionThrown() 
+        !stdout.contains("class nextflow.validation.ImmutableMap")
+        stdout.contains("class java.util.LinkedHashMap")
+    }
+
+    def 'immutable meta - put' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json")
+                    .map { 
+                        it[0].string1 = "unwanted change"
+                    }
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+
+        then:
+        def error = thrown(nextflow.exception.AbortRunException)
+        error != null
     }
 
     def 'extra field' () {
@@ -144,7 +257,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/extraFields.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -153,7 +266,6 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
-                .findResults {it.startsWith('[[') || it.contains('The samplesheet contains following unchecked field(s): [extraField]') ? it : null }
 
         then:
         noExceptionThrown()
@@ -172,7 +284,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/no_meta.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
             }
         '''
 
@@ -196,7 +308,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/errors.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -225,7 +337,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/errorsBeforeConversion.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", "src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
