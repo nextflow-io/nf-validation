@@ -16,7 +16,6 @@ import org.everit.json.schema.loader.SchemaLoader
 import org.everit.json.schema.PrimitiveValidationStrategy
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.SchemaException
-import org.everit.json.schema.Validator
 import org.everit.json.schema.Schema
 import org.json.JSONArray
 import org.json.JSONObject
@@ -52,27 +51,16 @@ class SamplesheetConverter {
     static increaseCount(){ sampleCount++ }
     static Integer getCount(){ sampleCount }
 
-    static Validator validator = Validator.builder()
-                    .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-                    .build();
 
     static List convertToList(
         Path samplesheetFile, 
         Path schemaFile
         ) {
 
-        JSONObject rawSchema = new JSONObject(new JSONTokener(schemaFile.text))
-        SchemaLoader schemaLoader = SchemaLoader.builder()
-                .schemaJson(rawSchema)
-                .addFormatValidator("file-path", new FilePathValidator())
-                .addFormatValidator("directory-path", new DirectoryPathValidator())
-                .build()
-
-        Schema schema = schemaLoader.load().build()
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
-        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["properties"]
+        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
         def Set<String> allFields = schemaFields.keySet()
-        def List<String> requiredFields = (List) schemaMap["required"]
+        def List<String> requiredFields = (List) schemaMap["items"]["required"]
 
         def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
@@ -96,22 +84,6 @@ class SamplesheetConverter {
             increaseCount()
 
             Map<String,String> row = fullRow.findAll { it.value != "" }
-            JSONObject jsonRow = new JSONObject(row)
-
-            try {
-                this.validator.performValidation(schema, jsonRow)
-            } 
-            catch (ValidationException e) {
-                if(e.getCausingExceptions().size() > 0){
-                    e.getCausingExceptions().each { this.errors << addSample("${it.getMessage()}".toString()) }
-                }
-                else {
-                    this.errors << addSample("${e.getMessage()}".toString())
-                }
-            }
-            catch (SchemaException e) {
-                this.schemaErrors << e.getMessage()
-            }
             def Set rowKeys = row.keySet()
             def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
 
@@ -196,7 +168,8 @@ class SamplesheetConverter {
                     output.add(inputFile)
                 }
             }
-            output.add(0, meta)
+            // Add meta to the output when a meta field has been created
+            if(meta != [:]) { output.add(0, meta) }
             return output
         }
 
@@ -269,7 +242,7 @@ class SamplesheetConverter {
             
             // Check and convert to the desired format
             def String format = field['value']['format']
-            if(format && (format == "file-path" || format == "directory-path")) {
+            if(format && format.contains("path")) {
                 def Path inputFile = Nextflow.file(input) as Path
                 return inputFile
             }
@@ -303,6 +276,6 @@ class SamplesheetConverter {
     private static String addSample (
         String message
     ) {
-        return "Sample ${this.getCount()}: ${message}".toString()
+        return "Entry ${this.getCount()}: ${message}".toString()
     }
 }

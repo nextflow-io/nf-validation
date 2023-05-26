@@ -29,7 +29,7 @@ plugins {
 Include a function into your Nextflow pipeline and execute it.
 
 ```nextflow
-include { validateParameters, paramsHelp, paramsSummaryMap, paramsSummaryLog, validateAndConvertSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
 if (params.help) {
@@ -45,7 +45,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Obtain an input channel from a sample sheet
-ch_input = Channel.validateAndConvertSamplesheet(params.input, "${projectDir}/assets/schema_input.json)
+ch_input = Channel.fromSamplesheet("input")
 ```
 
 You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
@@ -69,7 +69,7 @@ nf-validation includes five different functions that you can include in your pip
 - `paramsHelp()` - print a help message
 - `paramsSummaryMap()` - summarize pipeline parameters
 - `paramsSummaryLog()` - return summarized pipeline parameters as a string
-- `validateAndConvertSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
+- `fromSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
 
 ### validateParameters
 
@@ -113,6 +113,30 @@ or specifying it in the configuration file
 params.validationLenientMode = true
 ```
 
+### Formats
+
+Formats can be used to check `string` values for certain properties.
+
+Following table shows all additional formats implemented in this plugin. These formats will also be converted to the correct type.
+
+| Format | Description                                                                                                                                                                                                            |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| file-path | States if the provided value is a file. Does not check its existence.                                                                                                                                                  |
+| file-path-exists | Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.                                                           |
+| directory-path | States if the provided value is a directory. Does not check its existence.                                                                                                                                             |
+| directory-path-exists | Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input. This is currently synonymous for `file-path-exists`. |
+| path | States if the provided value is a path (file or directory). Does not check its existence.                                                                                                                              |
+| path-exists | Automatically checks if the path (file or directory) exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.                                       |
+
+You can use the formats like this:
+```json
+"field": {
+    "type":"string",
+    "format":"file-path"
+}
+```
+See [here](../plugins/nf-validation/src/testResources/schema_input.json#L33-41) for an example in the samplesheet.
+
 ### paramsHelp
 
 This function prints a help message with the command to run a pipeline and the available parameters.
@@ -155,7 +179,7 @@ By default, when printing the help message only a selection of attributes are pr
 nextflow run my_pipeline --help param_name
 ```
 
-<!--### Validate an input file provided by params with another JSON schema
+### Validate an input file provided by params with another JSON schema
 
 By provided the `schema` field in one off the parameters, the function will automatically validate the provided file using this JSON schema. It can validate CSV, TSV and simple YAML files.
 The path of the schema file must be relative to the root of the pipeline directory. See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
@@ -171,9 +195,10 @@ The path of the schema file must be relative to the root of the pipeline directo
          "description": "Path to comma-separated file containing information about the samples in the experiment.",
       }
 }
+}
 ```
 
-For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by []`validateAndConvertSamplesheet`](https://github.com/mirpedrol/nf-validation/blob/75babb6fc293042d2c0a5acd728291bb3c5d7cf5/README.md#L250).-->
+For more information about the samplesheet JSON schema refer to [samplesheet docs](docs/samplesheetDocs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`fromSamplesheet`](#fromSamplesheet).
 
 ### paramsSummaryMap
 
@@ -205,30 +230,27 @@ This function requires an argument providing the a WorkflowMetadata object. It c
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 ```
 
-### validateAndConvertSamplesheet
+### fromSamplesheet
 
 This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema (and supports draft 4-7). More information on this can be found in the [samplesheet docs](docs/samplesheetDocs.md).
 
 #### Usage
 
-The function requires two different inputs: the samplesheet and the schema used for the samplesheet. Both files need to be passed through the `file()` function as input for this function.
+The function requires the name of the param used by the user to provide a samplesheet. The path to the parameters JSON schema can also be provided, defaults to `nextflow_schema.json`.
+The provided parameter must contain a ['`schema`' field](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
 ```nextflow
-Channel.validateAndConvertSamplesheet(
-   file('path/to/samplesheet', checkIfExists:true),
-   file('path/to/schema', checkIfExists:true)
-)
+Channel.fromSamplesheet('input', 'custom_nextflow_schema.json')
 ```
 
-For examples on how to process the created channel, see the [examples/](examples/) folder
+For examples on how to process the created channel, see the [examples/](examples/) folder.
 
-<!--Note that in order to fully validate the sample sheet you must always run [`validateParameters()`](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L116) with the [`schema` field provided](https://github.com/mirpedrol/nf-validation/blob/ce409583b4582f4221cbf0d0d3917e35f4ba628d/README.md#L200).-->
 
 # Getting started with plugin dev
 
 To compile and run the tests use the following command: 
 
-```
+```bash
 ./gradlew check
 ```      
 
@@ -238,25 +260,25 @@ To test with Nextflow for development purpose:
 
 1. Clone the Nextflow repo into a sibling directory  
 
-   ```
+   ```bash
    cd .. && https://github.com/nextflow-io/nextflow
    cd nextflow && ./gradlew exportClasspath
    ``` 
 
 2. Append to the `settings.gradle` in this project the following line:
 
-   ```
+   ```bash
    includeBuild('../nextflow')
    ```                        
    
 3. Compile the plugin code
 
-   ```
+   ```bash
    ./gradlew compileGroovy
    ```
    
 4. run nextflow with this command:
 
-    ```
+    ```bash
     ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
     ```
