@@ -11,7 +11,8 @@ This example contains a channel where multiple samples can be in the same family
 // [[id:example1, family:family1], example1.txt]
 // [[id:example2, family:family1], example2.txt]
 // [[id:example3, family:family2], example3.txt]
-Channel.validateAndConvertSamplesheet(file("samplesheet.csv"), file("schema.json"))
+params.input = "samplesheet.csv"
+Channel.fromSamplesheet("input")
     .tap { ch_raw } // Create a copy of the original channel
     .map { meta, txt -> [ meta.family ] } // Isolate the value to count on
     .reduce([:]) { counts, family ->

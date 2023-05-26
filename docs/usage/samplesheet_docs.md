@@ -133,24 +133,3 @@ See <a href="https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf
 
 </table>
 
-### Formats
-
-Formats can be used to check `string` values for certain properties.
-
-Following table shows all additional formats implemented in this plugin. These formats will also be converted to the correct type.
-
-| Format         | Description                                                                                                                                                                                                     |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| file-path      | Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input                                                     |
-| directory-path | Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input. This is currently synonymous for `file-path`. |
-
-You can use the formats like this:
-
-```json
-"field": {
-    "type":"string",
-    "format":"file-path"
-}
-```
-
-See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L33-41) for an example in the samplesheet.

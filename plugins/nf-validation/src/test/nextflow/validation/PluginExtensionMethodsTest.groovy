@@ -96,11 +96,57 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
-    def 'should validate a schema' () {
+    def 'should validate a schema csv' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate a schema tsv' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.tsv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters('$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should validate a schema yaml' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.yaml'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
@@ -536,7 +582,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
     }
 
-    /*// 
+    // 
     // Samplesheet validation tests
     //
 
@@ -582,7 +628,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* --0/fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* --1/fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
+        error.message == '''The following errors have been detected:\n\n* -- Entry 1 - fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* -- Entry 2 - fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
         !stdout
     }
 
@@ -606,7 +652,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* Missing required value: sample\n\n'''
+        error.message == '''The following errors have been detected:\n\n* -- Entry 1: Missing required value: sample\n* -- Entry 2: Missing required value: sample\n\n'''
         !stdout
-    }*/
+    }
 }
