@@ -34,3 +34,13 @@ To test with Nextflow for development purpose:
    ```bash
    ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
    ```
+
+## Change and preview the docs
+
+The docs are generated using [mkdocs](https://www.mkdocs.org/). To change the docs, edit the files in the [docs/](docs/) folder and run the following command to generate the docs (after installing mkdocs via `pip install mkdocs`):
+
+```bash
+mkdocs serve
+```
+
+To preview the docs, open the URL provided by mkdocs in your browser.
