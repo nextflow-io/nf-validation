@@ -85,8 +85,10 @@ See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-v
 
 This function prints a help message with the command to run a pipeline and the available parameters.
 
+<!-- prettier-ignore-start -->
 !!! Note
     `paramsHelp()` doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
+<!-- prettier-ignore-end -->
 
 ### Usage
 
@@ -151,8 +153,10 @@ For more information about the samplesheet JSON schema refer to [samplesheet doc
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
-!!! Note
+<!-- prettier-ignore-start -->
+!!! Note 
     `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
+<!-- prettier-ignore-end -->
 
 ### Usage
 
@@ -166,8 +170,10 @@ paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
 
 This function returns a string summarizing the parameters provided to the pipeline.
 
+<!-- prettier-ignore-start -->
 !!! Note
     `paramsSummaryLog()` will return only the provided parameters that differ from the default values.
+<!-- prettier-ignore-end -->
 
 ### Usage
 

@@ -8,17 +8,17 @@ An example samplesheet can be found [here](https://github.com/nextflow-io/nf-val
 
 All fields should be present in the `properties` section. Fields that are present in the samplesheet, but not in the schema will be ignored and produce a warning. These should be in the order you want for the output channel e.g. for this the example schema the output channel will contain following fields in that exact order:
 
-| name | type | contents |
-|------|------|----------|
-| meta | List | This will contain all values that are flagged with `meta` in the samplesheet. In the example this will contain the `string1`, `string2`, `integer1`, `integer2`, `boolean1` and `boolean2` values converted to their correct type (as specified in the samplesheet) |
-| string | String | The value given in `string` as a String type |
-| number | Integer/Number | The value given in `integer` as an Integer type |
-| boolean | Boolean | The value given in `boolean` as a Boolean type |
-| file | Nextflow.File | The value given in `file` as a Nextflow File type |
-| directory | Nextflow.File | The value given in `directory` as a Nextflow type |
-| uniqueField | String | The value given in `uniqueField` as a String type, which needs to be unique across all entries in the samplesheet |
-| uniqueDependentField | Integer | The value given in `uniqueDependentField` as an Integer type, which needs to be unique in combination with `uniqueField` across all entries |
-| nonExistingField | String | The value given in `nonExistingField` as a String type, which will default to `itDoesExist` if no value has been given here. |
+| name                 | type           | contents                                                                                                                                                                                                                                                            |
+| -------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| meta                 | List           | This will contain all values that are flagged with `meta` in the samplesheet. In the example this will contain the `string1`, `string2`, `integer1`, `integer2`, `boolean1` and `boolean2` values converted to their correct type (as specified in the samplesheet) |
+| string               | String         | The value given in `string` as a String type                                                                                                                                                                                                                        |
+| number               | Integer/Number | The value given in `integer` as an Integer type                                                                                                                                                                                                                     |
+| boolean              | Boolean        | The value given in `boolean` as a Boolean type                                                                                                                                                                                                                      |
+| file                 | Nextflow.File  | The value given in `file` as a Nextflow File type                                                                                                                                                                                                                   |
+| directory            | Nextflow.File  | The value given in `directory` as a Nextflow type                                                                                                                                                                                                                   |
+| uniqueField          | String         | The value given in `uniqueField` as a String type, which needs to be unique across all entries in the samplesheet                                                                                                                                                   |
+| uniqueDependentField | Integer        | The value given in `uniqueDependentField` as an Integer type, which needs to be unique in combination with `uniqueField` across all entries                                                                                                                         |
+| nonExistingField     | String         | The value given in `nonExistingField` as a String type, which will default to `itDoesExist` if no value has been given here.                                                                                                                                        |
 
 A real use example of this will look like this when printed with `.view()`:
 
@@ -49,6 +49,7 @@ These schema specifications can be used on any type of input:
     "meta": ["id","sample"]
 }
 ```
+
 will convert the <code>field</code> value to a meta value, resulting in the channel <code>[[id:value, sample:value]...]</code>
 See <a href="https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L8-22">here</a> for an example in the samplesheet.
 
@@ -58,9 +59,9 @@ See <a href="https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf
 <tr>
 <td> unique </td>
 <td> Boolean or List </td>
-<td> 
+<td>
 
-Whether or not the field should contain a unique value over the entire samplesheet. A list can also be given to this parameter. This list should contain other field names that should be unique in combination with the current field. The default is <code>false</code>. 
+Whether or not the field should contain a unique value over the entire samplesheet. A list can also be given to this parameter. This list should contain other field names that should be unique in combination with the current field. The default is <code>false</code>.
 
 </td>
 <td>
@@ -100,12 +101,12 @@ See <a href="https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf
 }
 ```
 
-will show a warning stating that the use of <code>field</code> is deprecated: 
+will show a warning stating that the use of <code>field</code> is deprecated:
 
 ```console
-The 'field' field is deprecated and 
-will no longer be used in the future. 
-Please check the official documentation 
+The 'field' field is deprecated and
+will no longer be used in the future.
+Please check the official documentation
 of the pipeline for more information.
 ```
 
@@ -140,4 +141,3 @@ See <a href="https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf
 </tr>
 
 </table>
-
