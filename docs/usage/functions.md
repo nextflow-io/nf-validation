@@ -8,7 +8,7 @@ nf-validation includes five different functions that you can include in your pip
 - `paramsSummaryLog()` - return summarized pipeline parameters as a string
 - `fromSamplesheet()` - validate and convert a samplesheet into a Nextflow channel
 
-## validateParameters
+## `validateParameters`
 
 This function takes all pipeline parameters and checks that they adhere to the specifications defined in the JSON Schema.
 It returns errors or warnings indicating the parameters that failed.
@@ -81,12 +81,12 @@ You can use the formats like this:
 
 See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L33-41) for an example in the samplesheet.
 
-## paramsHelp
+## `paramsHelp`
 
 This function prints a help message with the command to run a pipeline and the available parameters.
 
-> **Note**  
-> `paramsHelp()` doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
+!!! Note
+    `paramsHelp()` doesn't stop pipeline execution after running. You must add this into your pipeline code if it's the desired functionality.
 
 ### Usage
 
@@ -147,12 +147,12 @@ The path of the schema file must be relative to the root of the pipeline directo
 
 For more information about the samplesheet JSON schema refer to [samplesheet docs](./samplesheet_docs.md). Note that the validation performed by `validateParameters` is limited to the [JSON Schema](https://json-schema.org/) validation. Additional validation checks are performed by [`fromSamplesheet`](#fromSamplesheet).
 
-## paramsSummaryMap
+## `paramsSummaryMap`
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
-> **Note**  
-> `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
+!!! Note
+    `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
 
 ### Usage
 
@@ -162,12 +162,12 @@ This function requires an argument providing the a WorkflowMetadata object. It c
 paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
 ```
 
-## paramsSummaryLog
+## `paramsSummaryLog`
 
 This function returns a string summarizing the parameters provided to the pipeline.
 
-> **Note**  
-> `paramsSummaryLog()` will return only the provided parameters that differ from the default values.
+!!! Note
+    `paramsSummaryLog()` will return only the provided parameters that differ from the default values.
 
 ### Usage
 
@@ -177,7 +177,7 @@ This function requires an argument providing the a WorkflowMetadata object. It c
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 ```
 
-## fromSamplesheet
+## `fromSamplesheet`
 
 This function validates and converts a samplesheet to a ready-to-use Nextflow channel. The JSON schema used for the samplesheets slightly differs from the JSON schema (and supports draft 4-7). More information on this can be found in the [samplesheet docs](./samplesheet_docs.md).
 
