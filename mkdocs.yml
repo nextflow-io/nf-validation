@@ -21,8 +21,8 @@ theme:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: blue
-      accent: blue
+      primary: green
+      accent: light green
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
