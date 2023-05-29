@@ -1,3 +1,8 @@
+---
+title: Count common entries
+hide:
+    - toc
+---
 # Count channel entries with a common value
 
 This example is based on this [code](https://github.com/mribeirodantas/NextflowSnippets/blob/main/snippets/countBy.md) from @mribeirodantas.

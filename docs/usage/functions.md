@@ -19,7 +19,7 @@ When using this function in your pipeline, you can provide the name of a JSON Sc
 File paths should be relative to the root of the pipeline directory.
 File paths should be relative to the root of the pipeline directory.
 
-```nextflow
+```groovy
 validateParameters('custom_nextflow_schema.json')
 ```
 
@@ -37,7 +37,7 @@ nextflow run my_pipeline --validationFailUnrecognisedParams
 
 or specifying it in the configuration file
 
-```nextflow
+```groovy
 params.validationFailUnrecognisedParams = true
 ```
 
@@ -51,7 +51,7 @@ nextflow run my_pipeline --validationLenientMode
 
 or specifying it in the configuration file
 
-```nextflow
+```groovy
 params.validationLenientMode = true
 ```
 
@@ -96,7 +96,7 @@ This function required an argument providing the typical command used to run the
 
 In this example we are executing the function if the parameter `help` is provided and ending the execution afterwards.
 
-```nextflow
+```groovy
 if (params.help) {
    def String command = "nextflow run my_pipeline --input input_file.csv --output output_directory"
    log.info paramsHelp(command, 'custom_nextflow_schema.json')
@@ -116,7 +116,7 @@ nextflow run my_pipeline --help --validationShowHiddenParams
 
 or specifying it in the configuration file
 
-```nextflow
+```groovy
 params.validationShowHiddenParams = true
 ```
 
@@ -154,7 +154,7 @@ For more information about the samplesheet JSON schema refer to [samplesheet doc
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
 
 <!-- prettier-ignore-start -->
-!!! Note 
+!!! Note
     `paramsSummaryMap()` will return only the provided parameters that differ from the default values.
 <!-- prettier-ignore-end -->
 
@@ -162,7 +162,7 @@ This function returns a Groovy Map summarizing parameters/workflow options used 
 
 This function requires an argument providing the a WorkflowMetadata object. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
 
-```nextflow
+```groovy
 paramsSummaryMap(workflow, 'custom_nextflow_schema.json')
 ```
 
@@ -179,7 +179,7 @@ This function returns a string summarizing the parameters provided to the pipeli
 
 This function requires an argument providing the a WorkflowMetadata object. It can also accept the name of a JSON Schema file [default = '`nextflow_schema.json`'].
 
-```nextflow
+```groovy
 paramsSummaryLog(workflow, 'custom_nextflow_schema.json')
 ```
 
@@ -192,7 +192,7 @@ This function validates and converts a samplesheet to a ready-to-use Nextflow ch
 The function requires the name of the param used by the user to provide a samplesheet. The path to the parameters JSON schema can also be provided, defaults to `nextflow_schema.json`.
 The provided parameter must contain a ['`schema`' field](#validate-an-input-file-provided-by-params-with-another-json-schema).
 
-```nextflow
+```groovy
 Channel.fromSamplesheet('input', 'custom_nextflow_schema.json')
 ```
 

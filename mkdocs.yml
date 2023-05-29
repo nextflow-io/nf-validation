@@ -45,7 +45,6 @@ theme:
     - content.action.edit
     - content.code.annotate
     - content.code.copy
-    - navigation.footer
     - navigation.instant
     - navigation.top
     - navigation.tracking

@@ -1,8 +1,12 @@
+---
+hide:
+    - toc
+---
 # Quick Start
 
 Declare the plugin in the Nextflow configuration file:
 
-```nextflow
+```groovy
 plugins {
   id 'nf-validation@0.0.1'
 }
@@ -10,7 +14,7 @@ plugins {
 
 Include a function into your Nextflow pipeline and execute it.
 
-```nextflow
+```groovy
 include { validateParameters; paramsHelp; paramsSummaryMap; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
 
 // Print help message
@@ -39,8 +43,11 @@ A JSON schema file will contains the information for all pipeline parameters. It
 You can find more information about JSON Schemas in their official [documentation webpage](https://json-schema.org/). You can see an example JSON Schema for a Nextflow pipeline [`nextflow_schema.json` file](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema.json).
 
 <!-- prettier-ignore-start -->
-!!! Note
-    Although the JSON Schema allows schema objects (eg. params.foo.bar = "baz") or arrays, this is not supported by this plugin.  
-    In the example schema file, we use some extra JSON keys not available in the standard JSON Schema set: `help_text`, `hidden` and `fa_icon`.  
+!!! warning
+    Although the JSON Schema allows schema objects (eg.` params.foo.bar = "baz"`) or arrays, this is not supported by this plugin.
+
+!!! tip
+    In the example schema file, we use some extra JSON keys not available in the standard JSON Schema set: `help_text`, `hidden` and `fa_icon`.
+
     You can find an interactive [schema builder tool](https://nf-co.re/pipeline_schema_builder) in the nf-core website, and more information about the extra keys under the `Help` section.
 <!-- prettier-ignore-end -->

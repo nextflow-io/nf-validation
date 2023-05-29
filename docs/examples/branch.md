@@ -1,3 +1,8 @@
+---
+title: Conditional separation
+hide:
+    - toc
+---
 # Separate channel entries based on a condition
 
 You can use the [`.branch()` operator](https://www.nextflow.io/docs/latest/operator.html#branch) to separate the channel entries based on a condition. This is especially useful when you can get multiple types of input data.

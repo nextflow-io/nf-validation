@@ -1,3 +1,8 @@
+---
+title: Contribution instructions
+hide:
+    - toc
+---
 # Getting started with plugin dev
 
 To compile and run the tests use the following command:
@@ -37,7 +42,7 @@ To test with Nextflow for development purpose:
 
 ## Change and preview the docs
 
-The docs are generated using [mkdocs](https://www.mkdocs.org/). To change the docs, edit the files in the [docs/](docs/) folder and run the following command to generate the docs (after installing mkdocs via `pip install mkdocs`):
+The docs are generated using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). To change the docs, edit the files in the [docs/](docs/) folder and run the following command to generate the docs (after installing mkdocs via `pip install mkdocs-material`):
 
 ```bash
 mkdocs serve
