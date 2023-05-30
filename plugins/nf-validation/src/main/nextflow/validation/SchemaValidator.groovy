@@ -222,7 +222,7 @@ class SchemaValidator extends PluginExtensionPoint {
             params.validationSchemaIgnoreParams = false
         }
         if( !params.containsKey("validationImmutableMeta") ) {
-            params.validationImmutableMeta = false
+            params.validationImmutableMeta = true
         }
 
         return params
