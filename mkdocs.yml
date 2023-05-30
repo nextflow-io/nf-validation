@@ -6,16 +6,24 @@ edit_uri: edit/main/docs/
 
 nav:
   - Home: index.md
-  - Usage:
-      - usage/quick_start.md
-      - usage/functions.md
-      - usage/samplesheet_docs.md
-  - Contributing:
-      - contributing/setup.md
-  - Examples:
+  - Nextflow schema:
+      - nextflow_schema/index.md
+      - nextflow_schema/create_schema.md
+      - nextflow_schema/schema_specification.md
+      - nextflow_schema/examples.md
+  - Sample sheet schema:
+      - sample_sheet_schema/schema_specification.md
+      - sample_sheet_schema/examples.md
+  - nf-validation functionality:
+      - nf-validation/nextflow_schema.md
+      - nf-validation/sample_sheet_schema.md
+      - nf-validation/immutable_map.md
+  - Example usage:
       - examples/branch.md
       - examples/count.md
       - examples/multimap.md
+  - Contributing:
+      - contributing/setup.md
 
 theme:
   name: material
@@ -26,7 +34,7 @@ theme:
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: green
+      primary: custom
       accent: light green
       toggle:
         icon: material/weather-sunny
@@ -34,7 +42,7 @@ theme:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: green
+      primary: custom
       accent: light green
       toggle:
         icon: material/weather-night
@@ -51,9 +59,12 @@ theme:
     - navigation.sections
     - search.share
     - toc.follow
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - admonition
+  - def_list
   - md_in_html
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
@@ -64,6 +75,8 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 plugins:
   - search
