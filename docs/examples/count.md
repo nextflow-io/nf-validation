@@ -1,8 +1,13 @@
+---
+title: Count common entries
+hide:
+    - toc
+---
 # Count channel entries with a common value
 
 This example is based on this [code](https://github.com/mribeirodantas/NextflowSnippets/blob/main/snippets/countBy.md) from @mribeirodantas.
 
-It's useful to determine the count of channel entries with similar values when you want to merge them later on (to prevent pipeline bottlenecks with `.groupTuple()`). 
+It's useful to determine the count of channel entries with similar values when you want to merge them later on (to prevent pipeline bottlenecks with `.groupTuple()`).
 
 This example contains a channel where multiple samples can be in the same family. Later on in the pipeline we want to merge the analyzed files so one file gets created for each family. The result will be a channel with an extra meta field containing the count of channel entries with the same family name.
 

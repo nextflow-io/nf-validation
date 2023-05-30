@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/schema_input.json",
+  "title": "Samplesheet validation schema",
+  "description": "Schema for the samplesheet used in this pipeline",
+  "type": "object",
+  "properties": {
+    "metaString": {
+      "type": "string",
+      "meta": ["string1", "string2"],
+      "default": "value",
+      "dependentRequired": ["metaInteger", "metaBoolean"]
+    },
+    "metaInteger": {
+      "type": "integer",
+      "meta": ["integer1", "integer2"],
+      "default": 5
+    },
+    "metaBoolean": {
+      "type": "boolean",
+      "meta": ["boolean1", "boolean2"],
+      "default": true
+    },
+    "string": {
+      "type": "string"
+    },
+    "number": {
+      "type": "number"
+    },
+    "boolean": {
+      "type": "boolean"
+    },
+    "file": {
+      "type": "string",
+      "format": "file-path-exists",
+      "pattern": "^.*\\.txt$"
+    },
+    "directory": {
+      "type": "string",
+      "format": "directory-path-exists"
+    },
+    "path": {
+      "type": "string",
+      "format": "path-exists"
+    },
+    "uniqueField": {
+      "type": "string",
+      "unique": true
+    },
+    "uniqueDependentField": {
+      "type": "integer",
+      "unique": ["uniqueField"]
+    },
+    "nonExistingField": {
+      "type": "string",
+      "default": "itDoesExist"
+    }
+  },
+  "required": ["string", "number", "boolean"]
+}
