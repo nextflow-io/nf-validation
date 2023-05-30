@@ -214,8 +214,8 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationShowHiddenParams") ) {
             params.validationShowHiddenParams = false
         }
-        if( !params.containsKey("schema_ignore_params") ) {
-            params.schema_ignore_params = false
+        if( !params.containsKey("validationSchemaIgnoreParams") ) {
+            params.validationSchemaIgnoreParams = false
         }
         if( !params.containsKey("validationImmutableMeta") ) {
             params.validationImmutableMeta = false
@@ -229,7 +229,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Add expected params
     //
     List addExpectedParams() {
-        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "schema_ignore_params", "validationImmutableMeta"]
+        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "validationSchemaIgnoreParams", "validationImmutableMeta"]
 
         return expectedParams
     }
