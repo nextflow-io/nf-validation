@@ -1,0 +1,71 @@
+site_name: nf-validation
+repo_name: nextflow-io/nf-validation
+repo_url: https://github.com/nextflow-io/nf-validation
+site_url: https://nextflow-io.github.io/nf-validation/
+edit_uri: edit/main/docs/
+
+nav:
+  - Home: index.md
+  - Usage:
+      - usage/quick_start.md
+      - usage/functions.md
+      - usage/samplesheet_docs.md
+  - Contributing:
+      - contributing/setup.md
+  - Examples:
+      - examples/branch.md
+      - examples/count.md
+      - examples/multimap.md
+
+theme:
+  name: material
+  icon:
+    logo: octicons/checklist-16
+    repo: fontawesome/brands/github
+  palette:
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+  font:
+    text: Inter
+  features:
+    - content.action.edit
+    - content.code.annotate
+    - content.code.copy
+    - navigation.instant
+    - navigation.top
+    - navigation.tracking
+    - navigation.sections
+    - search.share
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.details
+
+plugins:
+  - search
+  - social:
+      cards: !ENV [CARDS, true]
