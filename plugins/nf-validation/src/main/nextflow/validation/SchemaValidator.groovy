@@ -146,14 +146,18 @@ class SchemaValidator extends PluginExtensionPoint {
 
     @Factory
     public DataflowWriteChannel fromSamplesheet(
-        String samplesheetParam,
-        String schema_filename='nextflow_schema.json'
+        Map options = null,
+        String samplesheetParam
     ) {
-
         def String baseDir = session.baseDir
         def Map params = session.params
+
+        // Set defaults for optional inputs
+        def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
+        def Boolean immutableMeta = params.containsKey("validationImmutableMeta") ? params["validationImmutableMeta"] as Boolean : options?.containsKey('immutable_meta') ? options.immutable_meta as Boolean : true
+
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
         def Path schemaFile = null
@@ -184,7 +188,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert to channel
         final channel = CH.create()
-        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile, immutableMeta)
         session.addIgniter {
             arrayChannel.each { 
                 channel.bind(it) 
@@ -218,7 +222,7 @@ class SchemaValidator extends PluginExtensionPoint {
             params.validationSchemaIgnoreParams = false
         }
         if( !params.containsKey("validationImmutableMeta") ) {
-            params.validationImmutableMeta = false
+            params.validationImmutableMeta = true
         }
 
         return params
