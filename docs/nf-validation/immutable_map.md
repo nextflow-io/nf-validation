@@ -1,5 +1,7 @@
 # ImmutableMap
 
+By default the meta (a map for meta values specified in the schema) is an [`ImmutableMap`](docs/immutablemap.md) to make sure no unexpected values are overwritten, which can cause trouble because of the asynchronous flow of Nextflow. The output map can also be a normal `LinkedHashMap` when the option `immutable_meta` is set to `false`.
+
 `nextflow.validation.ImmutableMap` is an extension of the `java.util.LinkedHashMap` class. It inherits all the methods from it's parent class, but changes and adds some methods. Below is a list of all changes done.
 
 ## New methods

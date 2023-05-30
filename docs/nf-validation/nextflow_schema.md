@@ -1,4 +1,8 @@
-# nf-validation functions
+---
+title: Parameters
+---
+
+# nf-validation for parameters
 
 nf-validation includes four different functions for working with pipeline parameters:
 

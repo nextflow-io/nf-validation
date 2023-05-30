@@ -2,7 +2,7 @@
 title: Introduction
 ---
 
-# Parameter Schema
+# Nextflow schema for parameters
 
 The functionality of the nf-validation plugin centres on a pipeline _schema_ file.
 By convention, this file is stored in the workflow root directory and called `nextflow_schema.json`.
