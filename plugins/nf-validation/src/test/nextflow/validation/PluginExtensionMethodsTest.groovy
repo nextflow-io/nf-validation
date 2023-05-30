@@ -197,7 +197,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
-            params.schema_ignore_params = 'xyz'
+            params.validationSchemaIgnoreParams = 'xyz'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters('$schema')
