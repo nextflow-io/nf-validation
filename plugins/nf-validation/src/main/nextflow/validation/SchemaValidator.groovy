@@ -194,6 +194,47 @@ class SchemaValidator extends PluginExtensionPoint {
         return channel
     }
 
+
+    //
+    // Initialise expected params if not present
+    //
+    Map initialiseExpectedParams(Map params) {
+        if( !params.containsKey("validationFailUnrecognisedParams") ) {
+            params.validationFailUnrecognisedParams = false
+        }
+        if( !params.containsKey("validationLenientMode") ) {
+            params.validationLenientMode = false
+        }
+        if( !params.containsKey("monochrome_logs") ) {
+            params.monochrome_logs = false
+        }
+        if( !params.containsKey("help") ) {
+            params.help = false
+        }
+        if( !params.containsKey("validationShowHiddenParams") ) {
+            params.validationShowHiddenParams = false
+        }
+        if( !params.containsKey("schema_ignore_params") ) {
+            params.schema_ignore_params = false
+        }
+        if( !params.containsKey("validationImmutableMeta") ) {
+            params.validationImmutableMeta = false
+        }
+
+        return params
+    }
+
+
+    //
+    // Add expected params
+    //
+    List addExpectedParams() {
+        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "schema_ignore_params", "validationImmutableMeta"]
+
+        return expectedParams
+    }
+
+
     /*
     * Function to loop over all parameters defined in schema and check
     * whether the given parameters adhere to the specifications
@@ -201,7 +242,7 @@ class SchemaValidator extends PluginExtensionPoint {
     @Function
     void validateParameters(String schema_filename='nextflow_schema.json') {
 
-        def Map params = session.params
+        def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
         log.debug "Starting parameters validation"
         
@@ -219,12 +260,8 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
-        def List expectedParams = (List) enumsTuple[0]
+        def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
-
-        // Add known expected parameters from the pipeline
-        expectedParams.push('validationFailUnrecognisedParams')
-        expectedParams.push('validationLenientMode')
 
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
         def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
@@ -444,7 +481,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
-        def List expectedParams = (List) enumsTuple[0]
+        def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
 
         //=====================================================================//
@@ -514,7 +551,7 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     @Function
     String paramsHelp(String command, String schema_filename='nextflow_schema.json') {
-        def Map params = session.params
+        def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
         def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
