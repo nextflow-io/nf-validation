@@ -1,8 +1,9 @@
 ---
 title: Contribution instructions
 hide:
-    - toc
+  - toc
 ---
+
 # Getting started with plugin dev
 
 To compile and run the tests use the following command:

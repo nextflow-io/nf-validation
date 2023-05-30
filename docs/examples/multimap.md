@@ -1,8 +1,9 @@
 ---
 title: Split into multiple channels
 hide:
-    - toc
+  - toc
 ---
+
 # Split the channel into multiple channels
 
 Sometimes you don't want all inputs to remain in the same channel (e.g. when the files need to be preprocessed separately).

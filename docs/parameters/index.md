@@ -1,6 +1,7 @@
 ---
 title: Introduction
 ---
+
 # Parameter Schema
 
 The functionality of the nf-validation plugin centres on a pipeline _schema_ file.
@@ -13,10 +14,10 @@ It is based on the [JSON Schema format](https://json-schema.org/) standard.
 
 In brief, it includes information for each parameter about:
 
-* Name (the `params.name`)
-* Description and help texts
-* Variable type (string, integer, boolean, enum etc)
-* Validation rules (string regexes, numeric min / max, etc)
+- Name (the `params.name`)
+- Description and help texts
+- Variable type (string, integer, boolean, enum etc)
+- Validation rules (string regexes, numeric min / max, etc)
 
 ..and more. See the [full specification](schema.md) for details.
 
@@ -37,9 +38,9 @@ In brief, it includes information for each parameter about:
 The `nextflow_schema.json` file and format have been in use for a few years now
 and are widely used in the community. Some specific examples of usage are:
 
-* Validation & help texts within pipelines _(this plugin)_
-* Generation of documentation pages _(nf-core pipeline pages)_
-* Generation of pipeline launch user interfaces _(nf-core launch, Nextflow Tower and more)_
+- Validation & help texts within pipelines _(this plugin)_
+- Generation of documentation pages _(nf-core pipeline pages)_
+- Generation of pipeline launch user interfaces _(nf-core launch, Nextflow Tower and more)_
 
 ## Looking to the future
 

@@ -8,11 +8,11 @@
 
 This plugin provides a number of functions that can be included into a Nextflow pipeline script to work with parameter and sample sheet schema. Using these functions you can:
 
-* 📖 Print usage instructions to the terminal (for use with `--help`)
-* ✍️ Print log output showing parameters with non-default values
-* ✅ Validate supplied parameters against the pipeline schema
-* 📋 Validate the contents of supplied sample sheet files
-* 🛠️ Create a Nextflow channel with a parsed sample sheet
+- 📖 Print usage instructions to the terminal (for use with `--help`)
+- ✍️ Print log output showing parameters with non-default values
+- ✅ Validate supplied parameters against the pipeline schema
+- 📋 Validate the contents of supplied sample sheet files
+- 🛠️ Create a Nextflow channel with a parsed sample sheet
 
 Supported sample sheet formats are CSV, TSV and YAML (simple).
 
@@ -77,7 +77,7 @@ as part of the nf-core pipeline template.
 
 We would like to thank the key contributors who include (but are not limited to):
 
-* Júlia Mir Pedrol ([@mirpedrol](https://github.com/mirpedrol))
-* Nicolas Vannieuwkerke ([@nvnieuwk](https://github.com/nvnieuwk))
-* Kevin Menden ([@KevinMenden](https://github.com/KevinMenden))
-* Phil Ewels ([@ewels](https://github.com/ewels))
+- Júlia Mir Pedrol ([@mirpedrol](https://github.com/mirpedrol))
+- Nicolas Vannieuwkerke ([@nvnieuwk](https://github.com/nvnieuwk))
+- Kevin Menden ([@KevinMenden](https://github.com/KevinMenden))
+- Phil Ewels ([@ewels](https://github.com/ewels))
