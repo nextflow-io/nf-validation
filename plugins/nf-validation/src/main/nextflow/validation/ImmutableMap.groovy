@@ -60,7 +60,7 @@ class ImmutableMap extends LinkedHashMap {
 
     @Override
     void putAll(Map m) {
-        throw new UnsupportedOperationException("Cannot .putAll() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap the specified entries appended to it.")
+        throw new UnsupportedOperationException("Cannot .putAll() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap with the specified entries appended to it.")
     }
 
     @Override
