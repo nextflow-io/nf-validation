@@ -1,0 +1,10 @@
+:root {
+  --md-primary-fg-color:        #19AB86;
+  --md-primary-fg-color--light: #19AB86;
+  --md-primary-fg-color--dark:  #19AB86;
+}
+
+/* Bigger table font size */
+.md-typeset table:not([class]) {
+    font-size: 0.8rem;
+}
