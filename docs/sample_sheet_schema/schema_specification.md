@@ -39,7 +39,7 @@ As such, for CSV sample sheets, the top-level schema should be specified as an a
 }
 ```
 
-If your sample sheet has a different format (for example, a YAML file with a nested structure),
+If your sample sheet has a different format (for example, a simple YAML file),
 you will need to build your schema to match the parsed structure. Using nested YAML files is (for now) not officially supported by the plugin and can result in unexpected errors.
 
 ## Properties
