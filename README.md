@@ -48,7 +48,7 @@ log.info paramsSummaryLog(workflow)
 
 // Create a new channel of metadata from a sample sheet
 // NB: `input` corresponds to `params.input` and associated sample sheet schema
-// See docs for details: https://nextflow-io.github.io/nf-validation/usage/samplesheet_docs/
+// See docs for details: https://nextflow-io.github.io/nf-validation/nf-validation/sample_sheet_schema/
 ch_input = Channel.fromSamplesheet("input")
 ```
 

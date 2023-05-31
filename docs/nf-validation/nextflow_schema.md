@@ -144,7 +144,7 @@ It **only** returns the provided parameters that are **different** to the defaul
 
 The function requires the `WorkflowMetadata` object to be passed as an argument (`workflow`).
 
-It can also accept a custom file name for of a schema file (Default: `nextflow_schema.json`).
+It can also accept a custom file name of a schema file (Default: `nextflow_schema.json`).
 
 ```groovy
 summary_map = paramsSummaryMap(workflow)
