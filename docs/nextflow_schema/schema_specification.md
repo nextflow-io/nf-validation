@@ -310,17 +310,16 @@ Example usage is as follows:
 The available `format` types are below:
 
 `file-path`
-: States if the provided value is a file. Does not check its existence.
+: States and checks if the provided value is a file. Does not check its existence.
 
 `file-path-exists`
-: Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
+: Automatically checks if the provided value is a file, if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
 
 `directory-path`
-: States if the provided value is a directory. Does not check its existence.
+: States and checks if the provided value is a directory. Does not check its existence.
 
 `directory-path-exists`
-: Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
-This is currently synonymous for `file-path-exists`.
+: Automatically checks if the provided value is a directory, if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.
