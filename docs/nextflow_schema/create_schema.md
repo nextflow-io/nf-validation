@@ -1,3 +1,8 @@
+---
+title: Creating a Nextflow schema
+description: How to create a Nextflow schema file for your pipeline
+---
+
 # Creating schema files
 
 !!! warning

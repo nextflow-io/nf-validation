@@ -1,5 +1,6 @@
 ---
 title: Schema specification
+description: Schema specification for sample sheet validation
 ---
 
 # Sample sheet schema specification
@@ -18,7 +19,7 @@ Validation by the plugin works by parsing the supplied file contents into a groo
 then passing this to the JSON schema validation library.
 As such, the structure of the schema must match the structure of the parsed file.
 
-Typically, sample sheets are CSV files, with fields represented as columns and samples as rows.
+Typically, sample sheets are CSV files, with fields represented as columns and samples as rows. TSV and simple unnested YAML files are also supported by the plugin.
 In this case, the parsed object will be an `array` of `objects` - each element of the array a sample,
 and each object in the array with keys matching the headers and values matching the data in that row.
 
@@ -38,8 +39,8 @@ As such, for CSV sample sheets, the top-level schema should be specified as an a
 }
 ```
 
-If your sample sheet has a different format (for example, a YAML file with a nested structure),
-you will need to build your schema to match the parsed structure.
+If your sample sheet has a different format (for example, a simple YAML file),
+you will need to build your schema to match the parsed structure. Using nested YAML files is (for now) not officially supported by the plugin and can result in unexpected errors.
 
 ## Properties
 
@@ -92,7 +93,7 @@ For example:
 ```
 
 will convert the `field` value to a meta value, resulting in the channel `[[id:value, sample:value]...]`
-See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the sample sheet.
+See [here](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
 
 ### `unique`
 
@@ -102,7 +103,7 @@ Whether or not the field should contain a unique value over the entire sample sh
 
 Default: `false`
 
-- Can be `true`, in which case the field should be unique in the this column for all samples
+- Can be `true`, in which case the value for this field should be unique for all samples in the sample sheet.
 - Can be supplied with a list of field names, containing _other field names_ that should be unique _in combination with_ the current field.
 
 !!! example
@@ -130,7 +131,7 @@ Default: `false`
     * `field1` isn't unique since `value1` has been found more than once.
     * `field2` isn't unique in combination with `field1` because the `value1,value2` combination has been found more than once.
 
-    See [`schema_input.json#L42-49`](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L42-49)
+    See [`schema_input.json#L48-L55`](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L48-L55)
     for an example in one of the plugin test-fixture sample sheets.
 
 ### `deprecated`
@@ -184,4 +185,4 @@ A list containing names of other fields. The validator will check if these field
     - [ ] The second row will fail because `field1` is set, but `field2` isn't and `field1` is dependent on `field2`.
     - [x] The third row will pass the check because `field1` isn't set.
 
-    See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the sample sheet.
+    See [here](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.

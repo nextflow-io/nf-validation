@@ -1,5 +1,6 @@
 ---
 title: Conditional separation
+description: Separate channel entries based on a condition
 hide:
   - toc
 ---

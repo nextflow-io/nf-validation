@@ -1,5 +1,6 @@
 ---
 title: Introduction
+description: Introduction to the nf-validation plugin
 ---
 
 # Nextflow schema for parameters
@@ -19,7 +20,7 @@ In brief, it includes information for each parameter about:
 - Variable type (string, integer, boolean, enum etc)
 - Validation rules (string regexes, numeric min / max, etc)
 
-..and more. See the [full specification](schema.md) for details.
+..and more. See the [full specification](schema_specification.md) for details.
 
 !!! warning
 

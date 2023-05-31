@@ -1,5 +1,6 @@
 ---
 title: Split into multiple channels
+description: Split a channel into multiple channels
 hide:
   - toc
 ---

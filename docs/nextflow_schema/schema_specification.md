@@ -1,5 +1,6 @@
 ---
 title: Schema specification
+description: Schema specification for Nextflow pipeline configuration parameter validation
 ---
 
 # Parameter Schema Specification
@@ -310,17 +311,16 @@ Example usage is as follows:
 The available `format` types are below:
 
 `file-path`
-: States if the provided value is a file. Does not check its existence.
+: States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
 `file-path-exists`
-: Automatically checks if the file exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
+: Automatically checks if the provided value is a file (and not a directory), if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
 
 `directory-path`
-: States if the provided value is a directory. Does not check its existence.
+: States if the provided value is a directory. Does not check its existence, but it does check that the path is not a file.
 
 `directory-path-exists`
-: Automatically checks if the directory exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
-This is currently synonymous for `file-path-exists`.
+: Automatically checks if the provided value is a directory (and not a file), if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.
@@ -332,7 +332,7 @@ This is currently synonymous for `file-path-exists`.
 
 MIME type for a file path. Setting this value informs downstream tools about what _kind_ of file is expected.
 
-Should only be set when `format` is `file-path`.
+Should only be set when `format` is `file-path` or `file-path-exists`.
 
 - See a [list of common MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
 
@@ -348,7 +348,7 @@ Should only be set when `format` is `file-path`.
 
 Path to a JSON schema file used to validate _the supplied file_.
 
-Should only be set when `format` is `file-path`.
+Should only be set when `format` is `file-path` or `file-path-exists`.
 
 !!! tip
 
