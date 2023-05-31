@@ -92,7 +92,7 @@ For example:
 ```
 
 will convert the `field` value to a meta value, resulting in the channel `[[id:value, sample:value]...]`
-See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the sample sheet.
+See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
 
 ### `unique`
 
@@ -130,7 +130,7 @@ Default: `false`
     * `field1` isn't unique since `value1` has been found more than once.
     * `field2` isn't unique in combination with `field1` because the `value1,value2` combination has been found more than once.
 
-    See [`schema_input.json#L42-49`](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L42-49)
+    See [`schema_input.json#L48-L55`](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L48-L55)
     for an example in one of the plugin test-fixture sample sheets.
 
 ### `deprecated`
@@ -184,4 +184,4 @@ A list containing names of other fields. The validator will check if these field
     - [ ] The second row will fail because `field1` is set, but `field2` isn't and `field1` is dependent on `field2`.
     - [x] The third row will pass the check because `field1` isn't set.
 
-    See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L8-22) for an example in the sample sheet.
+    See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
