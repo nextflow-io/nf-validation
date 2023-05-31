@@ -185,4 +185,4 @@ A list containing names of other fields. The validator will check if these field
     - [ ] The second row will fail because `field1` is set, but `field2` isn't and `field1` is dependent on `field2`.
     - [x] The third row will pass the check because `field1` isn't set.
 
-    See [here](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
+    See [here](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
