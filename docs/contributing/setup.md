@@ -20,7 +20,7 @@ To test with Nextflow for development purpose:
 1. Clone the Nextflow repo into a sibling directory
 
    ```bash
-   cd .. && https://github.com/nextflow-io/nextflow
+   cd .. && git clone https://github.com/nextflow-io/nextflow
    cd nextflow && ./gradlew exportClasspath
    ```
 
