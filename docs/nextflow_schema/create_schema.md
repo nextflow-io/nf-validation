@@ -10,7 +10,7 @@ description: How to create a Nextflow schema file for your pipeline
     It's **highly recommended** that you don't try to write the schema JSON file manually!
 
     The schema files can get large and complex and are difficult to debug.
-    Don't be tempted to open in your code editor - instead use the provided tools instead!
+    Don't be tempted to open in your code editor - instead use the provided tools!
 
 ## Requirements
 
