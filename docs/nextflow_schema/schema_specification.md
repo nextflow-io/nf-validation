@@ -331,7 +331,7 @@ The available `format` types are below:
 
 MIME type for a file path. Setting this value informs downstream tools about what _kind_ of file is expected.
 
-Should only be set when `format` is `file-path`.
+Should only be set when `format` is `file-path` or `file-path-exists`.
 
 - See a [list of common MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
 
@@ -347,7 +347,7 @@ Should only be set when `format` is `file-path`.
 
 Path to a JSON schema file used to validate _the supplied file_.
 
-Should only be set when `format` is `file-path`.
+Should only be set when `format` is `file-path` or `file-path-exists`.
 
 !!! tip
 
