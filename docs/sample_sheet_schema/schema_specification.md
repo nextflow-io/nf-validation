@@ -131,7 +131,7 @@ Default: `false`
     * `field1` isn't unique since `value1` has been found more than once.
     * `field2` isn't unique in combination with `field1` because the `value1,value2` combination has been found more than once.
 
-    See [`schema_input.json#L48-L55`](https://github.com/nextflow-io/nf-validation/blob/master/plugins/nf-validation/src/testResources/schema_input.json#L48-L55)
+    See [`schema_input.json#L48-L55`](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L48-L55)
     for an example in one of the plugin test-fixture sample sheets.
 
 ### `deprecated`
