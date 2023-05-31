@@ -19,7 +19,7 @@ In brief, it includes information for each parameter about:
 - Variable type (string, integer, boolean, enum etc)
 - Validation rules (string regexes, numeric min / max, etc)
 
-..and more. See the [full specification](schema.md) for details.
+..and more. See the [full specification](schema_specifications.md) for details.
 
 !!! warning
 
