@@ -1,5 +1,6 @@
 ---
 title: Example schema
+description: Example JSON Schema for a Nextflow pipeline `nextflow_schema.json` file
 ---
 
 # Example sample sheet schema

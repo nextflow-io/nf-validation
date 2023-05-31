@@ -1,5 +1,6 @@
 ---
 title: Count common entries
+description: Count channel entries with a common value
 hide:
   - toc
 ---

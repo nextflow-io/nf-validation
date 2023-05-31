@@ -1,5 +1,6 @@
 ---
 title: Schema specification
+description: Schema specification for Nextflow pipeline configuration parameter validation
 ---
 
 # Parameter Schema Specification

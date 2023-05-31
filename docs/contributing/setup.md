@@ -1,5 +1,6 @@
 ---
 title: Contribution instructions
+description: How to contribute to nf-validation
 hide:
   - toc
 ---

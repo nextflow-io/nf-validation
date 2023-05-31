@@ -1,5 +1,6 @@
 ---
 title: Parameters
+description: Functions for working with pipeline parameters
 ---
 
 # nf-validation for parameters

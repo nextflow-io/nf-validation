@@ -1,5 +1,6 @@
 ---
 title: Working with sample sheets
+description: Function to validate and process sample sheets
 ---
 
 # nf-validation for sample sheets

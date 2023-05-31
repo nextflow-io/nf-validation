@@ -1,5 +1,6 @@
 ---
 title: Introduction
+description: Introduction to the nf-validation plugin
 ---
 
 # Nextflow schema for parameters
