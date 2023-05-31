@@ -18,14 +18,14 @@ As a community request these methods have been added to the `ImmutableMap` class
 
 ## Changed methods
 
-1. Methods that would change the contents of the map have been disabled and now show an error message instead. All affected methods are:
+Methods that would change the contents of the map have been disabled and now show an error message instead. All affected methods are:
 
    - `put()`
    - `putAll()`
    - `remove()`
    - `clear()`
 
-2. These methods return a new instance of `ImmutableMap` instead of a new instance of `LinkedHashMap`:
+These methods return a new instance of `ImmutableMap` instead of a new instance of `LinkedHashMap`:
    - `collectEntries()`
    - `drop()`
    - `dropWhile()`
