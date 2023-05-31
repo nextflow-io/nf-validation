@@ -19,7 +19,7 @@ Validation by the plugin works by parsing the supplied file contents into a groo
 then passing this to the JSON schema validation library.
 As such, the structure of the schema must match the structure of the parsed file.
 
-Typically, sample sheets are CSV files, with fields represented as columns and samples as rows.
+Typically, sample sheets are CSV files, with fields represented as columns and samples as rows. TSV and simple unnested YAML files are also supported by the plugin.
 In this case, the parsed object will be an `array` of `objects` - each element of the array a sample,
 and each object in the array with keys matching the headers and values matching the data in that row.
 
@@ -103,7 +103,7 @@ Whether or not the field should contain a unique value over the entire sample sh
 
 Default: `false`
 
-- Can be `true`, in which case the field should be unique in the this column for all samples
+- Can be `true`, in which case all fields in this column should be unique for all samples.
 - Can be supplied with a list of field names, containing _other field names_ that should be unique _in combination with_ the current field.
 
 !!! example

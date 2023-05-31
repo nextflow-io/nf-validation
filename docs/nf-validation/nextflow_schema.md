@@ -35,7 +35,7 @@ validateParameters('custom_nextflow_schema.json')
 
     As much of the Nextflow ecosystem uses this filename, it's recommended to stick with the default, if possible.
 
-See the [Schema specification](schema_specification.md) for information about what validation data you can encode within the schema for each parameter.
+See the [Schema specification](../nextflow_schema/schema_specification.md) for information about what validation data you can encode within the schema for each parameter.
 
 There are two specific pipeline parameters that affect the behavior of this function:
 
