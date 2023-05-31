@@ -103,7 +103,7 @@ Whether or not the field should contain a unique value over the entire sample sh
 
 Default: `false`
 
-- Can be `true`, in which case all fields in this column should be unique for all samples.
+- Can be `true`, in which case the value for this field should be unique for all samples in the sample sheet.
 - Can be supplied with a list of field names, containing _other field names_ that should be unique _in combination with_ the current field.
 
 !!! example
