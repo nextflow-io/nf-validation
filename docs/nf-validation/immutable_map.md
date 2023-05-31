@@ -20,28 +20,29 @@ As a community request these methods have been added to the `ImmutableMap` class
 
 Methods that would change the contents of the map have been disabled and now show an error message instead. All affected methods are:
 
-   - `put()`
-   - `putAll()`
-   - `remove()`
-   - `clear()`
+- `put()`
+- `putAll()`
+- `remove()`
+- `clear()`
 
 These methods return a new instance of `ImmutableMap` instead of a new instance of `LinkedHashMap`:
-   - `collectEntries()`
-   - `drop()`
-   - `dropWhile()`
-   - `each()`
-   - `eachWithIndex()`
-   - `findAll()`
-   - `groupBy()`
-   - `groupEntriesBy()`
-   - `intersect()`
-   - `leftShift()`
-   - `minus()`
-   - `plus()`
-   - `reverseEach()`
-   - `sort()`
-   - `subMap()`
-   - `take()`
-   - `takeWhile()`
-   - `toSorted()`
-   - `withDefault()`
+
+- `collectEntries()`
+- `drop()`
+- `dropWhile()`
+- `each()`
+- `eachWithIndex()`
+- `findAll()`
+- `groupBy()`
+- `groupEntriesBy()`
+- `intersect()`
+- `leftShift()`
+- `minus()`
+- `plus()`
+- `reverseEach()`
+- `sort()`
+- `subMap()`
+- `take()`
+- `takeWhile()`
+- `toSorted()`
+- `withDefault()`
