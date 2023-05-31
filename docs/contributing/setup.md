@@ -19,28 +19,28 @@ To test with Nextflow for development purpose:
 
 Clone the Nextflow repo into a sibling directory
 
-   ```bash
-   cd .. && git clone https://github.com/nextflow-io/nextflow
-   cd nextflow && ./gradlew exportClasspath
-   ```
+```bash
+cd .. && git clone https://github.com/nextflow-io/nextflow
+cd nextflow && ./gradlew exportClasspath
+```
 
 Append to the `settings.gradle` in this project the following line:
 
-   ```bash
-   includeBuild('../nextflow')
-   ```
+```bash
+includeBuild('../nextflow')
+```
 
 Compile the plugin code
 
-   ```bash
-   ./gradlew compileGroovy
-   ```
+```bash
+./gradlew compileGroovy
+```
 
 Run nextflow with this command:
 
-   ```bash
-   ./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
-   ```
+```bash
+./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
+```
 
 ## Change and preview the docs
 
