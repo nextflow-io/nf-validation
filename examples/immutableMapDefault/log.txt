@@ -1,0 +1,5 @@
+N E X T F L O W  ~  version 23.04.0
+Launching `pipeline/main.nf` [deadly_sanger] DSL2 - revision: 3141caf4d7
+ERROR ~ Cannot .put() items into an ImmutableMap, use .plus() instead to create a new ImmutableMap with the specified entries appended to it.
+
+ -- Check script 'pipeline/main.nf' at line: 7 or see '.nextflow.log' file for more details
