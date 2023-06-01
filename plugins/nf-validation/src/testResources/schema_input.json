@@ -7,38 +7,38 @@
     "items": {
         "type": "object",
         "properties": {
-            "metaString": {
+            "field_1": {
                 "type": "string",
                 "meta": ["string1","string2"],
                 "default": "value",
                 "dependentRequired": ["metaInteger", "metaBoolean"]
             },
-            "metaInteger": {
+            "field_2": {
                 "type": "integer",
                 "meta": ["integer1","integer2"],
                 "default": 5
             },
-            "metaBoolean": {
+            "field_3": {
                 "type": "boolean",
                 "meta": ["boolean1","boolean2"],
                 "default": true
             },
-            "string": {
+            "field_4": {
                 "type": "string"
             },
-            "number": {
+            "field_5": {
                 "type": "number"
             },
-            "boolean": {
+            "field_6": {
                 "type": "boolean"
             },
-            "file": {
+            "field_7": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^.*\\.txt$"
             },
-            "directory": {
+            "field_8": {
                 "type": "string",
                 "format": "directory-path",
                 "exists": true
@@ -48,19 +48,19 @@
             "format": "path",
             "exists": true
             },
-            "uniqueField": {
+            "field_10": {
                 "type": "string",
                 "unique": true
             },
-            "uniqueDependentField": {
+            "field_11": {
                 "type": "integer",
                 "unique": ["uniqueField"]
             },
-            "nonExistingField": {
+            "field_12": {
                 "type": "string",
                 "default": "itDoesExist"
             }
         },
-    "required": ["string", "number", "boolean"]
+        "required": ["string", "number", "boolean"]
     }
 }
