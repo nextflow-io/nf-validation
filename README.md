@@ -23,7 +23,7 @@ _(make sure you pin the latest stable release version after the `@`)_
 
 ```groovy title="nextflow.config"
 plugins {
-  id 'nf-validation@0.0.1'
+  id 'nf-validation@0.1.0'
 }
 ```
 
@@ -48,7 +48,6 @@ log.info paramsSummaryLog(workflow)
 
 // Create a new channel of metadata from a sample sheet
 // NB: `input` corresponds to `params.input` and associated sample sheet schema
-// See docs for details: https://nextflow-io.github.io/nf-validation/nf-validation/sample_sheet_schema/
 ch_input = Channel.fromSamplesheet("input")
 ```
 

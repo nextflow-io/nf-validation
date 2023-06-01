@@ -42,6 +42,11 @@ As such, for CSV sample sheets, the top-level schema should be specified as an a
 If your sample sheet has a different format (for example, a simple YAML file),
 you will need to build your schema to match the parsed structure. Using nested YAML files is (for now) not officially supported by the plugin and can result in unexpected errors.
 
+TODO: Key name `"items"` is hardcoded somewhere? Can it be called anything?
+It's a JSON schema thing: https://json-schema.org/understanding-json-schema/reference/array.html#items
+
+- Must be type object
+
 ## Properties
 
 Every array object will contain keys for each field.
@@ -160,6 +165,8 @@ of the pipeline for more information.
 ### `dependentRequired`
 
 Type: `List`
+
+- See [JSON Schema docs](https://json-schema.org/understanding-json-schema/reference/conditionals.html#dependentrequired)
 
 A list containing names of other fields. The validator will check if these fields are filled in and throw an error if they aren't, but only when the field `dependentRequired` belongs to is filled in.
 
