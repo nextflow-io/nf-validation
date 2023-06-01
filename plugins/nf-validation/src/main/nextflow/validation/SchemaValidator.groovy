@@ -267,6 +267,13 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
 
+        //=====================================================================//
+        // Check if files or directories exist
+        def List<String> pathsToCheck = (List) collectExists(schemaParams)
+        pathsToCheck.each {
+            pathExists(it)
+        }
+
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
         def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
 
@@ -487,6 +494,13 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map enums = (Map) enumsTuple[1]
 
         //=====================================================================//
+        // Check if files or directories exist
+        def List<String> pathsToCheck = (List) collectExists(schemaParams)
+        pathsToCheck.each {
+            pathExists(it)
+        }
+
+        //=====================================================================//
         // Validate
         try {
             // Create new validator with LENIENT mode 
@@ -506,6 +520,38 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         return true
+    }
+
+
+    //
+    // Function to check if a file or directory exists
+    //
+    List pathExists(String path) {
+        def File file = new File(path)
+        if (!file.exists()) {
+            errors << "The file or directory '${path}' does not exist.".toString()
+        }
+    }
+
+
+    //
+    // Function to collect parameters with an exists key in the schema.
+    //
+    List collectExists(Map schemaParams) {
+        def exists = []
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('exists') && property.containsKey('format')) {
+                    if (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') {
+                        exists.push(key)
+                    }
+                }
+            }
+        }
+        return exists
     }
 
 
