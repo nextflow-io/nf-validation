@@ -32,16 +32,19 @@
     },
     "file": {
       "type": "string",
-      "format": "file-path-exists",
+      "format": "file-path",
+      "exists": true,
       "pattern": "^.*\\.txt$"
     },
     "directory": {
       "type": "string",
-      "format": "directory-path-exists"
+      "format": "directory-path",
+      "exists": true
     },
     "path": {
       "type": "string",
-      "format": "path-exists"
+      "format": "path",
+      "exists": true
     },
     "uniqueField": {
       "type": "string",
