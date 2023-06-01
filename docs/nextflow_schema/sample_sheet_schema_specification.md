@@ -1,5 +1,4 @@
 ---
-title: Schema specification
 description: Schema specification for sample sheet validation
 ---
 

@@ -77,4 +77,118 @@ Channel.fromSamplesheet(
 )
 ```
 
-For examples on how to process the created channel, see the [examples](../../examples/branch/).
+### Basic example
+
+In [this example](../../examples/fromSamplesheetBasic/), we create a simple channel from a CSV samplesheet.
+
+```
+--8<-- "examples/fromSamplesheetBasic/log.txt"
+```
+
+=== "main.nf"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetBasic/pipeline/main.nf"
+    ```
+
+=== "samplesheet.csv"
+
+    ```csv
+    --8<-- "examples/fromSamplesheetBasic/samplesheet.csv"
+    ```
+
+=== "nextflow.config"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetBasic/pipeline/nextflow.config"
+    ```
+
+=== "nextflow_schema.json"
+
+    ```json hl_lines="19"
+    --8<-- "examples/fromSamplesheetBasic/pipeline/nextflow_schema.json"
+    ```
+
+=== "assets/schema_input.json"
+
+    ```json
+    --8<-- "examples/fromSamplesheetBasic/pipeline/assets/schema_input.json"
+    ```
+
+### Order of fields
+
+[This example](../../examples/fromSamplesheetOrder/) demonstrates that the order of columns in the sample sheet file has no effect.
+It is the order of fields in the sample sheet schema which defines the order returned by `fromSamplesheet()`.
+
+```
+--8<-- "examples/fromSamplesheetOrder/log.txt"
+```
+
+=== "assets/schema_input.json"
+
+    ```json hl_lines="10 15 20 33"
+    --8<-- "examples/fromSamplesheetOrder/pipeline/assets/schema_input.json"
+    ```
+
+=== "main.nf"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetOrder/pipeline/main.nf"
+    ```
+
+=== "samplesheet.csv"
+
+    ```csv
+    --8<-- "examples/fromSamplesheetOrder/samplesheet.csv"
+    ```
+
+=== "nextflow.config"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetOrder/pipeline/nextflow.config"
+    ```
+
+=== "nextflow_schema.json"
+
+    ```json
+    --8<-- "examples/fromSamplesheetOrder/pipeline/nextflow_schema.json"
+    ```
+
+### Channel with meta map
+
+In [this example](../../examples/fromSamplesheetMeta/), we use the schema to mark two columns as meta fields.
+This returns a channel with a meta map.
+
+```
+--8<-- "examples/fromSamplesheetMeta/log.txt"
+```
+
+=== "assets/schema_input.json"
+
+    ```json hl_lines="14 38"
+    --8<-- "examples/fromSamplesheetMeta/pipeline/assets/schema_input.json"
+    ```
+
+=== "main.nf"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetMeta/pipeline/main.nf"
+    ```
+
+=== "samplesheet.csv"
+
+    ```csv
+    --8<-- "examples/fromSamplesheetMeta/samplesheet.csv"
+    ```
+
+=== "nextflow.config"
+
+    ```groovy
+    --8<-- "examples/fromSamplesheetMeta/pipeline/nextflow.config"
+    ```
+
+=== "nextflow_schema.json"
+
+    ```json
+    --8<-- "examples/fromSamplesheetMeta/pipeline/nextflow_schema.json"
+    ```

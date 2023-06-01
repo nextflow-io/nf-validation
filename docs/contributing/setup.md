@@ -44,7 +44,14 @@ Run nextflow with this command:
 
 ## Change and preview the docs
 
-The docs are generated using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). To change the docs, edit the files in the [docs/](https://github.com/nextflow-io/nf-validation/tree/master/docs) folder and run the following command to generate the docs (after installing mkdocs via `pip install mkdocs-material`):
+The docs are generated using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+You can install the required packages as follows:
+
+```bash
+pip install mkdocs-material pymdown-extensions pillow cairosvg
+```
+
+To change the docs, edit the files in the [docs/](https://github.com/nextflow-io/nf-validation/tree/master/docs) folder and run the following command to generate the docs:
 
 ```bash
 mkdocs serve
