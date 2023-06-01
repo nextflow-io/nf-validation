@@ -60,3 +60,11 @@ This web interface is where you should add detail to your schema, customising th
 
     It's a good idea to "save little and often" by clicking `Finished` and saving your work locally,
     then running the command again to continue.
+
+## Build a sample sheet schema
+
+!!! danger
+
+    There is currently no tooling to help you write sample sheet schema :anguished:
+
+    Watch this space..

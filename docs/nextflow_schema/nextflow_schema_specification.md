@@ -1,9 +1,8 @@
 ---
-title: Schema specification
 description: Schema specification for Nextflow pipeline configuration parameter validation
 ---
 
-# Parameter Schema Specification
+# Nextflow schema specification
 
 The Nextflow schema file contains information about pipeline configuration parameters.
 The file is typically saved in the workflow root directory and called `nextflow_schema.json`.

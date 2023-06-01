@@ -1,11 +1,10 @@
 ---
-title: Example Schema
 description: Example JSON Schema for a Nextflow pipeline `nextflow_schema.json` file
 hide:
   - toc
 ---
 
-# Example Schema
+# Example Nextflow schema
 
 You can see an example JSON Schema for a Nextflow pipeline `nextflow_schema.json` file below.
 

@@ -1,5 +1,4 @@
 ---
-title: Example schema
 description: Example JSON Schema for a Nextflow pipeline `nextflow_schema.json` file
 ---
 
@@ -32,7 +31,8 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
       "sample": {
         "type": "string",
         "pattern": "^\\S+$",
-        "errorMessage": "Sample name must be provided and cannot contain spaces"
+        "errorMessage": "Sample name must be provided and cannot contain spaces",
+        "meta": true
       },
       "fastq_1": {
         "type": "string",
@@ -55,7 +55,8 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
       "strandedness": {
         "type": "string",
         "errorMessage": "Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'",
-        "enum": ["forward", "reverse", "unstranded"]
+        "enum": ["forward", "reverse", "unstranded"],
+        "meta": true
       }
     },
     "required": ["sample", "fastq_1", "strandedness"]
