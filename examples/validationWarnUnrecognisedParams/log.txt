@@ -1,0 +1,8 @@
+N E X T F L O W  ~  version 23.04.1
+Launching `pipeline/main.nf` [jovial_linnaeus] DSL2 - revision: 53bd9eac20
+
+WARN: The following invalid input values have been detected:
+
+* --foo: bar
+
+Hello World!

@@ -20,7 +20,7 @@ In brief, it includes information for each parameter about:
 - Variable type (string, integer, boolean, etc)
 - Validation rules (string regexes, numeric min / max, enum, etc)
 
-..and more. See the [full specification](schema_specification.md) for details.
+..and more. See the [full specification](nextflow_schema_specification.md) for details.
 
 !!! warning
 

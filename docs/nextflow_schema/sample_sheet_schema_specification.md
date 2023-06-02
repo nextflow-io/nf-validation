@@ -69,7 +69,7 @@ Fields that are present in the sample sheet, but not in the schema will be ignor
 The majority of schema keys for sample sheet schema validation are identical to the Nextflow schema.
 For example: `type`, `pattern`, `format` and so on.
 
-Please refer to the [Nextflow schema specification](../nextflow_schema/schema_specification.md) docs for details.
+Please refer to the [Nextflow schema specification](../nextflow_schema/nextflow_schema_specification.md) docs for details.
 
 !!! tip
 
@@ -80,7 +80,7 @@ Please refer to the [Nextflow schema specification](../nextflow_schema/schema_sp
 ## Sample sheet keys
 
 Below are the properties that are specific to sample sheet schema, that exist in addition to those described
-in the [Nextflow schema specification](../nextflow_schema/schema_specification.md).
+in the [Nextflow schema specification](../nextflow_schema/nextflow_schema_specification.md).
 
 ### `meta`
 
