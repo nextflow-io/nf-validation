@@ -11,7 +11,7 @@
                 "type": "string",
                 "meta": ["string1","string2"],
                 "default": "value",
-                "dependentRequired": ["metaInteger", "metaBoolean"]
+                "dependentRequired": ["field_2", "field_3"]
             },
             "field_2": {
                 "type": "integer",
@@ -51,13 +51,13 @@
             },
             "field_11": {
                 "type": "integer",
-                "unique": ["uniqueField"]
+                "unique": ["field_10"]
             },
             "field_12": {
                 "type": "string",
                 "default": "itDoesExist"
             }
         },
-        "required": ["string", "number", "boolean"]
+        "required": ["field_4", "field_5", "field_6"]
     }
 }
