@@ -628,7 +628,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* -- Entry 1 - fastq_1: string [test1_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test1_fastq1.txt)\n* -- Entry 2 - fastq_1: string [test2_fastq1.txt] does not match pattern ^\\S+\\.f(ast)?q\\.gz$ (test2_fastq1.txt)\n\n'''
+        error.message == '''The following errors have been detected:\n\n* -- Entry 1 - fastq_1: FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq1.txt)\n* -- Entry 2 - fastq_1: FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test2_fastq1.txt)\n\n'''
         !stdout
     }
 

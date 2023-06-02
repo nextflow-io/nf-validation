@@ -24,6 +24,8 @@ import org.everit.json.schema.loader.SchemaLoader
 import org.everit.json.schema.PrimitiveValidationStrategy
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.Validator
+import org.everit.json.schema.Schema
+import org.json.JSONException
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -333,7 +335,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         } catch (ValidationException e) {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
-            collectErrors(exceptionJSON, paramsJSON, enums)
+            collectErrors(exceptionJSON, paramsJSON, enums, rawSchema)
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
@@ -465,7 +467,8 @@ class SchemaValidator extends PluginExtensionPoint {
             .addFormatValidator("directory-path", new DirectoryPathValidator())
             .addFormatValidator("directory-path-exists", new DirectoryPathExistsValidator())
             .addFormatValidator("path", new PathValidator())
-            .addFormatValidator("path-exists", new PathExistsValidator())            .build()
+            .addFormatValidator("path-exists", new PathExistsValidator())
+            .build()
         final schema = schemaLoader.load().build()
 
         // Convert the groovy object to a JSONArray
@@ -501,7 +504,7 @@ class SchemaValidator extends PluginExtensionPoint {
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             JSONObject objectJSON = new JSONObject();
             objectJSON.put("objects",arrayJSON);            
-            collectErrors(exceptionJSON, objectJSON, enums)
+            collectErrors(exceptionJSON, objectJSON, enums, rawSchema)
             def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
             log.error("ERROR: Validation of '$paramName' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
@@ -750,7 +753,7 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Loop over nested exceptions and print the causingException
     //
-    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, Integer limit=5) {
+    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, JSONObject schemaJSON, Integer limit=5) {
         def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
         def JSONArray valuesJSON = new JSONArray ()
         def String validationType = "parameter: --"
@@ -782,11 +785,13 @@ class SchemaValidator extends PluginExtensionPoint {
             // Error with specific param
             else {
                 def String param = (String) exJSON['pointerToViolation'] - ~/^#\//
+                def String paramName = param
                 def param_val = ""
                 if (paramsJSON.has('objects')) {
                     def paramSplit = param.tokenize( '/' )
                     int indexInt = paramSplit[0] as int
                     String paramString = paramSplit[1] as String
+                    paramName = paramString
                     param_val = valuesJSON[indexInt][paramString].toString()
                 } else {
                     param_val = paramsJSON[param].toString()
@@ -804,7 +809,20 @@ class SchemaValidator extends PluginExtensionPoint {
                         entryNumber = param.split('/')[0] as Integer
                         entryNumber = entryNumber + 1
                         def String columnName = param.split('/')[1]
+                        paramName = columnName
                         param = " Entry ${entryNumber} - ${columnName}"
+                    }
+                    // Custom errorMessage
+                    def String errorMessage
+                    try {
+                        errorMessage = schemaJSON['items']['properties'][paramName]['errorMessage']
+                    } catch (JSONException) {
+                        def Map paramMap = findDeep(schemaJSON.toMap(), paramName) as Map
+                        errorMessage = paramMap['errorMessage']
+                    }
+                    if (errorMessage) {
+                        log.debug "* --${param}: ${message} (${param_val})".toString()
+                        message = errorMessage
                     }
                     errors << "* --${param}: ${message} (${param_val})".toString()
                 }
@@ -813,7 +831,7 @@ class SchemaValidator extends PluginExtensionPoint {
         }
         for (ex in causingExceptions) {
             def JSONObject exception = (JSONObject) ex
-            collectErrors(exception, paramsJSON, enums)
+            collectErrors(exception, paramsJSON, enums, schemaJSON)
         }
     }
 
