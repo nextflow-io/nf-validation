@@ -271,7 +271,7 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check if files or directories exist
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
         pathsToCheck.each {
-            pathExists(it)
+            pathExists(params[it].toString())
         }
 
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
@@ -496,8 +496,14 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check if files or directories exist
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
-        pathsToCheck.each {
-            pathExists(it)
+        pathsToCheck.each { fieldName ->
+            def String filedName = fieldName
+            for (int i=0; i < arrayJSON.size(); i++) {
+                def JSONObject entry = arrayJSON.getJSONObject(i)
+                if ( entry.has(filedName) ) {
+                    pathExists(entry[filedName].toString())
+                }
+            }
         }
 
         //=====================================================================//
@@ -529,7 +535,7 @@ class SchemaValidator extends PluginExtensionPoint {
     List pathExists(String path) {
         def File file = new File(path)
         if (!file.exists()) {
-            errors << "The file or directory '${path}' does not exist.".toString()
+            errors << "* The file or directory '${path}' does not exist.".toString()
         }
     }
 
