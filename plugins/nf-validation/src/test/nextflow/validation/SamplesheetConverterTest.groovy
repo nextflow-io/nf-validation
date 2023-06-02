@@ -323,9 +323,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "Samplesheet errors:"
-        errorMessages[1] == "\tEntry 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
-        errorMessages[2] == "\tEntry 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
-        errorMessages[3] == "\tEntry 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
+        errorMessages[1] == "\tEntry 1: [field_2, field_3] field(s) should be defined when 'field_1' is specified, but the field(s) [field_2] is/are not defined."
+        errorMessages[2] == "\tEntry 3: The 'field_10' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
+        errorMessages[3] == "\tEntry 3: The combination of 'field_11' with fields [field_10] needs to be unique. [field_11:1, field_10:non_unique] was found at least twice."
         !stdout
     }
 
