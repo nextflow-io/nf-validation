@@ -1,11 +1,11 @@
 ---
 title: Contribution instructions
 description: How to contribute to nf-validation
-hide:
-  - toc
 ---
 
-# Getting started with plugin dev
+# Getting started with plugin development
+
+## Compiling
 
 To compile and run the tests use the following command:
 

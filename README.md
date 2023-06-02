@@ -6,7 +6,7 @@
 
 ## Introduction
 
-This plugin provides a number of functions that can be included into a Nextflow pipeline script to work with parameter and sample sheet schema. Using these functions you can:
+This [Nextflow plugin](https://www.nextflow.io/docs/latest/plugins.html#plugins) provides a number of functions that can be included into a Nextflow pipeline script to work with parameter and sample sheet schema. Using these functions you can:
 
 - 📖 Print usage instructions to the terminal (for use with `--help`)
 - ✍️ Print log output showing parameters with non-default values
@@ -19,6 +19,7 @@ Supported sample sheet formats are CSV, TSV and YAML (simple).
 ## Quick Start
 
 Declare the plugin in your Nextflow pipeline configuration file:
+
 _(make sure you pin the latest stable release version after the `@`)_
 
 ```groovy title="nextflow.config"
@@ -50,8 +51,6 @@ log.info paramsSummaryLog(workflow)
 // NB: `input` corresponds to `params.input` and associated sample sheet schema
 ch_input = Channel.fromSamplesheet("input")
 ```
-
-You can find more information on plugins in the [Nextflow documentation](https://www.nextflow.io/docs/latest/plugins.html#plugins).
 
 ## Background
 
