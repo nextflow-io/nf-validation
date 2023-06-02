@@ -19,10 +19,11 @@ then passing this to the JSON schema validation library.
 As such, the structure of the schema must match the structure of the parsed file.
 
 Typically, sample sheets are CSV files, with fields represented as columns and samples as rows. TSV and simple unnested YAML files are also supported by the plugin.
-In this case, the parsed object will be an `array` of `objects` - each element of the array a sample,
-and each object in the array with keys matching the headers and values matching the data in that row.
+In this case, the parsed object will be an `array` (see [JSON schema docs](https://json-schema.org/understanding-json-schema/reference/array.html#items)).
+The array type is associated with an `items` key which in our case contains a single `object`.
+The object has `properties`, where the keys must match the headers of the CSV file.
 
-As such, for CSV sample sheets, the top-level schema should be specified as an array of objects:
+So, for CSV sample sheets, the top-level schema should look something like this:
 
 ```json
 {
@@ -39,12 +40,7 @@ As such, for CSV sample sheets, the top-level schema should be specified as an a
 ```
 
 If your sample sheet has a different format (for example, a simple YAML file),
-you will need to build your schema to match the parsed structure. Using nested YAML files is (for now) not officially supported by the plugin and can result in unexpected errors.
-
-TODO: Key name `"items"` is hardcoded somewhere? Can it be called anything?
-It's a JSON schema thing: https://json-schema.org/understanding-json-schema/reference/array.html#items
-
-- Must be type object
+you will need to build your schema to match the parsed structure.
 
 ## Properties
 
