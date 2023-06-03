@@ -47,32 +47,43 @@ The following custom new methods have been added to the `ImmutableMap` class:
 These methods return a _new_ instance of `ImmutableMap`.
 This copy is safe to work with as it does not affect the original meta map.
 
-- `collectEntries()`
-- `drop()`
-- `dropWhile()`
-- `each()`
-- `eachWithIndex()`
-- `findAll()`
-- `groupBy()`
-- `groupEntriesBy()`
-- `intersect()`
-- `leftShift()`
-- `minus()`
-- `plus()`
-- `reverseEach()`
-- `sort()`
-- `subMap()`
-- `take()`
-- `takeWhile()`
-- `toSorted()`
-- `withDefault()`
+<div style="display: flex;" markdown>
+<div style="padding: 0 1rem;" markdown>
+`collectEntries()` <br>
+`drop()` <br>
+`dropWhile()` <br>
+`each()` <br>
+`eachWithIndex()` <br>
+`findAll()` <br>
+`groupBy()`
+</div>
+<div style="padding: 0 1rem;" markdown>
+`groupEntriesBy()` <br>
+`intersect()` <br>
+`leftShift()` <br>
+`minus()` <br>
+`plus()` <br>
+`reverseEach()`
+</div>
+<div style="padding: 0 1rem;" markdown>
+`sort()` <br>
+`subMap()` <br>
+`take()` <br>
+`takeWhile()` <br>
+`toSorted()` <br>
+`withDefault()` <br>
+</div>
+</div>
 
 ## Methods that return an error
 
 The following methods _change_ the contents of the map and have been disabled.
+
 If you use them in a pipeline it will exit with an error.
 
-- `put()`
-- `putAll()`
-- `remove()`
-- `clear()`
+<div style="padding: 0 1rem;" markdown>
+`put()`<br>
+`putAll()`<br>
+`remove()`<br>
+`clear()`
+</div>

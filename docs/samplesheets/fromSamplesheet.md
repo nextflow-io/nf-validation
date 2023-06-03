@@ -81,11 +81,20 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
 ## Order of fields
 
 [This example](../../examples/fromSamplesheetOrder/) demonstrates that the order of columns in the sample sheet file has no effect.
-It is the order of fields in the sample sheet schema which defines the order returned by `fromSamplesheet()`.
+
+!!! danger
+
+    It is the order of fields **in the sample sheet JSON schema** which defines the order of items in the channel returned by `fromSamplesheet()`, _not_ the order of fields in the CSV file.
 
 ```
 --8<-- "examples/fromSamplesheetOrder/log.txt"
 ```
+
+=== "samplesheet.csv"
+
+    ```csv
+    --8<-- "examples/fromSamplesheetOrder/samplesheet.csv"
+    ```
 
 === "assets/schema_input.json"
 
@@ -97,12 +106,6 @@ It is the order of fields in the sample sheet schema which defines the order ret
 
     ```groovy
     --8<-- "examples/fromSamplesheetOrder/pipeline/main.nf"
-    ```
-
-=== "samplesheet.csv"
-
-    ```csv
-    --8<-- "examples/fromSamplesheetOrder/samplesheet.csv"
     ```
 
 === "nextflow.config"

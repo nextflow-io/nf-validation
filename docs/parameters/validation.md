@@ -119,9 +119,15 @@ params.validationFailUnrecognisedParams = true
 By default, `validateParameters()` is strict about expecting parameters to adhere to their expected type.
 If the schema says that `params.foo` should be an `integer` and the user sets `params.foo = "12"` (a string with a number), it will fail.
 
-If this is a problem, the user can run validation in "lenient mode", whereby the JSON Schema validation tries to _cast_ parameters to their correct type.
+If this causes problems, the user can run validation in "lenient mode", whereby the JSON Schema validation tries to _cast_ parameters to their correct type.
 For example, providing an integer as a string will no longer fail validation.
-You can find more information about how this works in the [JSON schema validation library docs](https://github.com/everit-org/json-schema#lenient-mode).
+
+!!! note
+
+    The validation does not affect the parameter variable types in your pipeline.
+    It attempts to cast a temporary copy of the params only, during the validation step.
+
+    You can find more information about how this works in the [JSON schema validation library docs](https://github.com/everit-org/json-schema#lenient-mode).
 
 To enable lenient validation mode, set `params.validationLenientMode`:
 
