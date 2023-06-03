@@ -210,6 +210,38 @@ Can include newlines with multiple paragraphs and more complex markdown structur
 
 Typically hidden by default in documentation and interfaces, unless explicitly clicked / requested.
 
+### `errorMessage`
+
+!!! example "Non-standard key"
+
+If validation fails, an error message is printed to the terminal, so that the end user knows what to fix.
+However, these messages are not always very clear - especially to newcomers.
+
+To improve this experience, pipeline developers can set a custom `errorMessage` for a given parameter in a the schema.
+If validation fails, this `errorMessage` is printed instead, and the raw JSON schema validation message goes to the Nextflow debug log output.
+
+For example, instead of printing:
+
+```
+ERROR ~ * --input: string [samples.yml] does not match pattern ^\S+\.csv$ (samples.yml)
+```
+
+We can set
+
+```json
+"input": {
+  "type": "string",
+  "pattern": "^\S+\.csv$",
+  "errorMessage": "File name must end in '.csv' cannot contain spaces"
+}
+```
+
+and get:
+
+```
+ERROR ~ * --input: File name must end in '.csv' cannot contain spaces (samples.yml)
+```
+
 ### `enum`
 
 An array of enumerated values: the parameter must match one of these values exactly to pass validation.
