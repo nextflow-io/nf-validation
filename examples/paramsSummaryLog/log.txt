@@ -1,0 +1,18 @@
+N E X T F L O W  ~  version 23.04.1
+Launching `pipeline/main.nf` [sleepy_goldberg] DSL2 - revision: 7a280216f3
+
+Core Nextflow options
+  runName    : sleepy_goldberg
+  launchDir  : /Users/demo/GitHub/nextflow-io/nf-validation/examples/paramsSummaryLog
+  workDir    : /Users/demo/GitHub/nextflow-io/nf-validation/examples/paramsSummaryLog/work
+  projectDir : /Users/demo/GitHub/nextflow-io/nf-validation/examples/paramsSummaryLog/pipeline
+  userName   : demo
+  profile    : standard
+  configFiles:
+
+Input/output options
+  input      : samplesheet.csv
+  outdir     : results
+
+!! Only displaying parameters that differ from the pipeline defaults !!
+------------------------------------------------------

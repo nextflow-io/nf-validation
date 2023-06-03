@@ -323,9 +323,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "Samplesheet errors:"
-        errorMessages[1] == "\tEntry 1: [metaInteger, metaBoolean] field(s) should be defined when 'metaString' is specified, but the field(s) [metaInteger] is/are not defined."
-        errorMessages[2] == "\tEntry 3: The 'uniqueField' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
-        errorMessages[3] == "\tEntry 3: The combination of 'uniqueDependentField' with fields [uniqueField] needs to be unique. [uniqueDependentField:1, uniqueField:non_unique] was found at least twice."
+        errorMessages[1] == "\tEntry 1: [field_2, field_3] field(s) should be defined when 'field_1' is specified, but the field(s) [field_2] is/are not defined."
+        errorMessages[2] == "\tEntry 3: The 'field_10' value needs to be unique. 'non_unique' was found at least twice in the samplesheet."
+        errorMessages[3] == "\tEntry 3: The combination of 'field_11' with fields [field_10] needs to be unique. [field_11:1, field_10:non_unique] was found at least twice."
         !stdout
     }
 
@@ -352,17 +352,17 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1 - number: expected type: Number, found: String (string)"
-        errorMessages[3] == "* -- Entry 1 - path: the file or directory 'non_existing_path' does not exist (non_existing_path)"
-        errorMessages[4] == "* -- Entry 1 - boolean: expected type: Boolean, found: String (20)"
-        errorMessages[5] == '* -- Entry 1 - file: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
-        errorMessages[6] == "* -- Entry 1 - file: the file 'non_existing_file.tsv' does not exist (non_existing_file.tsv)"
-        errorMessages[7] == "* -- Entry 1 - directory: 'src/testResources/test.txt' is not a directory (src/testResources/test.txt)"
-        errorMessages[8] == "* -- Entry 2: Missing required value: string"
-        errorMessages[9] == "* -- Entry 2: Missing required value: number"
-        errorMessages[10] == "* -- Entry 2: Missing required value: boolean"
-        errorMessages[11] == "* -- Entry 3 - metaBoolean: expected type: Boolean, found: String (3333)"
-        errorMessages[12] == "* -- Entry 3 - metaInteger: expected type: Integer, found: String (false)"
+        errorMessages[2] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
+        errorMessages[3] == "* -- Entry 1 - field_7: the file 'non_existing_file.tsv' does not exist (non_existing_file.tsv)"
+        errorMessages[4] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory (src/testResources/test.txt)"
+        errorMessages[5] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
+        errorMessages[6] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
+        errorMessages[7] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist (non_existing_path)"
+        errorMessages[8] == "* -- Entry 2: Missing required value: field_4"
+        errorMessages[9] == "* -- Entry 2: Missing required value: field_5"
+        errorMessages[10] == "* -- Entry 2: Missing required value: field_6"
+        errorMessages[11] == "* -- Entry 3 - field_3: expected type: Boolean, found: String (3333)"
+        errorMessages[12] == "* -- Entry 3 - field_2: expected type: Integer, found: String (false)"
         !stdout
     }
 }

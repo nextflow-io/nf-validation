@@ -1,0 +1,4 @@
+N E X T F L O W  ~  version 23.04.1
+Launching `pipeline/main.nf` [happy_lamport] DSL2 - revision: c45338cd96
+
+[Core Nextflow options:[runName:happy_lamport, launchDir:/Users/ewels/GitHub/nextflow-io/nf-validation/examples/paramsSummaryMap, workDir:/Users/ewels/GitHub/nextflow-io/nf-validation/examples/paramsSummaryMap/work, projectDir:/Users/ewels/GitHub/nextflow-io/nf-validation/examples/paramsSummaryMap/pipeline, userName:ewels, profile:standard, configFiles:], Input/output options:[input:samplesheet.csv, outdir:results]]
