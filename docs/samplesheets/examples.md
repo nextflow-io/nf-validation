@@ -9,29 +9,27 @@ description: Examples of advanced sample sheet creation techniques.
 
 You can use the [`.branch()` operator](https://www.nextflow.io/docs/latest/operator.html#branch) to separate the channel entries based on a condition. This is especially useful when you can get multiple types of input data.
 
-This example shows a channel which can have entries for WES or WGS data. These analysis are different so we want to separate the WES and WGS entries from eachother. We also don't want the `bed` file input for the WGS data, so the resulting channel with WGS data should not have this file in it.
+This example shows a channel which can have entries for WES or WGS data. These analysis are different so we want to separate the WES and WGS entries from each other. We also don't want the `bed` file input for the WGS data, so the resulting channel with WGS data should not have this file in it.
 
 ```groovy
-// channel created by fromSamplesheet() previous to modification:
-// [[id:example, type:WGS], WGS.bam, WGS.bam.bai, []]
-// [[id:example2, type:WES], WES.bam, WES.bam.bai, WES.bed]
+// Channel with four elements - see docs for examples
 params.input = "samplesheet.csv"
 Channel.fromSamplesheet("input")
     .branch { meta, bam, bai, bed ->
         WGS: meta.type == "WGS"
             return [meta, bam, bai]
-            // The original channel structure will be used when no return statement is used.
         WES: meta.type == "WES"
+        // The original channel structure will be used when no return statement is used.
     }
     .set { input }
 
-input.WGS.view() // [[id:example, type:WGS], WGS.bam, WGS.bam.bai]
-input.WES.view() // [[id:example2, type:WES], WES.bam, WES.bam.bai, WES.bed]
+input.WGS.view() // Channel has 3 elements: meta, bam, bai
+input.WES.view() // Channel has 4 elements: meta, bam, bai, bed
 ```
 
 ## Count entries with a common value
 
-This example is based on this [code](https://github.com/mribeirodantas/NextflowSnippets/blob/main/snippets/countBy.md) from @mribeirodantas.
+This example is based on this [code](https://github.com/mribeirodantas/NextflowSnippets/blob/main/snippets/countBy.md) from [Marcel Ribeiro-Dantas](https://github.com/mribeirodantas).
 
 It's useful to determine the count of channel entries with similar values when you want to merge them later on (to prevent pipeline bottlenecks with `.groupTuple()`).
 
@@ -70,7 +68,7 @@ Sometimes you don't want all inputs to remain in the same channel (e.g. when the
 Following code shows an example where a `cram` file and a `bed` file are given in the samplesheet. The result contains two channels: one with the `cram` file and one with the `bed` file.
 
 ```groovy
-// channel created by fromSamplesheet() previous to modification: 
+// channel created by fromSamplesheet() previous to modification:
 // [[id:example], example.cram, example.cram.crai, example.bed]
 params.input = "samplesheet.csv"
 Channel.fromSamplesheet("input")
