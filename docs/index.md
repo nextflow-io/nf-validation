@@ -5,5 +5,10 @@ description: Nextflow plugin for sample sheet validation
 
 # ![nf-validation](images/nf-validation.svg)
 
---8<-- "README.md:4:17"
---8<-- "README.md:72"
+{==
+
+**A Nextflow plugin to work with validation of pipeline parameters and sample sheets.**
+
+==}
+
+--8<-- "README.md:6:"
