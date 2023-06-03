@@ -6,8 +6,7 @@ description: Functions and methods for the ImmutableMap class
 
 ## Introduction and usage
 
-A nasty trap when using meta maps in Nextflow pipelines is to forget that they are mutable.
-That is; if you edit a value then it will persist for other processes.
+A common pitfall when utilizing meta maps in Nextflow pipelines is overlooking their mutable nature. Meta maps in Nextflow (`LinkedHashMap`) are mutable, meaning that if you change a value inside the map, this change will persist across different processes and channels in your pipeline. This can lead to unexpected behavior if not handled correctly.
 
 !!! info
 

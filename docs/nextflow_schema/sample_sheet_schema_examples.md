@@ -32,7 +32,7 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
         "type": "string",
         "pattern": "^\\S+$",
         "errorMessage": "Sample name must be provided and cannot contain spaces",
-        "meta": true
+        "meta": ["my_sample"]
       },
       "fastq_1": {
         "type": "string",
@@ -56,7 +56,7 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
         "type": "string",
         "errorMessage": "Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'",
         "enum": ["forward", "reverse", "unstranded"],
-        "meta": true
+        "meta": ["my_strandedness"]
       }
     },
     "required": ["sample", "fastq_1", "strandedness"]

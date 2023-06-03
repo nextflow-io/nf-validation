@@ -12,7 +12,7 @@ You can use the [`.branch()` operator](https://www.nextflow.io/docs/latest/opera
 This example shows a channel which can have entries for WES or WGS data. These analysis are different so we want to separate the WES and WGS entries from eachother. We also don't want the `bed` file input for the WGS data, so the resulting channel with WGS data should not have this file in it.
 
 ```groovy
-// example channel:
+// channel created by fromSamplesheet() previous to modification:
 // [[id:example, type:WGS], WGS.bam, WGS.bam.bai, []]
 // [[id:example2, type:WES], WES.bam, WES.bam.bai, WES.bed]
 params.input = "samplesheet.csv"
@@ -38,7 +38,7 @@ It's useful to determine the count of channel entries with similar values when y
 This example contains a channel where multiple samples can be in the same family. Later on in the pipeline we want to merge the analyzed files so one file gets created for each family. The result will be a channel with an extra meta field containing the count of channel entries with the same family name.
 
 ```groovy
-// example channel:
+// channel created by fromSamplesheet() previous to modification:
 // [[id:example1, family:family1], example1.txt]
 // [[id:example2, family:family1], example2.txt]
 // [[id:example3, family:family2], example3.txt]
@@ -65,12 +65,13 @@ input.view()
 
 ## Split into multiple channels
 
-Sometimes you don't want all inputs to remain in the same channel (e.g. when the files need to be preprocessed separately).
+Sometimes you don't want all inputs to remain in the same channel (e.g. when the files need to be pre-processed separately).
 
 Following code shows an example where a `cram` file and a `bed` file are given in the samplesheet. The result contains two channels: one with the `cram` file and one with the `bed` file.
 
 ```groovy
-// example channel: [[id:example], example.cram, example.cram.crai, example.bed]
+// channel created by fromSamplesheet() previous to modification: 
+// [[id:example], example.cram, example.cram.crai, example.bed]
 params.input = "samplesheet.csv"
 Channel.fromSamplesheet("input")
     .multiMap { meta, cram, crai, bed ->
