@@ -345,10 +345,28 @@ The available `format` types are below:
 : States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
 `directory-path`
-: States if the provided value is a directory. Does not check its existence, but it does check that the path is not a file.
+: States if the provided value is a directory. It does check that the path is not a file. _If the directory does not exist, the validation will fail, to avoid this for directories that will be created later during workflow execution, provide the format `path` instead._
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.
+
+### `exists`
+
+When a format is specified for a value, you can provide the key `exists` set to true in order to validate that the provided path exists.
+
+Example usage is as follows:
+
+```json
+{
+  "type": "string",
+  "format": "file-path",
+  "exists": true
+}
+```
+
+!!! note
+
+    If `exists` is set to `false`, this validation is ignored. Does not check if the path exists.
 
 ### `mimetype`
 
