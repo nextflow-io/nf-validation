@@ -10,7 +10,10 @@ This function returns a string that can be logged to the terminal, summarizing t
 
 !!! note
 
-The summary prioritizes displaying only the parameters that are **different** the default schema values. This is to streamline the extensive parameter lists often associated with pipelines, and highlight the customized elements. This feature is essential for users to verify their configurations, like checking for typos or confirming proper resolution, without wading through an array of default settings.
+    The summary prioritizes displaying only the parameters that are **different** the default schema values. 
+    This is to streamline the extensive parameter lists often associated with pipelines, and highlight the customized elements.
+    This feature is essential for users to verify their configurations, like checking for typos or confirming proper resolution, 
+    without wading through an array of default settings.
 
 The function takes two arguments:
 
