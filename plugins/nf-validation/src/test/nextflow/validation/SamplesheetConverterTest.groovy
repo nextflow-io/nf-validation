@@ -354,15 +354,15 @@ class SamplesheetConverterTest extends Dsl2Spec{
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
         errorMessages[2] == "* The file or directory 'non_existing_path' does not exist."
         errorMessages[3] == "* The file or directory 'non_existing_file.tsv' does not exist."
-        errorMessages[4] == "* -- Entry 1 - number: expected type: Number, found: String (string)"
-        errorMessages[5] == "* -- Entry 1 - boolean: expected type: Boolean, found: String (20)"
-        errorMessages[6] == '* -- Entry 1 - file: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
-        errorMessages[7] == "* -- Entry 1 - directory: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
-        errorMessages[8] == "* -- Entry 2: Missing required value: string"
-        errorMessages[9] == "* -- Entry 2: Missing required value: number"
-        errorMessages[10] == "* -- Entry 2: Missing required value: boolean"
-        errorMessages[11] == "* -- Entry 3 - metaBoolean: expected type: Boolean, found: String (3333)"
-        errorMessages[12] == "* -- Entry 3 - metaInteger: expected type: Integer, found: String (false)"
+        errorMessages[4] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
+        errorMessages[5] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
+        errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
+        errorMessages[7] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
+        errorMessages[8] == "* -- Entry 2: Missing required value: field_4"
+        errorMessages[9] == "* -- Entry 2: Missing required value: field_5"
+        errorMessages[10] == "* -- Entry 2: Missing required value: field_6"
+        errorMessages[11] == "* -- Entry 3 - field_3: expected type: Boolean, found: String (3333)"
+        errorMessages[12] == "* -- Entry 3 - field_2: expected type: Integer, found: String (false)"
         !stdout
     }
 }

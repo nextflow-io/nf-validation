@@ -42,12 +42,12 @@
                 "type": "string",
                 "format": "directory-path",
                 "exists": true
-        },
-        "path": {
-            "type": "string",
-            "format": "path",
-            "exists": true
             },
+            "field_9": {
+                "type": "string",
+                "format": "path",
+                "exists": true
+                },
             "field_10": {
                 "type": "string",
                 "unique": true
