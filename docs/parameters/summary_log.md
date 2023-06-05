@@ -8,7 +8,9 @@ description: Return a summary of the parameters being set.
 
 This function returns a string that can be logged to the terminal, summarizing the parameters provided to the pipeline.
 
-It only returns the provided parameters that are **different** to the schema default values.
+!!! note
+
+The summary prioritizes displaying only the parameters that are **different** the default schema values. This is to streamline the extensive parameter lists often associated with pipelines, and highlight the customized elements. This feature is essential for users to verify their configurations, like checking for typos or confirming proper resolution, without wading through an array of default settings.
 
 The function takes two arguments:
 
@@ -41,10 +43,24 @@ Output:
 --8<-- "examples/paramsSummaryLog/log.txt"
 ```
 
+## Coloured logs
+
+By default, the summary output is coloured using ANSI escape codes.
+
+If you prefer, you can disable these by using `--monochrome_logs` or `params.monochrome_logs = true`.
+
+=== "Default (coloured)"
+
+    ![Default summary logs](../images/summary_not_monochrome_logs.png)
+
+=== "Monochrome logs"
+
+    ![Default summary logs](../images/summary_monochrome_logs.png)
+
 ## `paramsSummaryMap()`
 
 This function returns a Groovy Map summarizing parameters/workflow options used by the pipeline.
-It **only** returns the provided parameters that are **different** to the default values.
+As above, it **only** returns the provided parameters that are **different** to the default values.
 
 This function takes the same arguments as `paramsSummaryLog()`: the `workflow` object and an optional schema file path.
 

@@ -74,3 +74,17 @@ or specifying it in the configuration file
 ```groovy
 params.validationShowHiddenParams = true
 ```
+
+## Coloured logs
+
+By default, the help output is coloured using ANSI escape codes.
+
+If you prefer, you can disable these by using `--monochrome_logs` or `params.monochrome_logs = true`.
+
+=== "Default (coloured)"
+
+    ![Default help output](../images/help_not_monochrome_logs.png)
+
+=== "Monochrome logs"
+
+    ![Default help output](../images/help_monochrome_logs.png)
