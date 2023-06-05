@@ -57,7 +57,7 @@ The function causes Nextflow to exit immediately with an error.
     --8<-- "examples/validateParameters/pipeline/nextflow_schema.json"
     ```
 
-## Unrecognized parameters
+## Failing for unrecognized parameters
 
 When parameters which are not specified in the JSON Schema are provided, the parameter validation function returns a `WARNING`.
 This is because user-specific institutional configuration profiles may make use of params that are unknown to the pipeline.
@@ -113,6 +113,17 @@ params.validationFailUnrecognisedParams = true
         ```groovy
         --8<-- "examples/validationFailUnrecognisedParams/pipeline/main.nf"
         ```
+
+## Ignoring unrecognized parameters
+
+Sometimes, a parameter that you want to set may not be described in the pipeline schema for a good reason.
+Maybe it's something you're using in your Nextflow configuration setup for your compute environment,
+or it's a complex parameter that cannot be handled in the schema, such as [nested parameters](../nextflow_schema/nextflow_schema_specification.md#nested-parameters).
+
+In these cases, to avoid getting warnings when that unrecognised parameter is set,
+you can use `--validationSchemaIgnoreParams` / `params.validationSchemaIgnoreParams`.
+
+This should be a comma-separated list of strings that correspond to parameter names.
 
 ## Variable type checking
 
