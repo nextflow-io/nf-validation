@@ -551,7 +551,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 def String key = (String) p.key
                 def Map property = properties[key] as Map
                 if (property.containsKey('exists') && property.containsKey('format')) {
-                    if (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') {
+                    if (property['exists'] && (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') ) {
                         exists.push(key)
                     }
                 }
