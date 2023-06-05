@@ -535,7 +535,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Function to check if a file or directory exists
     //
     List pathExists(String path) {
-        def File file = new File(path)
+        def Path file = Nextflow.file(path) as Path
         if (!file.exists()) {
             errors << "* The file or directory '${path}' does not exist.".toString()
         }
