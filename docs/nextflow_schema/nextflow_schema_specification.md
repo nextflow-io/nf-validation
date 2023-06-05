@@ -345,7 +345,7 @@ The available `format` types are below:
 : States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
 `directory-path`
-: States if the provided value is a directory.
+: States if the provided value is a directory. Does not check its existence, but if it exists, it does check that the path is not a file.
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.
