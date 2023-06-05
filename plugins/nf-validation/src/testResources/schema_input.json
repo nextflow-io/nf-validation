@@ -34,17 +34,20 @@
             },
             "field_7": {
                 "type": "string",
-                "format": "file-path-exists",
+                "format": "file-path",
+                "exists": true,
                 "pattern": "^.*\\.txt$"
             },
             "field_8": {
                 "type": "string",
-                "format": "directory-path-exists"
+                "format": "directory-path",
+                "exists": true
             },
             "field_9": {
                 "type": "string",
-                "format": "path-exists"
-            },
+                "format": "path",
+                "exists": true
+                },
             "field_10": {
                 "type": "string",
                 "unique": true

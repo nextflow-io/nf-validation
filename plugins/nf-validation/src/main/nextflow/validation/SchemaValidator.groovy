@@ -269,6 +269,13 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
 
+        //=====================================================================//
+        // Check if files or directories exist
+        def List<String> pathsToCheck = (List) collectExists(schemaParams)
+        pathsToCheck.each {
+            pathExists(params[it].toString())
+        }
+
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
         def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
 
@@ -303,6 +310,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 .schemaJson(rawSchema)
                 .addFormatValidator("file-path", new FilePathValidator())
                 .addFormatValidator("directory-path", new DirectoryPathValidator())
+                .addFormatValidator("path", new PathValidator())
                 .build()
         final schema = schemaLoader.load().build()
 
@@ -463,11 +471,8 @@ class SchemaValidator extends PluginExtensionPoint {
         final SchemaLoader schemaLoader = SchemaLoader.builder()
             .schemaJson(rawSchema)
             .addFormatValidator("file-path", new FilePathValidator())
-            .addFormatValidator("file-path-exists", new FilePathExistsValidator())
             .addFormatValidator("directory-path", new DirectoryPathValidator())
-            .addFormatValidator("directory-path-exists", new DirectoryPathExistsValidator())
             .addFormatValidator("path", new PathValidator())
-            .addFormatValidator("path-exists", new PathExistsValidator())
             .build()
         final schema = schemaLoader.load().build()
 
@@ -492,6 +497,19 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map enums = (Map) enumsTuple[1]
 
         //=====================================================================//
+        // Check if files or directories exist
+        def List<String> pathsToCheck = (List) collectExists(schemaParams)
+        pathsToCheck.each { fieldName ->
+            def String filedName = fieldName
+            for (int i=0; i < arrayJSON.size(); i++) {
+                def JSONObject entry = arrayJSON.getJSONObject(i)
+                if ( entry.has(filedName) ) {
+                    pathExists(entry[filedName].toString())
+                }
+            }
+        }
+
+        //=====================================================================//
         // Validate
         try {
             // Create new validator with LENIENT mode 
@@ -511,6 +529,38 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         return true
+    }
+
+
+    //
+    // Function to check if a file or directory exists
+    //
+    List pathExists(String path) {
+        def Path file = Nextflow.file(path) as Path
+        if (!file.exists()) {
+            errors << "* The file or directory '${path}' does not exist.".toString()
+        }
+    }
+
+
+    //
+    // Function to collect parameters with an exists key in the schema.
+    //
+    List collectExists(Map schemaParams) {
+        def exists = []
+        for (group in schemaParams) {
+            def Map properties = (Map) group.value['properties']
+            for (p in properties) {
+                def String key = (String) p.key
+                def Map property = properties[key] as Map
+                if (property.containsKey('exists') && property.containsKey('format')) {
+                    if (property['exists'] && (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') ) {
+                        exists.push(key)
+                    }
+                }
+            }
+        }
+        return exists
     }
 
 

@@ -352,12 +352,12 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
-        errorMessages[3] == "* -- Entry 1 - field_7: the file 'non_existing_file.tsv' does not exist (non_existing_file.tsv)"
-        errorMessages[4] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory (src/testResources/test.txt)"
-        errorMessages[5] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
-        errorMessages[6] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
-        errorMessages[7] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist (non_existing_path)"
+        errorMessages[2] == "* The file or directory 'non_existing_path' does not exist."
+        errorMessages[3] == "* The file or directory 'non_existing_file.tsv' does not exist."
+        errorMessages[4] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
+        errorMessages[5] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
+        errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
+        errorMessages[7] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
         errorMessages[8] == "* -- Entry 2: Missing required value: field_4"
         errorMessages[9] == "* -- Entry 2: Missing required value: field_5"
         errorMessages[10] == "* -- Entry 2: Missing required value: field_6"

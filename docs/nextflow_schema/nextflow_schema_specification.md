@@ -328,7 +328,7 @@ Formats can be used to give additional validation checks against `string` values
 !!! note
 
     In addition to _validating_ the strings as the provided format type, nf-validation also _coerces_ the parameter variable type.
-    That is: if the schema defines `params.input` as a `file-path-exists`, nf-validation will convert the parameter from a `String` into a `Nextflow.File`.
+    That is: if the schema defines `params.input` as a `file-path`, nf-validation will convert the parameter from a `String` into a `Nextflow.File`.
 
 Example usage is as follows:
 
@@ -344,26 +344,35 @@ The available `format` types are below:
 `file-path`
 : States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
-`file-path-exists`
-: Automatically checks if the provided value is a file (and not a directory), if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
-
 `directory-path`
-: States if the provided value is a directory. Does not check its existence, but it does check that the path is not a file.
-
-`directory-path-exists`
-: Automatically checks if the provided value is a directory (and not a file), if it exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
+: States if the provided value is a directory. Does not check its existence, but if it exists, it does check that the path is not a file.
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.
 
-`path-exists`
-: Automatically checks if the path (file or directory) exists and transforms the `String` type to a `Nextflow.File` type, which is usable in Nextflow processes as a `path` input.
+### `exists`
+
+When a format is specified for a value, you can provide the key `exists` set to true in order to validate that the provided path exists.
+
+Example usage is as follows:
+
+```json
+{
+  "type": "string",
+  "format": "file-path",
+  "exists": true
+}
+```
+
+!!! note
+
+    If `exists` is set to `false`, this validation is ignored. Does not check if the path exists.
 
 ### `mimetype`
 
 MIME type for a file path. Setting this value informs downstream tools about what _kind_ of file is expected.
 
-Should only be set when `format` is `file-path` or `file-path-exists`.
+Should only be set when `format` is `file-path`.
 
 - See a [list of common MIME types](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
 
@@ -379,7 +388,7 @@ Should only be set when `format` is `file-path` or `file-path-exists`.
 
 Path to a JSON schema file used to validate _the supplied file_.
 
-Should only be set when `format` is `file-path` or `file-path-exists`.
+Should only be set when `format` is `file-path`.
 
 !!! tip
 
