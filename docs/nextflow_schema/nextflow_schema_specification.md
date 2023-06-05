@@ -345,7 +345,7 @@ The available `format` types are below:
 : States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
 `directory-path`
-: States if the provided value is a directory. It does check that the path is not a file. _If the directory does not exist, the validation will fail, to avoid this for directories that will be created later during workflow execution, provide the format `path` instead._
+: States if the provided value is a directory.
 
 `path`
 : States if the provided value is a path (file or directory). Does not check its existence.

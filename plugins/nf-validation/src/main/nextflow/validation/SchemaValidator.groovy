@@ -310,6 +310,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 .schemaJson(rawSchema)
                 .addFormatValidator("file-path", new FilePathValidator())
                 .addFormatValidator("directory-path", new DirectoryPathValidator())
+                .addFormatValidator("path", new PathValidator())
                 .build()
         final schema = schemaLoader.load().build()
 
