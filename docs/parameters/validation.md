@@ -118,7 +118,7 @@ params.validationFailUnrecognisedParams = true
 
 Sometimes, a parameter that you want to set may not be described in the pipeline schema for a good reason.
 Maybe it's something you're using in your Nextflow configuration setup for your compute environment,
-or it's a complex parameter that cannot be handled in the schema.
+or it's a complex parameter that cannot be handled in the schema, such as [nested parameters](../nextflow_schema/nextflow_schema_specification.md#nested-parameters).
 
 In these cases, to avoid getting warnings when that unrecognised parameter is set,
 you can use `--validationSchemaIgnoreParams` / `params.validationSchemaIgnoreParams`.
