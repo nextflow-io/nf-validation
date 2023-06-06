@@ -3,4 +3,4 @@ Plugin-Id: nf-validation
 Plugin-Version: 0.2.0
 Plugin-Class: nextflow.validation.ValidationPlugin
 Plugin-Provider: nextflow
-Plugin-Requires: >=21.02.0-edge
+Plugin-Requires: >=22.10.0
