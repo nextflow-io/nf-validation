@@ -273,7 +273,9 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check if files or directories exist
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
         pathsToCheck.each {
-            pathExists(params[it].toString())
+            if (params[it] != null) {
+                pathExists(params[it].toString())
+            }
         }
 
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
