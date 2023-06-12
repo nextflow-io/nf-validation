@@ -19,6 +19,7 @@
 
 - The `meta` maps are now immutable by default, see [`ImmutableMap`](https://nextflow-io.github.io/nf-validation/samplesheets/immutable_map/) for more info (@nvnieuwk)
 - `validateAndConvertSamplesheet()` has been renamed to `fromSamplesheet()`
+- Refactor `--schema_ignore_params` to `--validationSchemaIgnoreParams`
 
 ### Bug fixes
 
