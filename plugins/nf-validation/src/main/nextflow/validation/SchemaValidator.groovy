@@ -357,6 +357,9 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
+                if (params[key] == null) {
+                    continue
+                }
                 def Map property = properties[key] as Map
                 if (property.containsKey('schema')) {
                     def String schema_name = getSchemaPath(baseDir, property['schema'].toString())
