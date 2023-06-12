@@ -1,5 +1,12 @@
 # nextflow-io/nf-validation: Changelog
 
+## Version 0.3.0 (dev)
+
+### Bug fixes
+
+- Only validate a path if it is not null ([#50](https://github.com/nextflow-io/nf-validation/pull/50/files))
+- Only validate a file with a schema if the file path is provided ([#51](https://github.com/nextflow-io/nf-validation/pull/51/files))
+
 ## Version 0.2.1
 
 ### Bug fixes
