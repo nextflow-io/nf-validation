@@ -22,7 +22,7 @@ Typically, sample sheets are CSV files, with fields represented as columns and s
 
 !!! warning
 
-    Nested YAML files can be validated with the `validateParameters()` function, but cannot be converted to a channel with `.fromSamplesheet()`. 
+    Nested YAML files can be validated with the `validateParameters()` function, but cannot be converted to a channel with `.fromSamplesheet()`.
 
 In this case, the parsed object will be an `array` (see [JSON schema docs](https://json-schema.org/understanding-json-schema/reference/array.html#items)).
 The array type is associated with an `items` key which in our case contains a single `object`.
