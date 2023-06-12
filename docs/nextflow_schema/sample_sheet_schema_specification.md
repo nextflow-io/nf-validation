@@ -19,6 +19,11 @@ then passing this to the JSON schema validation library.
 As such, the structure of the schema must match the structure of the parsed file.
 
 Typically, sample sheets are CSV files, with fields represented as columns and samples as rows. TSV and simple unnested YAML files are also supported by the plugin.
+
+!!! warning
+
+    Nested YAML files can be validated with the `validateParameters()` function, but cannot be converted to a channel with `.fromSamplesheet()`. 
+
 In this case, the parsed object will be an `array` (see [JSON schema docs](https://json-schema.org/understanding-json-schema/reference/array.html#items)).
 The array type is associated with an `items` key which in our case contains a single `object`.
 The object has `properties`, where the keys must match the headers of the CSV file.
