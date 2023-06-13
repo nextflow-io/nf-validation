@@ -162,11 +162,16 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
+        if (samplesheetFile == null) {
+            log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
+            throw new SchemaValidationException("", [])
+        }
         def Path schemaFile = null
-        if (samplesheetValue.containsKey('schema')) {
+        if (samplesheetValue != null && samplesheetValue.containsKey('schema')) {
             schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
         } else {
-            log.error "Parameter '$samplesheetParam' does not contain a schema."
+            log.error "Parameter '--$samplesheetParam' does not contain a schema. Unable to create a channel from it."
+            throw new SchemaValidationException("", [])
         }
 
         log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
