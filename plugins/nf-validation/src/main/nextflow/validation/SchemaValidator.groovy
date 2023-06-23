@@ -444,6 +444,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
                 try {
                     if( str == null || str == '' ) castedRow[key] = null
+                    else if( type == null ) castedRow[key] = str
                     else if( type.toLowerCase() == 'boolean' && str.toLowerCase() in VALID_BOOLEAN_VALUES ) castedRow[key] = str.toBoolean()
                     else if( type.toLowerCase() == 'character' ) castedRow[key] = str.toCharacter()
                     else if( type.toLowerCase() == 'short' && str.isNumber() ) castedRow[key] = str.toShort()

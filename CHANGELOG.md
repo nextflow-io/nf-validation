@@ -7,6 +7,7 @@
 - Only validate a path if it is not null ([#50](https://github.com/nextflow-io/nf-validation/pull/50))
 - Only validate a file with a schema if the file path is provided ([#51](https://github.com/nextflow-io/nf-validation/pull/51))
 - Handle errors when sample sheet not provided or doesn't have a schema ([#56](https://github.com/nextflow-io/nf-validation/pull/56))
+- Silently ignore samplesheet fields that are not defined in samplesheet schema ([#59](https://github.com/nextflow-io/nf-validation/pull/59))
 
 ## Version 0.2.1
 
