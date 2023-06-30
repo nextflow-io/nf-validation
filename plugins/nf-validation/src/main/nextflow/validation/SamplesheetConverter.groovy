@@ -72,7 +72,7 @@ class SamplesheetConverter {
         }
         else {
             Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
-            samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:delimiter)
+            samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:delimiter, quote:'"')
         }
 
         // Field checks + returning the channels
