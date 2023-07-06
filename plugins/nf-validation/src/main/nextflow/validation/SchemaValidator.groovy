@@ -279,7 +279,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
         pathsToCheck.each {
             if (params[it] != null) {
-                pathExists(params[it].toString())
+                pathExists(params[it].toString(), it.toString())
             }
         }
 
@@ -515,7 +515,7 @@ class SchemaValidator extends PluginExtensionPoint {
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
                 if ( entry.has(filedName) ) {
-                    pathExists(entry[filedName].toString())
+                    pathExists(entry[filedName].toString(), fieldName.toString())
                 }
             }
         }
@@ -546,10 +546,10 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Function to check if a file or directory exists
     //
-    List pathExists(String path) {
+    List pathExists(String path, String paramName) {
         def Path file = Nextflow.file(path) as Path
         if (!file.exists()) {
-            errors << "* The file or directory '${path}' does not exist.".toString()
+            errors << "* --${paramName}: the file or directory '${path}' does not exist.".toString()
         }
     }
 
