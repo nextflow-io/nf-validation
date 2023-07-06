@@ -10,6 +10,10 @@
 - Silently ignore samplesheet fields that are not defined in samplesheet schema ([#59](https://github.com/nextflow-io/nf-validation/pull/59))
 - Correctly handle double-quoted fields containing commas in csv files by `.fromSamplesheet()` [#63](https://github.com/nextflow-io/nf-validation/pull/63))
 
+### Deprecated
+
+- The meta map of input channels is not an ImmutableMap anymore ([#68](https://github.com/nextflow-io/nf-validation/pull/68)). Reason: [Issue #52](https://github.com/nextflow-io/nf-validation/issues/52)
+
 ## Version 0.2.1
 
 ### Bug fixes
