@@ -352,8 +352,8 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines() 
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* --field_9: the file or directory 'non_existing_path' does not exist."
-        errorMessages[3] == "* --field_7: the file or directory 'non_existing_file.tsv' does not exist."
+        errorMessages[2] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist."
+        errorMessages[3] == "* -- Entry 1 - field_7: the file or directory 'non_existing_file.tsv' does not exist."
         errorMessages[4] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
         errorMessages[5] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
         errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"

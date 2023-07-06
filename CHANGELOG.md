@@ -10,6 +10,7 @@
 - Silently ignore samplesheet fields that are not defined in samplesheet schema ([#59](https://github.com/nextflow-io/nf-validation/pull/59))
 - Correctly handle double-quoted fields containing commas in csv files by `.fromSamplesheet()` ([#63](https://github.com/nextflow-io/nf-validation/pull/63))
 - Print param name when path does not exist ([#65](https://github.com/nextflow-io/nf-validation/pull/65))
+- Fix file or directory does not exist error not printed when it was the only error in a samplesheet ([#65](https://github.com/nextflow-io/nf-validation/pull/65))
 
 ## Version 0.2.1
 

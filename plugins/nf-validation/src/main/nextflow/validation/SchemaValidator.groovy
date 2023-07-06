@@ -515,7 +515,7 @@ class SchemaValidator extends PluginExtensionPoint {
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
                 if ( entry.has(filedName) ) {
-                    pathExists(entry[filedName].toString(), fieldName.toString())
+                    pathExists(entry[filedName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}")
                 }
             }
         }
@@ -528,6 +528,13 @@ class SchemaValidator extends PluginExtensionPoint {
                 .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
                 .build();
             validator.performValidation(schema, arrayJSON);
+            if (this.hasErrors()) {
+                // Needed for custom errors such as pathExists() errors
+                def colors = logColours(monochrome_logs)
+                def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+                log.error("ERROR: Validation of '$paramName' file failed!")
+                throw new SchemaValidationException(msg, this.getErrors())
+            }
         } catch (ValidationException e) {
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
