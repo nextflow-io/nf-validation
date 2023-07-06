@@ -771,8 +771,8 @@ class SchemaValidator extends PluginExtensionPoint {
                     if (schema_value != null && params_value != schema_value) {
                         sub_params.put(param, params_value)
                     }
-                    // No default in the schema, and this isn't empty
-                    else if (schema_value == null && params_value != "" && params_value != null && params_value != false) {
+                    // No default in the schema, and this isn't empty or false
+                    else if (schema_value == null && params_value != "" && params_value != null && params_value != false && params_value != 'false') {
                         sub_params.put(param, params_value)
                     }
                 }
