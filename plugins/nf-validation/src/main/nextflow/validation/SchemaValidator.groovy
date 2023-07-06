@@ -156,7 +156,6 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Set defaults for optional inputs
         def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
-        def Boolean immutableMeta = options?.containsKey('immutable_meta') ? options.immutable_meta as Boolean : params.containsKey("validationImmutableMeta") ? params["validationImmutableMeta"] as Boolean : true
 
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
@@ -195,7 +194,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert to channel
         final channel = CH.create()
-        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile, immutableMeta)
+        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
         session.addIgniter {
             arrayChannel.each { 
                 channel.bind(it) 
@@ -228,9 +227,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationSchemaIgnoreParams") ) {
             params.validationSchemaIgnoreParams = false
         }
-        if( !params.containsKey("validationImmutableMeta") ) {
-            params.validationImmutableMeta = true
-        }
 
         return params
     }
@@ -240,7 +236,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Add expected params
     //
     List addExpectedParams() {
-        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "validationSchemaIgnoreParams", "validationImmutableMeta"]
+        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "validationSchemaIgnoreParams"]
 
         return expectedParams
     }

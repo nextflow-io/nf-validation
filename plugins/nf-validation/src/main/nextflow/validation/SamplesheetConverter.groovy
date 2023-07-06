@@ -54,8 +54,7 @@ class SamplesheetConverter {
 
     static List convertToList(
         Path samplesheetFile, 
-        Path schemaFile,
-        Boolean immutableMeta
+        Path schemaFile
         ) {
 
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
@@ -170,7 +169,7 @@ class SamplesheetConverter {
                 }
             }
             // Add meta to the output when a meta field has been created
-            if(meta != [:]) { output.add(0, immutableMeta ? new ImmutableMap(meta) : meta) }
+            if(meta != [:]) { output.add(0, meta) }
             return output
         }
 

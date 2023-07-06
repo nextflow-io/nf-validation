@@ -23,10 +23,9 @@ This parameter be described in the Nextflow parameter schema using as a file, wi
 
 The given sample sheet schema specified in the `schema` key is then loaded and used for validation and sample sheet generation.
 
-Two additional function optional arguments can be used:
+An additional function optional argument can be used:
 
 - File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
-- Whether to create the meta map as an `ImmutableMap` - see [docs](immutable_map.md) (Default: `true`)
 
 ```groovy
 Channel.fromSamplesheet('input')
@@ -36,7 +35,6 @@ Channel.fromSamplesheet('input')
 Channel.fromSamplesheet(
   'input',
   schema_filename: 'custom_nextflow_schema.json',
-  immutable_meta: false
 )
 ```
 
