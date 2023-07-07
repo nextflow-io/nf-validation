@@ -9,6 +9,7 @@
 - Handle errors when sample sheet not provided or doesn't have a schema ([#56](https://github.com/nextflow-io/nf-validation/pull/56))
 - Silently ignore samplesheet fields that are not defined in samplesheet schema ([#59](https://github.com/nextflow-io/nf-validation/pull/59))
 - Correctly handle double-quoted fields containing commas in csv files by `.fromSamplesheet()` [#63](https://github.com/nextflow-io/nf-validation/pull/63))
+- Do not return parameter in summary if it has no default in the schema and is set to 'false' ([#66](https://github.com/nextflow-io/nf-validation/pull/66))
 
 ## Version 0.2.1
 
