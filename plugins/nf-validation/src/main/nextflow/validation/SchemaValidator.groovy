@@ -279,7 +279,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
         pathsToCheck.each {
             if (params[it] != null) {
-                pathExists(params[it].toString())
+                pathExists(params[it].toString(), it.toString())
             }
         }
 
@@ -510,12 +510,11 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check if files or directories exist
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
-        pathsToCheck.each { fieldName ->
-            def String filedName = fieldName
+        pathsToCheck.each { String fieldName ->
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
-                if ( entry.has(filedName) ) {
-                    pathExists(entry[filedName].toString())
+                if ( entry.has(fieldName) ) {
+                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}")
                 }
             }
         }
@@ -528,6 +527,13 @@ class SchemaValidator extends PluginExtensionPoint {
                 .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
                 .build();
             validator.performValidation(schema, arrayJSON);
+            if (this.hasErrors()) {
+                // Needed for custom errors such as pathExists() errors
+                def colors = logColours(monochrome_logs)
+                def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
+                log.error("ERROR: Validation of '$paramName' file failed!")
+                throw new SchemaValidationException(msg, this.getErrors())
+            }
         } catch (ValidationException e) {
             def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
@@ -546,10 +552,10 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Function to check if a file or directory exists
     //
-    List pathExists(String path) {
+    List pathExists(String path, String paramName) {
         def Path file = Nextflow.file(path) as Path
         if (!file.exists()) {
-            errors << "* The file or directory '${path}' does not exist.".toString()
+            errors << "* --${paramName}: the file or directory '${path}' does not exist.".toString()
         }
     }
 
