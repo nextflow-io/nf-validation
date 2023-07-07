@@ -510,12 +510,11 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check if files or directories exist
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
-        pathsToCheck.each { fieldName ->
-            def String filedName = fieldName
+        pathsToCheck.each { String fieldName ->
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
-                if ( entry.has(filedName) ) {
-                    pathExists(entry[filedName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}")
+                if ( entry.has(fieldName) ) {
+                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}")
                 }
             }
         }
