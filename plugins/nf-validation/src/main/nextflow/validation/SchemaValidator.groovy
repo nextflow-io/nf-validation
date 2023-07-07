@@ -362,13 +362,19 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
-                if (params[key] == null) {
+                if (params[key] == null || params[key] == '') {
                     continue
                 }
                 def Map property = properties[key] as Map
                 if (property.containsKey('schema')) {
                     def String schema_name = getSchemaPath(baseDir, property['schema'].toString())
-                    def Path file_path = Nextflow.file(params[key]) as Path
+                    def Path file_path
+                    try {
+                        file_path = Nextflow.file(params[key]) as Path
+                    } catch (IllegalArgumentException e) {
+                        errors << "* --${key}: The file path '${params[key]}' is invalid. Unable to validate file.".toString()
+                        continue
+                    }
                     log.debug "Starting validation: '$key': '$file_path' with '$schema_name'"
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
