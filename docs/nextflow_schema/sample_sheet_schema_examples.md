@@ -37,6 +37,7 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
       "fastq_1": {
         "type": "string",
         "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+        "format": "file-path",
         "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
       },
       "fastq_2": {
@@ -44,7 +45,8 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
         "anyOf": [
           {
             "type": "string",
-            "pattern": "^\\S+\\.f(ast)?q\\.gz$"
+            "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+            "format": "file-path"
           },
           {
             "type": "string",
