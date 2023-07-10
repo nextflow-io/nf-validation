@@ -1,6 +1,10 @@
 # nextflow-io/nf-validation: Changelog
 
-## Version 0.3.0 (dev)
+## Version 0.3.0
+
+### New features
+
+- Check that a sample sheet doesn't have duplicated entries by default. Can be disabled with `--validationSkipDuplicateCheck` ([#72](https://github.com/nextflow-io/nf-validation/pull/72))
 
 ### Bug fixes
 
