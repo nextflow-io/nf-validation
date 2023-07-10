@@ -12,6 +12,7 @@
 - Print param name when path does not exist ([#65](https://github.com/nextflow-io/nf-validation/pull/65))
 - Fix file or directory does not exist error not printed when it was the only error in a samplesheet ([#65](https://github.com/nextflow-io/nf-validation/pull/65))
 - Do not return parameter in summary if it has no default in the schema and is set to 'false' ([#66](https://github.com/nextflow-io/nf-validation/pull/66))
+- Skip the validation of a file if the path is an empty string and improve error message when the path is invalid ([#69](https://github.com/nextflow-io/nf-validation/pull/69))
 
 ## Version 0.2.1
 
