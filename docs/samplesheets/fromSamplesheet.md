@@ -23,9 +23,10 @@ This parameter be described in the Nextflow parameter schema using as a file, wi
 
 The given sample sheet schema specified in the `schema` key is then loaded and used for validation and sample sheet generation.
 
-An additional function optional argument can be used:
+Some additional function optional arguments can be used:
 
-- File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
+- `schema_filename`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
+- `skip_duplicate_check`: Skip the checking for duplicates. Can also be skipped with the `--validationSkipDuplicateCheck` parameter. (Default: `false`)
 
 ```groovy
 Channel.fromSamplesheet('input')
@@ -35,6 +36,7 @@ Channel.fromSamplesheet('input')
 Channel.fromSamplesheet(
   'input',
   schema_filename: 'custom_nextflow_schema.json',
+  skip_duplicate_check: false
 )
 ```
 

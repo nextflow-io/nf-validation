@@ -156,6 +156,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Set defaults for optional inputs
         def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
+        def Boolean skipDuplicateCheck = options?.containsKey('skip_duplicate_check') ? options.skip_duplicate_check as Boolean : params.validationSkipDuplicateCheck ? params.validationSkipDuplicateCheck as Boolean : false
 
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
@@ -194,7 +195,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Convert to channel
         final channel = CH.create()
-        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+        List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile, skipDuplicateCheck)
         session.addIgniter {
             arrayChannel.each { 
                 channel.bind(it) 
@@ -227,6 +228,9 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationSchemaIgnoreParams") ) {
             params.validationSchemaIgnoreParams = false
         }
+        if( !params.containsKey("validationSkipDuplicateCheck") ) {
+            params.validationSkipDuplicateCheck = false
+        }
 
         return params
     }
@@ -236,7 +240,15 @@ class SchemaValidator extends PluginExtensionPoint {
     // Add expected params
     //
     List addExpectedParams() {
-        def List expectedParams = ["validationFailUnrecognisedParams", "validationLenientMode", "monochrome_logs", "help", "validationShowHiddenParams", "validationSchemaIgnoreParams"]
+        def List expectedParams = [
+            "validationFailUnrecognisedParams",
+            "validationLenientMode",
+            "monochrome_logs",
+            "help",
+            "validationShowHiddenParams",
+            "validationSchemaIgnoreParams",
+            "validationSkipDuplicateCheck"
+        ]
 
         return expectedParams
     }

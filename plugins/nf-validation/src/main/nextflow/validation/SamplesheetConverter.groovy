@@ -36,6 +36,8 @@ class SamplesheetConverter {
     private static List<String> schemaErrors = []
     private static List<String> warnings = []
 
+    private static List<Map> rows = []
+
     static boolean hasErrors() { errors.size()>0 }
     static Set<String> getErrors() { errors.sort().collect { "\t${it}".toString() } as Set }
 
@@ -54,7 +56,8 @@ class SamplesheetConverter {
 
     static List convertToList(
         Path samplesheetFile, 
-        Path schemaFile
+        Path schemaFile,
+        Boolean skipDuplicateCheck
         ) {
 
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
@@ -78,6 +81,7 @@ class SamplesheetConverter {
         def Map<String,List<String>> booleanUniques = [:]
         def Map<String,List<Map<String,String>>> listUniques = [:]
         def Boolean headerCheck = true
+        this.rows = []
         resetCount()
 
         def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
@@ -85,7 +89,7 @@ class SamplesheetConverter {
 
             Map<String,String> row = fullRow.findAll { it.value != "" }
             def Set rowKeys = row.keySet()
-            def String yamlInfo = fileType == "yaml" ? " for sample ${this.getCount()}." : ""
+            def String yamlInfo = fileType == "yaml" ? " for entry ${this.getCount()}." : ""
 
             // Check the header (CSV/TSV) or present fields (YAML)
             if(headerCheck) {
@@ -98,6 +102,13 @@ class SamplesheetConverter {
                     headerCheck = false
                 }
             }
+
+            // Check for row uniqueness
+            if(!skipDuplicateCheck && this.rows.contains(row)) {
+                def Integer firstDuplicate = this.rows.findIndexOf { it == row }
+                this.errors << "The samplesheet contains duplicate rows for entry ${firstDuplicate + 1} and entry ${getCount()} (${row})".toString()
+            }
+            this.rows.add(row)
 
             def Map meta = [:]
             def ArrayList output = []
