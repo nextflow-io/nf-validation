@@ -1,4 +1,0 @@
-N E X T F L O W  ~  version 23.04.0
-Launching `pipeline/main.nf` [exotic_wescoff] DSL2 - revision: 16f6eb8e0b
-[[my_sample_id:mysample1, my_strandedness:forward, new_key:test], input1_R1.fq.gz, input1_R2.fq.gz]
-[[my_sample_id:mysample2, my_strandedness:forward, new_key:test], input2_R1.fq.gz, input2_R2.fq.gz]

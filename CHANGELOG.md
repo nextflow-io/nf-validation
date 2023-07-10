@@ -14,6 +14,10 @@
 - Do not return parameter in summary if it has no default in the schema and is set to 'false' ([#66](https://github.com/nextflow-io/nf-validation/pull/66))
 - Skip the validation of a file if the path is an empty string and improve error message when the path is invalid ([#69](https://github.com/nextflow-io/nf-validation/pull/69))
 
+### Deprecated
+
+- The meta map of input channels is not an ImmutableMap anymore ([#68](https://github.com/nextflow-io/nf-validation/pull/68)). Reason: [Issue #52](https://github.com/nextflow-io/nf-validation/issues/52)
+
 ## Version 0.2.1
 
 ### Bug fixes
