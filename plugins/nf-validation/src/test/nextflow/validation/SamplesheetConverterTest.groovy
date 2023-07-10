@@ -214,7 +214,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         !stdout
     }
 
-        def 'errors before channel conversion' () {
+    def 'errors before channel conversion' () {
         given:
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
@@ -248,6 +248,33 @@ class SamplesheetConverterTest extends Dsl2Spec{
         errorMessages[10] == "* -- Entry 2: Missing required value: field_6"
         errorMessages[11] == "* -- Entry 3 - field_3: expected type: Boolean, found: String (3333)"
         errorMessages[12] == "* -- Entry 3 - field_2: expected type: Integer, found: String (false)"
+        !stdout
+    }
+
+    def 'duplicates' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/duplicate.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines() 
+        errorMessages[0] == "Samplesheet errors:"
+        errorMessages[4] == "\tThe samplesheet contains duplicate rows for entry 2 and entry 3 ([field_4:string1, field_5:25, field_6:false])"
         !stdout
     }
 }
