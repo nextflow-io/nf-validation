@@ -2,6 +2,10 @@
 
 ## Version 0.3.0
 
+### New features
+
+- Check that a sample sheet doesn't have duplicated entries by default. Can be disabled with `--validationSkipDuplicateCheck` ([#72](https://github.com/nextflow-io/nf-validation/pull/72))
+
 ### Bug fixes
 
 - Only validate a path if it is not null ([#50](https://github.com/nextflow-io/nf-validation/pull/50))
