@@ -1,5 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
+## Version 0.3.1 (dev)
+
+### Bug fixes
+
+- Don't check if path exists if param is not true ([#74](https://github.com/nextflow-io/nf-validation/pull/74))
+
 ## Version 0.3.0
 
 ### New features
