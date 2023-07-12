@@ -24,7 +24,7 @@ _(make sure you pin the latest stable release version after the `@`)_
 
 ```groovy title="nextflow.config"
 plugins {
-  id 'nf-validation@0.3.0'
+  id 'nf-validation@0.3.1'
 }
 ```
 
