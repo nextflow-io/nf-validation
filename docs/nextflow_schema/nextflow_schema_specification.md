@@ -409,6 +409,10 @@ These schema files are typically stored in the pipeline `assets` directory, but 
 }
 ```
 
+!!! note
+
+    If the parameter is set to `null`, `false` or an empty string, this validation is ignored. The file won't be validated.
+
 ## Numeric-specific keys
 
 ### `minimum`, `maximum`
