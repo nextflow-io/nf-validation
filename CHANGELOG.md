@@ -5,6 +5,7 @@
 ### Bug fixes
 
 - Don't check if path exists if param is not true ([#74](https://github.com/nextflow-io/nf-validation/pull/74))
+- Don't validate a file if the parameter evaluates to false ([#75](https://github.com/nextflow-io/nf-validation/pull/75))
 
 ## Version 0.3.0
 
