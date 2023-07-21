@@ -281,6 +281,18 @@ class SchemaValidator extends PluginExtensionPoint {
         def enumsTuple = collectEnums(schemaParams)
         def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
+        // Collect expected parameters from the schema when parameters are specified outside of "definitions"
+        if (parsed.containsKey('properties')) {
+            def enumsTupleTopLevel = collectEnums(['top_level': ['properties': parsed.get('properties')]])
+            expectedParams += (List) enumsTupleTopLevel[0]
+            enums += (Map) enumsTupleTopLevel[1]
+        }
+        // Collect expected parameters from the schema when parameters are specified within "definitions"
+        if (schemaParams.containsKey('properties')) {
+            def enumsTupleDefinitions = collectEnums(['definitions': ['properties': schemaParams.get('properties')]])
+            expectedParams += (List) enumsTupleDefinitions[0]
+            enums += (Map) enumsTupleDefinitions[1]
+        }
 
         //=====================================================================//
         // Check if files or directories exist
