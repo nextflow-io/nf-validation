@@ -22,6 +22,7 @@ tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
 It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `.fromSamplesheet()`.
 
 Here we use the following terminology:
+
 - A channel is the Nextflow object, referenced in the code
 - An item is each thing passing through the channel, equivalent to one row in the samplesheet
 - An element is each thing in the item, e.g., the meta value, fastq_1 etc. It may be a file or value.
@@ -75,7 +76,7 @@ Channel.fromSamplesheet("input")
 input.view() // Channel has 3 elements: meta, fastq_1, fastq_2
 ```
 
-In this way you can drop items from a channel. 
+In this way you can drop items from a channel.
 
 ## Separating channel items
 
@@ -163,12 +164,12 @@ Channel.fromSamplesheet("input")
     .reduce([:]) { counts, family ->      // Creates a map like this: [family1:2, family2:1]
         counts[family] = (counts[family] ?: 0) + 1
         counts
-    }                                    
+    }
     .combine(ch_raw)                     // Add the count map to the original channel
     .map { counts, meta, txt ->          // Add the counts of the current family to the meta
         new_meta = meta + [count:counts[meta.family]]
         [ new_meta, txt ]
-    }                                    
+    }
     .set { input }
 
 input.view()
