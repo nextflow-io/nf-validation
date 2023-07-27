@@ -21,7 +21,7 @@ Might create a channel where each element consists of 4 items, a map value follo
 
 // Resulting in:
 [ [ id: "sample" ], fastq1.R1.fq.gz, fastq1.R2.fq.gz, sample1.bed]
-[ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, null ] // A missing value from the samplesheet is null
+[ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, [] ] // A missing value from the samplesheet is an empty list
 ```
 
 This could be used in the Nextflow process as:
