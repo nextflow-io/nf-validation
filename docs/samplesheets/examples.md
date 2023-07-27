@@ -13,7 +13,18 @@ sample1,fastq1.R1.fq.gz,fastq1.R2.fq.gz,sample1.bed
 sample2,fastq2.R1.fq.gz,fastq2.R2.fq.gz,
 ```
 
-Might create the channel:
+Might create a channel where each element consists of 4 items, a map value followed by three files:
+
+```groovy
+// Columns:
+[ val([ sample: sample ]), file(fastq1), file(fastq2), file(bed) ]
+
+// Resulting in:
+[ [ id: "sample" ], fastq1.R1.fq.gz, fastq1.R2.fq.gz, sample1.bed]
+[ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, null ] // A missing value from the samplesheet is null
+```
+
+This could be used in the Nextflow process as:
 
 ```nextflow
 tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
