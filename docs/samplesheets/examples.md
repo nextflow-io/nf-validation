@@ -5,6 +5,18 @@ description: Examples of advanced sample sheet creation techniques.
 
 # Sample sheet channel manipulation examples
 
+## Introduction
+
+Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-validation helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet`.
+
+### Glossary
+
+- A channel is the Nextflow object, referenced in the code
+- An item is each thing passing through the channel, equivalent to one row in the samplesheet
+- An element is each thing in the item, e.g., the meta value, fastq_1 etc. It may be a file or value
+
+## Default mode
+
 Each item in the channel emitted by `.fromSamplesheet()` is a flat tuple, corresponding with each row of the samplesheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the samplesheet, e.g.:
 
 ```csv
@@ -31,12 +43,6 @@ tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
 ```
 
 It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `.fromSamplesheet()`.
-
-Here we use the following terminology:
-
-- A channel is the Nextflow object, referenced in the code
-- An item is each thing passing through the channel, equivalent to one row in the samplesheet
-- An element is each thing in the item, e.g., the meta value, fastq_1 etc. It may be a file or value.
 
 ## Changing the structure of channel items
 
