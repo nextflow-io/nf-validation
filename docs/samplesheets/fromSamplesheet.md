@@ -7,11 +7,9 @@ description: Channel factory to create a channel from a sample sheet.
 
 ## `fromSamplesheet`
 
-This function validates and converts a samplesheet to a ready-to-use Nextflow channel.
-This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
+This function validates and converts a samplesheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
 
-The function has one mandatory argument: a string specifying the name of the parameter used to provide a samplesheet.
-This parameter be described in the Nextflow parameter schema using as a file, with a `schema` field:
+The function has one mandatory argument: the name of the parameter which specifies the input samplesheet. The parameter specified must have the format `file-path` and include additional field `schema`:
 
 ```json hl_lines="4"
 {
@@ -21,9 +19,9 @@ This parameter be described in the Nextflow parameter schema using as a file, wi
 }
 ```
 
-The given sample sheet schema specified in the `schema` key is then loaded and used for validation and sample sheet generation.
+The path specified in the `schema` key determines the JSON used for validation of the samplesheet.
 
-Some additional function optional arguments can be used:
+When using the `.fromSamplesheet` channel factory, some additional optional arguments can be used:
 
 - `schema_filename`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
 - `skip_duplicate_check`: Skip the checking for duplicates. Can also be skipped with the `--validationSkipDuplicateCheck` parameter. (Default: `false`)
