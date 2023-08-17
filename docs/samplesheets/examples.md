@@ -36,7 +36,7 @@ Might create a channel where each element consists of 4 items, a map value follo
 [ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, [] ] // A missing value from the samplesheet is an empty list
 ```
 
-This could be used in the Nextflow process as:
+This channel can be used as input of a process where the input declaration is:
 
 ```nextflow
 tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
@@ -59,10 +59,10 @@ process ZCAT_FASTQS {
 }
 ```
 
-The output of `.fromSamplesheet()` is the following by default:
+The output of `.fromSamplesheet()` can be used by default with a process with the following input declaration:
 
 ```nextflow
-val(meta, path(fastq_1), path(fastq_2)
+val(meta), path(fastq_1), path(fastq_2)
 ```
 
 To manipulate each item within a channel, you should use the [Nextflow `.map()` operator](https://www.nextflow.io/docs/latest/operator.html#map). This will apply a function to each element of the channel in turn. Here, we convert the flat tuple into a tuple composed of a meta and a list of FASTQ files:
@@ -115,7 +115,7 @@ input.fastq.view() // Channel has 3 elements: meta, fastq_1, fastq_2
 input.bed.view()   // Channel has 2 elements: meta, bed
 ```
 
-Importantly, `multiMap` apples to every item in the channel and returns an item to both channels for every input, i.e. `input`, `input.fastq` and `input.bed` all contain the same number of items, however each item will be different.
+Importantly, `multiMap` applies to every item in the channel and returns an item to both channels for every input, i.e. `input`, `input.fastq` and `input.bed` all contain the same number of items, however each item will be different.
 
 ## Separate items based on a condition
 
