@@ -5,7 +5,7 @@
 ### Bug fixes
 
 - Add parameters defined on the top level of the schema and within the definitions section as expected params ([#79](https://github.com/nextflow-io/nf-validation/pull/79))
-- Fix error when a parameter is not present in the schema and evaluates to false ([]())
+- Fix error when a parameter is not present in the schema and evaluates to false ([#89](https://github.com/nextflow-io/nf-validation/pull/89))
 
 ## Version 0.3.1
 
