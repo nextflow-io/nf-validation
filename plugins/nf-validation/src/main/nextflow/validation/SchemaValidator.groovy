@@ -316,9 +316,9 @@ class SchemaValidator extends PluginExtensionPoint {
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
                 if (failUnrecognisedParams) {
-                    errors << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                    errors << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
                 } else {
-                    warnings << "* --${specifiedParam}: ${paramsJSON[specifiedParam]}".toString()
+                    warnings << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
                 }
             }
         }

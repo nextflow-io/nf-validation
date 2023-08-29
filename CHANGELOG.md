@@ -1,8 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
-# Version 0.4.0
+## Version 0.4.0 (dev)
+
+### Bug fixes
 
 - Add parameters defined on the top level of the schema and within the definitions section as expected params ([#79](https://github.com/nextflow-io/nf-validation/pull/79))
+- Fix error when a parameter is not present in the schema and evaluates to false ([]())
 
 ## Version 0.3.1
 
