@@ -167,10 +167,14 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException("", [])
         }
         def Path schemaFile = null
-        if (samplesheetValue != null && samplesheetValue.containsKey('schema')) {
+        if (samplesheetValue == null) {
+            log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
+            throw new SchemaValidationException("", [])
+        }
+        else if (samplesheetValue.containsKey('schema')) {
             schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
         } else {
-            log.error "Parameter '--$samplesheetParam' does not contain a schema. Unable to create a channel from it."
+            log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
 
