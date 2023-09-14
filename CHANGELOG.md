@@ -3,7 +3,7 @@
 # Version 0.4.0
 
 - Add parameters defined on the top level of the schema and within the definitions section as expected params ([#79](https://github.com/nextflow-io/nf-validation/pull/79))
-- Changed the `schema_filename` option of `fromSamplesheet` to `parameters_schema` to make this option more clear to the user.
+- Changed the `schema_filename` option of `fromSamplesheet` to `parameters_schema` to make this option more clear to the user ([#91](https://github.com/nextflow-io/nf-validation/pull/91))
 
 ## Version 0.3.1
 
