@@ -155,7 +155,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = session.params
 
         // Set defaults for optional inputs
-        def String schemaFilename = options?.containsKey('schema_filename') ? options.schema_filename as String : 'nextflow_schema.json'
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         def Boolean skipDuplicateCheck = options?.containsKey('skip_duplicate_check') ? options.skip_duplicate_check as Boolean : params.validationSkipDuplicateCheck ? params.validationSkipDuplicateCheck as Boolean : false
 
         def slurper = new JsonSlurper()
