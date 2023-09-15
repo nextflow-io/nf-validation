@@ -64,7 +64,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view().first().map {println(it[0].getClass())}
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view().first().map {println(it[0].getClass())}
             }
         '''
 
@@ -90,7 +90,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -116,7 +116,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -142,7 +142,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/extraFields.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -169,7 +169,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/no_meta.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
             }
         '''
 
@@ -193,7 +193,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/errors.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -222,7 +222,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/errorsBeforeConversion.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
@@ -259,7 +259,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
             params.input = 'src/testResources/duplicate.csv'
 
             workflow {
-                Channel.fromSamplesheet("input", schema_filename:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
             }
         '''
 
