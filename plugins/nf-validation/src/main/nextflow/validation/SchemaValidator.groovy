@@ -170,26 +170,25 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Get schemaFile
         def Path schemaFile = null
-        if (schemaPath == null) {
-            def slurper = new JsonSlurper()
-            def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-            def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
-            if (samplesheetValue == null) {
-                log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
-                throw new SchemaValidationException("", [])
-            }
-            else if (samplesheetValue.containsKey('schema')) {
-                schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
-            } else {
-                log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
-                throw new SchemaValidationException("", [])
-            }
-        } else {
-            if (options?.containsKey('parameters_schema')) {
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
+        if (samplesheetValue == null) {
+            log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
+            throw new SchemaValidationException("", [])
+        }
+        else if (samplesheetValue.containsKey('schema')) {
+            if (schemaPath != null) {
                 log.error "Use either parameters_schema or schema."
                 throw new SchemaValidationException("", [])
             }
-            def Path schemaFile = Path.of(getSchemaPath(baseDir, schemaPath.toString()))
+            schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+        } else {
+            if (schemaPath == null) {
+                log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
+                throw new SchemaValidationException("", [])
+            }
+            schemaFile = Path.of(getSchemaPath(baseDir, schemaPath.toString()))
         }
 
         log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
