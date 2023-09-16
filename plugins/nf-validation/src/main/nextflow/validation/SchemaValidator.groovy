@@ -161,18 +161,16 @@ class SchemaValidator extends PluginExtensionPoint {
         // Get direct schema file
         def String schemaPath = options?.containsKey('schema') ? options.schema as String : null
 
-        // Check for presence of samplesheetParam
+        def slurper = new JsonSlurper()
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
         if (samplesheetFile == null) {
             log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
 
-        // Get schemaFile
         def Path schemaFile = null
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         if (samplesheetValue == null) {
             log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
             throw new SchemaValidationException("", [])
