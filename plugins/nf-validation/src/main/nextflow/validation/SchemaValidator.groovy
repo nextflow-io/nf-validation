@@ -158,24 +158,38 @@ class SchemaValidator extends PluginExtensionPoint {
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         def Boolean skipDuplicateCheck = options?.containsKey('skip_duplicate_check') ? options.skip_duplicate_check as Boolean : params.validationSkipDuplicateCheck ? params.validationSkipDuplicateCheck as Boolean : false
 
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
+        // Get direct schema file
+        def String schemaPath = options?.containsKey('schema') ? options.schema as String : null
+
+        // Check for presence of samplesheetParam
         def Path samplesheetFile = params[samplesheetParam] as Path
         if (samplesheetFile == null) {
             log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
+
+        // Get schemaFile
         def Path schemaFile = null
-        if (samplesheetValue == null) {
-            log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
-        }
-        else if (samplesheetValue.containsKey('schema')) {
-            schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+        if (schemaPath == null) {
+            def slurper = new JsonSlurper()
+            def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+            def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
+            if (samplesheetValue == null) {
+                log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
+                throw new SchemaValidationException("", [])
+            }
+            else if (samplesheetValue.containsKey('schema')) {
+                schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+            } else {
+                log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
+                throw new SchemaValidationException("", [])
+            }
         } else {
-            log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
+            if (options?.containsKey('parameters_schema')) {
+                log.error "Use either parameters_schema or schema."
+                throw new SchemaValidationException("", [])
+            }
+            def Path schemaFile = Path.of(getSchemaPath(baseDir, schemaPath.toString()))
         }
 
         log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
