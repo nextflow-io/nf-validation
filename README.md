@@ -20,8 +20,6 @@ Supported sample sheet formats are CSV, TSV and YAML (simple).
 
 Declare the plugin in your Nextflow pipeline configuration file:
 
-_(make sure you pin the latest stable release version after the `@`)_
-
 ```groovy title="nextflow.config"
 plugins {
   id 'nf-validation'
@@ -29,6 +27,11 @@ plugins {
 ```
 
 This is all that is needed - Nextflow will automatically fetch the plugin code at run time.
+
+> [!NOTE]
+> The snippet below will always try to install the latest version, good to make sure
+> that the latest bug fixes are included! However, this can cause difficulties if running
+> offline. You can pin a specific release using the syntax `nf-validation@0.3.2`
 
 You can now include the plugin helper functions into your Nextflow pipeline:
 
