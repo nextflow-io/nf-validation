@@ -29,7 +29,7 @@ plugins {
 This is all that is needed - Nextflow will automatically fetch the plugin code at run time.
 
 > [!NOTE]
-> The snippet below will always try to install the latest version, good to make sure
+> The snippet above will always try to install the latest version, good to make sure
 > that the latest bug fixes are included! However, this can cause difficulties if running
 > offline. You can pin a specific release using the syntax `nf-validation@0.3.2`
 
