@@ -1,6 +1,6 @@
 # nextflow-io/nf-validation: Changelog
 
-## Version 0.4.0 (dev)
+# Version 0.3.2
 
 ### Bug fixes
 
