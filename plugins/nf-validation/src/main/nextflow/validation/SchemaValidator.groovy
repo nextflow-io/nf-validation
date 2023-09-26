@@ -220,9 +220,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationLenientMode") ) {
             params.validationLenientMode = false
         }
-        if( !params.containsKey("monochrome_logs") ) {
-            params.monochrome_logs = false
-        }
         if( !params.containsKey("help") ) {
             params.help = false
         }
@@ -247,7 +244,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = [
             "validationFailUnrecognisedParams",
             "validationLenientMode",
-            "monochrome_logs",
             "help",
             "validationShowHiddenParams",
             "validationSchemaIgnoreParams",
@@ -263,7 +259,7 @@ class SchemaValidator extends PluginExtensionPoint {
     * whether the given parameters adhere to the specifications
     */
     @Function
-    void validateParameters(String schema_filename='nextflow_schema.json') {
+    void validateParameters(String schema_filename='nextflow_schema.json', Boolean monochrome_logs=false) {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
@@ -346,7 +342,6 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         // Colors
-        def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
 
         // Validate
@@ -648,10 +643,9 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @Function
-    String paramsHelp(String command, String schema_filename='nextflow_schema.json') {
+    String paramsHelp(String command, String schema_filename='nextflow_schema.json', Boolean monochrome_logs=false) {
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
-        def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
         Integer num_hidden = 0
         String output  = ''
@@ -816,12 +810,11 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for summary and return as string
     //
     @Function
-    public String paramsSummaryLog(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
+    public String paramsSummaryLog(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json', Boolean monochrome_logs=false) {
 
         def String baseDir = session.baseDir
         def Map params = session.params
 
-        def Boolean monochrome_logs = params.monochrome_logs
         def colors = logColours(monochrome_logs)
         String output  = ''
         def LinkedHashMap params_map = paramsSummaryMap(workflow, schema_filename)
