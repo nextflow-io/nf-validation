@@ -260,8 +260,8 @@ class SchemaValidator extends PluginExtensionPoint {
     */
     @Function
     void validateParameters(
-        String schemaFilename,
-        Map options = null
+        Map options = null,
+        String schemaFilename
     ) {
 
         def Map params = initialiseExpectedParams(session.params)
