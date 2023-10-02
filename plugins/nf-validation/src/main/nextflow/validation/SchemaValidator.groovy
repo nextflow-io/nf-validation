@@ -260,12 +260,12 @@ class SchemaValidator extends PluginExtensionPoint {
     */
     @Function
     void validateParameters(
+        String schemaFilename,
         Map options = null
     ) {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : params.monochrome_logs ? params.monochrome_logs as Boolean : false
         log.debug "Starting parameters validation"
         
