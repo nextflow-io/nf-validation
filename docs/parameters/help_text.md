@@ -79,7 +79,7 @@ params.validationShowHiddenParams = true
 
 By default, the help output is coloured using ANSI escape codes.
 
-If you prefer, you can disable these by using `--monochrome_logs` or `params.monochrome_logs = true`.
+If you prefer, you can disable these by using the argument monochrome_logs, e.g. `paramsHelp(monochrome_logs: true)`. Alternatively this can be set at a global level via parameter `--monochrome_logs` or adding `params.monochrome_logs = true` to a configuration file.
 
 === "Default (coloured)"
 
