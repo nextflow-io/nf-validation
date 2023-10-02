@@ -824,8 +824,8 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     @Function
     public String paramsSummaryLog(
-        WorkflowMetadata workflow,
-        Map options = null
+        Map options = null,
+        WorkflowMetadata workflow
     ) {
 
         def String baseDir = session.baseDir

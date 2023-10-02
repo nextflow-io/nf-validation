@@ -432,7 +432,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, schema_filename: '$schema')
+            def help_msg = paramsHelp(command, parameters_schema: '$schema')
             log.info help_msg
         """
 
@@ -466,7 +466,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.validationShowHiddenParams = true
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, schema_filename: '$schema')
+            def help_msg = paramsHelp(command, parameters_schema: '$schema')
             log.info help_msg
         """
 
@@ -493,7 +493,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, schema_filename: '$schema')
+            def help_msg = paramsHelp(command, parameters_schema: '$schema')
             log.info help_msg
         """
 
@@ -526,7 +526,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, schema_filename: '$schema')
+            def help_msg = paramsHelp(command, parameters_schema: '$schema')
             log.info help_msg
         """
 
@@ -554,7 +554,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = "outDir"
             include { paramsSummaryLog } from 'plugin/nf-validation'
             
-            def summary_params = paramsSummaryLog(workflow, '$schema')
+            def summary_params = paramsSummaryLog(workflow, parameters_schema: '$schema')
             log.info summary_params
         """
 
