@@ -432,7 +432,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, '$schema')
+            def help_msg = paramsHelp(command, schema_filename: '$schema')
             log.info help_msg
         """
 
@@ -466,7 +466,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.validationShowHiddenParams = true
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, '$schema')
+            def help_msg = paramsHelp(command, schema_filename: '$schema')
             log.info help_msg
         """
 
@@ -493,7 +493,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, '$schema')
+            def help_msg = paramsHelp(command, schema_filename: '$schema')
             log.info help_msg
         """
 
@@ -526,7 +526,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
-            def help_msg = paramsHelp(command, '$schema')
+            def help_msg = paramsHelp(command, schema_filename: '$schema')
             log.info help_msg
         """
 
