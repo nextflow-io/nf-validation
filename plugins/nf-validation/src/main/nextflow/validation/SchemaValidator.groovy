@@ -266,7 +266,10 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : params.monochrome_logs ? params.monochrome_logs as Boolean : false
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
         log.debug "Starting parameters validation"
         
         // Clean the parameters
@@ -657,7 +660,10 @@ class SchemaValidator extends PluginExtensionPoint {
         def String baseDir = session.baseDir
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : params.monochrome_logs ? params.monochrome_logs as Boolean : false
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
 
         def colors = logColours(useMonochromeLogs)
         Integer num_hidden = 0
@@ -832,7 +838,10 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = session.params
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : params.monochrome_logs ? params.monochrome_logs as Boolean : false
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
 
         def colors = logColours(useMonochromeLogs)
         String output  = ''
