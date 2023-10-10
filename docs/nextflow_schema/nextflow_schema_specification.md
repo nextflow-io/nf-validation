@@ -370,7 +370,12 @@ Example usage is as follows:
 
 !!! note
 
-    If the parameter is set to `null`, `false` or an empty string, this validation is ignored. Does not check if the path exists.
+    If the parameter is set to `null`, `false` or an empty string, this validation is ignored. It does not check if the path exists.
+
+!!! note
+
+    If the parameter is an S3 URL path, this validation is ignored.
+    Use `--validationS3PathCheck` or set `params.validationS3PathCheck = true` to validate them.
 
 ### `mimetype`
 
