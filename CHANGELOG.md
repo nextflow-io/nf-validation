@@ -7,6 +7,7 @@
 - Add parameters defined on the top level of the schema and within the definitions section as expected params ([#79](https://github.com/nextflow-io/nf-validation/pull/79))
 - Fix error when a parameter is not present in the schema and evaluates to false ([#89](https://github.com/nextflow-io/nf-validation/pull/89))
 - Changed the `schema_filename` option of `fromSamplesheet` to `parameters_schema` to make this option more clear to the user ([#91](https://github.com/nextflow-io/nf-validation/pull/91))
+- Do not check if S3 URL paths exists to avoid AWS errors, and add a new parameter `validationS3PathCheck`
 
 ## Version 0.3.1
 
