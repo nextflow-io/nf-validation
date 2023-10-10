@@ -185,6 +185,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> fileContent
         def List<Map<String,String>> fileContentCasted = []
+        def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         if(fileType == "yaml"){
             fileContent = new Yaml().load((samplesheetFile.text))
         }
@@ -193,7 +194,7 @@ class SchemaValidator extends PluginExtensionPoint {
             fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
             fileContentCasted = castToType(fileContent, types)
         }
-        if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir)) {
+        if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
             log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
         }
 
@@ -232,6 +233,9 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationSkipDuplicateCheck") ) {
             params.validationSkipDuplicateCheck = false
         }
+        if( !params.containsKey("validationS3PathCheck") ) {
+            params.validationS3PathCheck = false
+        }
 
         return params
     }
@@ -247,7 +251,8 @@ class SchemaValidator extends PluginExtensionPoint {
             "help",
             "validationShowHiddenParams",
             "validationSchemaIgnoreParams",
-            "validationSkipDuplicateCheck"
+            "validationSkipDuplicateCheck",
+            "validationS3PathCheck",
         ]
 
         return expectedParams
@@ -266,6 +271,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
+        def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
             params.monochrome_logs ? params.monochrome_logs as Boolean : 
             params.monochromeLogs  ? params.monochromeLogs as Boolean :
@@ -300,7 +306,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def List<String> pathsToCheck = (List) collectExists(schemaParams)
         pathsToCheck.each {
             if (params[it]) {
-                pathExists(params[it].toString(), it.toString())
+                pathExists(params[it].toString(), it.toString(), s3PathCheck)
             }
         }
 
@@ -408,7 +414,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
                         fileContentCasted = castToType(fileContent, types)
                     }
-                    if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir)) {
+                    if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
@@ -501,7 +507,9 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
     boolean validateFile(
-        Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir
+        
+        Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir, Boolean s3PathCheck = false
+    
     ) {
 
         // Load the schema
@@ -542,7 +550,7 @@ class SchemaValidator extends PluginExtensionPoint {
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
                 if ( entry.has(fieldName) ) {
-                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}")
+                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck)
                 }
             }
         }
@@ -580,10 +588,14 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Function to check if a file or directory exists
     //
-    List pathExists(String path, String paramName) {
-        def Path file = Nextflow.file(path) as Path
-        if (!file.exists()) {
-            errors << "* --${paramName}: the file or directory '${path}' does not exist.".toString()
+    List pathExists(String path, String paramName, Boolean s3PathCheck) {
+        if (path.startsWith('s3://') && !s3PathCheck) {
+            log.debug "Ignoring validation of S3 URL path '${path}'".toString()
+        } else {
+            def Path file = Nextflow.file(path) as Path
+            if (!file.exists()) {
+                errors << "* --${paramName}: the file or directory '${path}' does not exist.".toString()
+            }
         }
     }
 

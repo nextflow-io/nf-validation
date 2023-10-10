@@ -1,5 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 0.3.3
+
+### Bug fixes
+
+- Do not check if S3 URL paths exists to avoid AWS errors, and add a new parameter `validationS3PathCheck` ([#104](https://github.com/nextflow-io/nf-validation/pull/104))
+
 # Version 0.3.2
 
 ### Bug fixes
