@@ -1,5 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 0.3.4 (dev)
+
+### Bug fixes
+
+- Make monochrome_logs an option in `paramsSummaryLog()`, `paramsSummaryMap()` and `paramsHelp()` instead of a global parameter ([#101](https://github.com/nextflow-io/nf-validation/pull/101))
+
 # Version 0.3.3
 
 ### Bug fixes
