@@ -1,5 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 0.3.4 (dev)
+
+### Bug fixes
+
+- Do not check S3 URL paths with `PathValidator` `FilePathValidator` and `DirectoryPathValidator` ([#105](https://github.com/nextflow-io/nf-validation/pull/105))
+
 # Version 0.3.3
 
 ### Bug fixes
