@@ -372,6 +372,11 @@ Example usage is as follows:
 
     If the parameter is set to `null`, `false` or an empty string, this validation is ignored. Does not check if the path exists.
 
+!!! note
+
+    If the parameter is as S3 URL path, this validation is ignored. Does not check if the path exists.
+    Use `--validationS3PathCheck` or set `params.validationS3PathCheck = true` to validate them.
+
 ### `mimetype`
 
 MIME type for a file path. Setting this value informs downstream tools about what _kind_ of file is expected.
