@@ -130,11 +130,11 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Resolve Schema path relative to main workflow directory
     //
-    static String getSchemaPath(String baseDir, String schema_filename='nextflow_schema.json') {
-        if (Path.of(schema_filename).exists()) {
-            return schema_filename
+    static String getSchemaPath(String baseDir, String schemaFilename='nextflow_schema.json') {
+        if (Path.of(schemaFilename).exists()) {
+            return schemaFilename
         } else {
-            return "${baseDir}/${schema_filename}"
+            return "${baseDir}/${schemaFilename}"
         }
     }
 
@@ -221,9 +221,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationLenientMode") ) {
             params.validationLenientMode = false
         }
-        if( !params.containsKey("monochrome_logs") ) {
-            params.monochrome_logs = false
-        }
         if( !params.containsKey("help") ) {
             params.help = false
         }
@@ -251,7 +248,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = [
             "validationFailUnrecognisedParams",
             "validationLenientMode",
-            "monochrome_logs",
             "help",
             "validationShowHiddenParams",
             "validationSchemaIgnoreParams",
@@ -268,11 +264,18 @@ class SchemaValidator extends PluginExtensionPoint {
     * whether the given parameters adhere to the specifications
     */
     @Function
-    void validateParameters(String schema_filename='nextflow_schema.json') {
+    void validateParameters(
+        Map options = null,
+        String schemaFilename
+    ) {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
         log.debug "Starting parameters validation"
         
         // Clean the parameters
@@ -283,7 +286,7 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check for nextflow core params and unexpected params
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def Map schemaParams = (Map) parsed.get('definitions')
         def specifiedParamKeys = params.keySet()
 
@@ -335,7 +338,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Validate parameters against the schema
-        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
         final SchemaLoader schemaLoader = SchemaLoader.builder()
                 .schemaJson(rawSchema)
@@ -352,8 +355,7 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         // Colors
-        def Boolean monochrome_logs = params.monochrome_logs
-        def colors = logColours(monochrome_logs)
+        def colors = logColours(useMonochromeLogs)
 
         // Validate
         try {
@@ -412,7 +414,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
                         fileContentCasted = castToType(fileContent, types)
                     }
-                    if (validateFile(monochrome_logs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
+                    if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
                 }
@@ -426,13 +428,13 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     // Function to obtain the variable types of properties from a JSON Schema
     //
-    Map variableTypes(String schema_filename, String baseDir) {
+    Map variableTypes(String schemaFilename, String baseDir) {
         def Map variableTypes = [:]
         def String type = ''
 
         // Read the schema
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
 
         // Obtain the type of each variable in the schema
         def Map properties = (Map) parsed['items']['properties']
@@ -505,11 +507,13 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     /* groovylint-disable-next-line UnusedPrivateMethodParameter */
     boolean validateFile(
-        Boolean monochrome_logs, String paramName, Object fileContent, String schema_filename, String baseDir, Boolean s3PathCheck = false
+        
+        Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir, Boolean s3PathCheck = false
+    
     ) {
 
         // Load the schema
-        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         final rawSchema = new JSONObject(new JSONTokener(schema_string))
         final SchemaLoader schemaLoader = SchemaLoader.builder()
             .schemaJson(rawSchema)
@@ -531,7 +535,7 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check for params with expected values
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def Map schemaParams = (Map) ["items": parsed.get('items')] 
 
         // Collect expected parameters from the schema
@@ -660,16 +664,25 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for --help
     //
     @Function
-    String paramsHelp(String command, String schema_filename='nextflow_schema.json') {
+    String paramsHelp(
+        Map options = null,
+        String command
+    ) {
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
-        def Boolean monochrome_logs = params.monochrome_logs
-        def colors = logColours(monochrome_logs)
+
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
+
+        def colors = logColours(useMonochromeLogs)
         Integer num_hidden = 0
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
@@ -753,7 +766,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @Function
-    public LinkedHashMap paramsSummaryMap(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(WorkflowMetadata workflow, String schemaFilename='nextflow_schema.json') {
         
         def String baseDir = session.baseDir
         def Map params = session.params
@@ -780,7 +793,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
-        def Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schema_filename)) )
+        def Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
             def Map group_params = params_map.get(group)  as Map // This gets the parameters of that particular group
@@ -828,15 +841,23 @@ class SchemaValidator extends PluginExtensionPoint {
     // Beautify parameters for summary and return as string
     //
     @Function
-    public String paramsSummaryLog(WorkflowMetadata workflow, String schema_filename='nextflow_schema.json') {
+    public String paramsSummaryLog(
+        Map options = null,
+        WorkflowMetadata workflow
+    ) {
 
         def String baseDir = session.baseDir
         def Map params = session.params
 
-        def Boolean monochrome_logs = params.monochrome_logs
-        def colors = logColours(monochrome_logs)
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+            params.monochrome_logs ? params.monochrome_logs as Boolean : 
+            params.monochromeLogs  ? params.monochromeLogs as Boolean :
+            false
+
+        def colors = logColours(useMonochromeLogs)
         String output  = ''
-        def LinkedHashMap params_map = paramsSummaryMap(workflow, schema_filename)
+        def LinkedHashMap params_map = paramsSummaryMap(workflow, schemaFilename)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
             def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group

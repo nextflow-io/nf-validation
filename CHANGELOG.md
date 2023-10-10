@@ -4,7 +4,8 @@
 
 ### Bug fixes
 
-- Do not check S3 URL paths with `PathValidator` `FilePathValidator` and `DirectoryPathValidator` ([#105](https://github.com/nextflow-io/nf-validation/pull/105))
+- Do not check S3 URL paths with `PathValidator` `FilePathValidator` and `DirectoryPathValidator` ([#106](https://github.com/nextflow-io/nf-validation/pull/106))
+- Make monochrome_logs an option in `paramsSummaryLog()`, `paramsSummaryMap()` and `paramsHelp()` instead of a global parameter ([#101](https://github.com/nextflow-io/nf-validation/pull/101))
 
 # Version 0.3.3
 
