@@ -120,6 +120,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         noExceptionThrown()
         !stdout
+
+        cleanup:
+        schema_dest.delete()
     }
 
     def 'should validate a schema csv' () {
