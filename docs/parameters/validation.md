@@ -13,7 +13,7 @@ This function takes all pipeline parameters and checks that they adhere to the s
 - If any parameter validation has failed, it throws a `SchemaValidationException` exception to stop the pipeline.
 - If any parameters in the schema reference a sample sheet schema with `schema`, that file is loaded and validated.
 
-The function takes two optional argument: 
+The function takes two optional arguments:
 
 - The filename of a JSON Schema file (optional, default: `nextflow_schema.json`). File paths should be relative to the root of the pipeline directory.
 - A boolean to disable coloured outputs (optional, default: `false`). The output is coloured using ANSI escape codes by default.
