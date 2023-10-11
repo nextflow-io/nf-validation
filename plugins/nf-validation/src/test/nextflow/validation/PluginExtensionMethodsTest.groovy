@@ -80,7 +80,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.monochrome_logs = true
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('src/testResources/nextflow_schema.json', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: 'src/testResources/nextflow_schema.json', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -130,7 +130,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -153,7 +153,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -176,7 +176,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -200,7 +200,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.xyz = '/some/path'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -226,7 +226,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.validationSchemaIgnoreParams = 'xyz'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -252,7 +252,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.validationFailUnrecognisedParams = true
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -277,7 +277,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -303,7 +303,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -329,7 +329,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_time = '10.day'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -354,7 +354,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_cpus = 12
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -379,7 +379,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_cpus = '4'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -404,7 +404,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -430,7 +430,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.max_memory = '10'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -619,7 +619,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.input = 'src/testResources/samplesheet.csv'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema')
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
@@ -642,7 +642,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.input = 'src/testResources/samplesheet_wrong_pattern.csv'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
@@ -666,7 +666,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.input = 'src/testResources/samplesheet_no_required.csv'
             include { validateParameters } from 'plugin/nf-validation'
             
-            validateParameters('$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
         when:
