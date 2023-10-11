@@ -258,6 +258,16 @@ class SchemaValidator extends PluginExtensionPoint {
         return expectedParams
     }
 
+    /*
+    * Helper function to run validateParameters()
+    * without an options map
+    */
+    @Function
+    void validateParameters(
+        String schemaFilename = 'nextflow_schema.json'
+    ) {
+        validateParameters([:], schemaFilename)
+    }
 
     /*
     * Function to loop over all parameters defined in schema and check
@@ -266,7 +276,7 @@ class SchemaValidator extends PluginExtensionPoint {
     @Function
     void validateParameters(
         Map options = null,
-        String schemaFilename
+        String schemaFilename = 'nextflow_schema.json'
     ) {
 
         def Map params = initialiseExpectedParams(session.params)

@@ -96,6 +96,32 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should validate a schema with no arguments' () {
+        given:
+        def schema_source = new File('src/testResources/nextflow_schema.json')
+        def schema_dest   = new File('nextflow_schema.json')
+        schema_dest << schema_source.text
+
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters()
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
     def 'should validate a schema csv' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
