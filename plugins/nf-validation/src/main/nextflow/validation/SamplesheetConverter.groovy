@@ -164,17 +164,17 @@ class SamplesheetConverter {
                 if(metaNames) {
                     for(name : metaNames) {
                         meta[name] = (input != '' && input) ? 
-                                transform(input, field) : 
+                                castToType(input, field) : 
                             field['value']['default'] ? 
-                                transform(field['value']['default'] as String, field) : 
+                                castToType(field['value']['default'] as String, field) : 
                                 null
                     }
                 }
                 else {
                     def inputFile = (input != '' && input) ? 
-                            transform(input, field) : 
+                            castToType(input, field) : 
                         field['value']['default'] ? 
-                            transform(field['value']['default'] as String, field) : 
+                            castToType(field['value']['default'] as String, field) : 
                             []
                     output.add(inputFile)
                 }
@@ -240,14 +240,14 @@ class SamplesheetConverter {
     }
 
     // Function to transform an input field from the samplesheet to its desired type
-    private static transform(
+    private static castToType(
         String input,
         Map.Entry<String, Map> field
     ) {
         def String type = field['value']['type']
         def String key = field.key
 
-        // Check and convert string values
+        // Convert string values
         if(type == "string" || !type) {
             def String result = input as String
             
@@ -262,21 +262,38 @@ class SamplesheetConverter {
             return result
         }
 
-        // Check and convert integer values
-        else if(type == "integer" || type == "number") {
+        // Convert number values
+        else if(type == "number") {
+            try {
+                def int result = input as int
+                return result
+            }
+            catch (NumberFormatException e) {
+                log.debug("Could not convert ${input} to an integer. Trying to convert to a float.")
+            }
 
-            // Stop conversion if there are errors (prevents unwanted exceptions)
-            if(this.getErrors()){ return }
-
-            // Convert the string value to an integer value and return it
-            def Integer result = input as Integer
+            try {
+                def float result = input as float
+                return result
+            }
+            catch (NumberFormatException e) {
+                log.debug("Could not convert ${input} to a float. Trying to convert to a double.")
+            }
+            
+            def double result = input as double
             return result
         }
 
-        // Check and convert boolean values
+        // Convert integer values
+        else if(type == "integer") {
+
+            def int result = input as int
+            return result
+        }
+
+        // Convert boolean values
         else if(type == "boolean") {
 
-            // Convert and return the boolean value
             if(input.toLowerCase() == "true") {
                 return true
             }
