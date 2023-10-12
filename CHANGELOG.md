@@ -2,9 +2,16 @@
 
 # Version 1.0.0
 
+This version introduces a change of syntax when providing optional arguments to the functions. You can now provide optional arguments such as the nextflow parameters schema path as:
+`validateParameters(parameters_schema: 'my_file.json')`
+
+## Bug fixes
+
 - The path to a custom parameters schema must be provided through a map '`parameters_schema: 'my_file.json'`' in `validateParameters()` and `paramsSummaryMap()` ([#108](https://github.com/nextflow-io/nf-validation/pull/108))
 
 # Version 0.3.4
+
+This version introduced a bug which made all pipeline runs using the function `validateParameters()` without providing any arguments fail.
 
 ### Bug fixes
 
