@@ -2,9 +2,22 @@
 
 # Version 1.0.0
 
+The nf-validation plugin is now in production use across many pipelines and has (we hope) now reached a point of relative stability. The bump to major version v1.0.0 signifies that it is suitable for use in production pipelines.
+
+This version also introduces a small breaking change of syntax when providing optional arguments to the functions. You can now provide optional arguments such as the nextflow parameters schema path as:
+`validateParameters(parameters_schema: 'my_file.json')`
+
+(previous syntax used positional arguments instead).
+
+## Bug fixes
+
 - The path to a custom parameters schema must be provided through a map '`parameters_schema: 'my_file.json'`' in `validateParameters()` and `paramsSummaryMap()` ([#108](https://github.com/nextflow-io/nf-validation/pull/108))
 
 # Version 0.3.4
+
+This version introduced a bug which made all pipeline runs using the function `validateParameters()` without providing any arguments fail.
+
+This bug causes Nextflow to exit with an error on launch for most pipelines. It should not be used. It was [removed](https://github.com/nextflow-io/plugins/pull/40) from the Nextflow Plugin registry to avoid breaking people's runs.
 
 ### Bug fixes
 
