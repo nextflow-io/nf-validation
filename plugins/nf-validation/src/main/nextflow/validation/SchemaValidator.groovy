@@ -34,7 +34,6 @@ import org.yaml.snakeyaml.Yaml
 import static SamplesheetConverter.getHeader
 import static SamplesheetConverter.getFileType
 
-
 @Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -258,24 +257,23 @@ class SchemaValidator extends PluginExtensionPoint {
         return expectedParams
     }
 
-
     /*
     * Function to loop over all parameters defined in schema and check
     * whether the given parameters adhere to the specifications
     */
     @Function
     void validateParameters(
-        Map options = null,
-        String schemaFilename
+        Map options = null
     ) {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
             params.monochrome_logs ? params.monochrome_logs as Boolean : 
             params.monochromeLogs  ? params.monochromeLogs as Boolean :
             false
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         log.debug "Starting parameters validation"
         
         // Clean the parameters
@@ -766,8 +764,12 @@ class SchemaValidator extends PluginExtensionPoint {
     // Groovy Map summarising parameters/workflow options used by the pipeline
     //
     @Function
-    public LinkedHashMap paramsSummaryMap(WorkflowMetadata workflow, String schemaFilename='nextflow_schema.json') {
+    public LinkedHashMap paramsSummaryMap(
+        Map options = null,
+        WorkflowMetadata workflow
+        ) {
         
+        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         def String baseDir = session.baseDir
         def Map params = session.params
         
@@ -850,14 +852,14 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = session.params
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
+        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
             params.monochrome_logs ? params.monochrome_logs as Boolean : 
             params.monochromeLogs  ? params.monochromeLogs as Boolean :
             false
 
         def colors = logColours(useMonochromeLogs)
         String output  = ''
-        def LinkedHashMap params_map = paramsSummaryMap(workflow, schemaFilename)
+        def LinkedHashMap params_map = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
         def max_chars  = paramsMaxChars(params_map)
         for (group in params_map.keySet()) {
             def Map group_params = params_map.get(group) as Map // This gets the parameters of that particular group

@@ -1,5 +1,9 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 1.0.0
+
+- The path to a custom parameters schema must be provided through a map '`parameters_schema: 'my_file.json'`' in `validateParameters()` and `paramsSummaryMap()` ([#108](https://github.com/nextflow-io/nf-validation/pull/108))
+
 # Version 0.3.4
 
 ### Bug fixes
