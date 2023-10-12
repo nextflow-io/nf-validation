@@ -235,6 +235,12 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationS3PathCheck") ) {
             params.validationS3PathCheck = false
         }
+        if( !params.containsKey("monochromeLogs") ) {
+            params.monochromeLogs = false
+        }
+        if( !params.containsKey("monochrome_logs") ) {
+            params.monochrome_logs = false
+        }
 
         return params
     }
@@ -252,6 +258,8 @@ class SchemaValidator extends PluginExtensionPoint {
             "validationSchemaIgnoreParams",
             "validationSkipDuplicateCheck",
             "validationS3PathCheck",
+            "monochromeLogs",
+            "monochrome_logs"
         ]
 
         return expectedParams
