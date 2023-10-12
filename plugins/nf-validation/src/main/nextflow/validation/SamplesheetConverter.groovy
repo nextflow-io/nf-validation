@@ -299,6 +299,10 @@ class SamplesheetConverter {
             }
             return false
         }
+
+        else if(type == "null") {
+            return null
+        }
     }
 
     private static String addSample (
