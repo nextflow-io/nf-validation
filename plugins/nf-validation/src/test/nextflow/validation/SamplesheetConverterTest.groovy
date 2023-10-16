@@ -73,11 +73,12 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
@@ -99,11 +100,12 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
@@ -125,11 +127,12 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def stdout = capture
                 .toString()
                 .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
@@ -156,7 +159,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         noExceptionThrown()
         stdout.contains("\tThe samplesheet contains following unchecked field(s): [extraField]")
         stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
-        stdout.contains("[[string1:value, string2:value, integer1:5, integer2:5, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique3, 1, itDoesExist]" as String)
     }
@@ -235,7 +238,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        def errorMessages = error.message.readLines() 
+        def errorMessages = error.message.readLines()
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
         errorMessages[2] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist."
         errorMessages[3] == "* -- Entry 1 - field_7: the file or directory 'non_existing_file.tsv' does not exist."
@@ -244,10 +247,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
         errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
         errorMessages[7] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
         errorMessages[8] == "* -- Entry 2: Missing required value: field_4"
-        errorMessages[9] == "* -- Entry 2: Missing required value: field_5"
-        errorMessages[10] == "* -- Entry 2: Missing required value: field_6"
-        errorMessages[11] == "* -- Entry 3 - field_3: expected type: Boolean, found: String (3333)"
-        errorMessages[12] == "* -- Entry 3 - field_2: expected type: Integer, found: String (false)"
+        errorMessages[9] == "* -- Entry 2: Missing required value: field_6"
+        errorMessages[10] == "* -- Entry 3 - field_3: expected type: Boolean, found: String (3333)"
+        errorMessages[11] == "* -- Entry 3 - field_2: expected type: Integer, found: String (false)"
         !stdout
     }
 

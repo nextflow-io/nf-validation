@@ -16,7 +16,7 @@
             "field_2": {
                 "type": "integer",
                 "meta": ["integer1","integer2"],
-                "default": 5
+                "default": 0
             },
             "field_3": {
                 "type": "boolean",
@@ -61,6 +61,6 @@
                 "default": "itDoesExist"
             }
         },
-        "required": ["field_4", "field_5", "field_6"]
+        "required": ["field_4", "field_6"]
     }
 }
