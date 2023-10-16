@@ -1,0 +1,6 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "description": "Schema for the file provided with params.input",
+    "type": "string"
+}
+

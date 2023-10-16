@@ -64,6 +64,7 @@ class SamplesheetConverter {
         def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
         def Set<String> allFields = schemaFields.keySet()
         def List<String> requiredFields = (List) schemaMap["items"]["required"]
+        def Boolean containsHeader = !(allFields.size() == 1 && allFields[0] == "")
 
         def String fileType = getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
@@ -74,7 +75,7 @@ class SamplesheetConverter {
         }
         else {
             Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
-            samplesheetList = fileSamplesheet.splitCsv(header:true, strip:true, sep:delimiter, quote:'"')
+            samplesheetList = fileSamplesheet.splitCsv(header:containsHeader, strip:true, sep:delimiter, quote:'"')
         }
 
         // Field checks + returning the channels
