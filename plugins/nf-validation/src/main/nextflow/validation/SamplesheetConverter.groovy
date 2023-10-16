@@ -164,17 +164,17 @@ class SamplesheetConverter {
                 if(metaNames) {
                     for(name : metaNames) {
                         meta[name] = (input != '' && input) ? 
-                                transform(input, field) : 
+                                castToType(input, field) : 
                             field['value']['default'] != null ? 
-                                transform(field['value']['default'] as String, field) : 
+                                castToType(field['value']['default'] as String, field) : 
                                 null
                     }
                 }
                 else {
                     def inputFile = (input != '' && input) ? 
-                            transform(input, field) : 
+                            castToType(input, field) : 
                         field['value']['default'] != null ? 
-                            transform(field['value']['default'] as String, field) : 
+                            castToType(field['value']['default'] as String, field) : 
                             []
                     output.add(inputFile)
                 }
