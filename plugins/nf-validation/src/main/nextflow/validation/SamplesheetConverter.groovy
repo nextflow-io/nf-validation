@@ -71,11 +71,16 @@ class SamplesheetConverter {
         def List<Map<String,String>> samplesheetList
 
         if(fileType == "yaml"){
-            samplesheetList = new Yaml().load((samplesheetFile.text))
+            samplesheetList = new Yaml().load((samplesheetFile.text)).collect {
+                if(containsHeader) {
+                    return it as Map
+                }
+                return ["empty": it] as Map
+            }
         }
         else {
             Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
-            samplesheetList = fileSamplesheet.splitCsv(header:containsHeader, strip:true, sep:delimiter, quote:'"')
+            samplesheetList = fileSamplesheet.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'"')
         }
 
         // Field checks + returning the channels
@@ -84,17 +89,16 @@ class SamplesheetConverter {
         def Boolean headerCheck = true
         this.rows = []
         resetCount()
-
         def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
             increaseCount()
 
             Map<String,String> row = fullRow.findAll { it.value != "" }
-            def Set rowKeys = row.keySet()
+            def Set rowKeys = containsHeader ? row.keySet() : ["empty"].toSet()
             def String yamlInfo = fileType == "yaml" ? " for entry ${this.getCount()}." : ""
 
             // Check the header (CSV/TSV) or present fields (YAML)
             if(headerCheck) {
-                def unexpectedFields = rowKeys - allFields
+                def unexpectedFields = containsHeader ? rowKeys - allFields : []
                 if(unexpectedFields.size() > 0) {
                     this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
                 }
@@ -115,7 +119,7 @@ class SamplesheetConverter {
             def ArrayList output = []
 
             for( Map.Entry<String, Map> field : schemaFields ){
-                def String key = field.key
+                def String key = containsHeader ? field.key : "empty"
                 def String input = row[key]
 
                 // Check if the field is deprecated
