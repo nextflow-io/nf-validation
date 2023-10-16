@@ -2,6 +2,9 @@
 
 # Version 1.1.0
 
+## Features
+- Add support for samplesheets with no header ([TODO PR]())
+
 ## Bug fixes
 
 - Floats and doubles should now be created when using the `number` type in the schema ([#113](https://github.com/nextflow-io/nf-validation/pull/113/))
