@@ -3,7 +3,7 @@
 # Version 1.1.0
 
 ## Features
-- Add support for samplesheets with no header ([TODO PR]())
+- Add support for samplesheets with no header ([#115](https://github.com/nextflow-io/nf-validation/pull/115))
 
 ## Bug fixes
 
