@@ -50,17 +50,17 @@ Sometimes you only have one possible input in the pipeline samplesheet. In this 
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "description": "Schema for the file provided with params.input",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "": {
-                "type": "string"
-            }
-        }
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Schema for the file provided with params.input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "": {
+        "type": "string"
+      }
     }
+  }
 }
 ```
 
