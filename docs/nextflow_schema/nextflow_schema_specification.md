@@ -342,13 +342,16 @@ Example usage is as follows:
 The available `format` types are below:
 
 `file-path`
-: States if the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
+: States that the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
 
 `directory-path`
-: States if the provided value is a directory. Does not check its existence, but if it exists, it does check that the path is not a file.
+: States that the provided value is a directory. Does not check its existence, but if it exists, it does check that the path is not a file.
 
 `path`
-: States if the provided value is a path (file or directory). Does not check its existence.
+: States that the provided value is a path (file or directory). Does not check its existence.
+
+`file-path-pattern`
+: States that the provided value is a globbing pattern that will be used to fetch files. Checks that the pattern is valid and that at least one file is found.
 
 ### `exists`
 
