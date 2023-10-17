@@ -62,7 +62,7 @@ ch_input = Channel.fromSamplesheet("input")
 
 ## Slack channel
 
-There is a dedicated [nf-validation Slack channel] (https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace] (nextflow.slack.com).
+There is a dedicated [nf-validation Slack channel](https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace](nextflow.slack.com).
 
 ## Credits
 
