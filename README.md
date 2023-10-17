@@ -60,6 +60,10 @@ ch_input = Channel.fromSamplesheet("input")
 - Java 11 or later
 - <https://github.com/everit-org/json-schema>
 
+## Slack channel
+
+There is a dedicated [nf-validation Slack channel] (https://nfcore.slack.com/archives/C056RQB10LU) in the [nf-core] (nfcore.slack.com) Slack workspace.
+
 ## Credits
 
 This plugin was written based on code initially written within the nf-core community,
