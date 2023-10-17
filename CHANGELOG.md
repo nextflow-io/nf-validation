@@ -1,13 +1,13 @@
 # nextflow-io/nf-validation: Changelog
 
-# Version 1.1.0
+# Version 1.1.0 - Miso
 
 ## Bug fixes
 
 - Floats and doubles should now be created when using the `number` type in the schema ([#113](https://github.com/nextflow-io/nf-validation/pull/113/))
 - When `0` is used as a default value in the schema, a `0` will now be used as the value in the `.fromSamplesheet()` channel instead of `null` ([#114](https://github.com/nextflow-io/nf-validation/pull/114))
 
-# Version 1.0.0
+# Version 1.0.0 - Tonkotsu
 
 The nf-validation plugin is now in production use across many pipelines and has (we hope) now reached a point of relative stability. The bump to major version v1.0.0 signifies that it is suitable for use in production pipelines.
 
