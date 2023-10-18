@@ -2,6 +2,7 @@ package nextflow.validation
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import groovy.json.JsonGenerator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import groovyx.gpars.dataflow.DataflowWriteChannel
@@ -531,14 +532,12 @@ class SchemaValidator extends PluginExtensionPoint {
             .build()
         final schema = schemaLoader.load().build()
 
-        // Convert the groovy object to a JSONArray
-        def jsonObj = new JsonBuilder(fileContent)
         // Remove all null values from JSON object
-        jsonObj = jsonObj.toString()
-        while (jsonObj.contains("null")) {
-            jsonObj = jsonObj.replaceAll("(.*)(\".*?\":null,?)", '$1')
-        }
-        def JSONArray arrayJSON = new JSONArray(jsonObj)
+        // and convert the groovy object to a JSONArray
+        def jsonGenerator = new JsonGenerator.Options()
+            .excludeNulls()
+            .build()
+        def JSONArray arrayJSON = new JSONArray(jsonGenerator.toJson(fileContent))
 
         //=====================================================================//
         // Check for params with expected values
