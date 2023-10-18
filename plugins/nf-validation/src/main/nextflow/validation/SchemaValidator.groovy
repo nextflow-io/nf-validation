@@ -351,6 +351,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 .addFormatValidator("file-path", new FilePathValidator())
                 .addFormatValidator("directory-path", new DirectoryPathValidator())
                 .addFormatValidator("path", new PathValidator())
+                .addFormatValidator("file-path-pattern", new FilePathPatternValidator())
                 .build()
         final schema = schemaLoader.load().build()
 
@@ -526,6 +527,7 @@ class SchemaValidator extends PluginExtensionPoint {
             .addFormatValidator("file-path", new FilePathValidator())
             .addFormatValidator("directory-path", new DirectoryPathValidator())
             .addFormatValidator("path", new PathValidator())
+            .addFormatValidator("file-path-pattern", new FilePathPatternValidator())
             .build()
         final schema = schemaLoader.load().build()
 

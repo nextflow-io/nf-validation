@@ -11,6 +11,10 @@
 - Floats and doubles should now be created when using the `number` type in the schema ([#113](https://github.com/nextflow-io/nf-validation/pull/113/))
 - When `0` is used as a default value in the schema, a `0` will now be used as the value in the `.fromSamplesheet()` channel instead of `null` ([#114](https://github.com/nextflow-io/nf-validation/pull/114))
 
+## New features
+
+- Added `file-path-pattern` format to check every file fetched using a glob pattern. Using a glob is now also possible in the samplesheet and will create a list of all files found using that glob pattern. ([#118](https://github.com/nextflow-io/nf-validation/pull/118))
+
 # Version 1.0.0 - Tonkotsu
 
 The nf-validation plugin is now in production use across many pipelines and has (we hope) now reached a point of relative stability. The bump to major version v1.0.0 signifies that it is suitable for use in production pipelines.

@@ -258,10 +258,17 @@ class SamplesheetConverter {
             
             // Check and convert to the desired format
             def String format = field['value']['format']
-            if(format && format.contains("path")) {
-                def Path inputFile = Nextflow.file(input) as Path
-                return inputFile
+            if(format) {
+                if(format == "file-path-pattern") {
+                    def ArrayList inputFiles = Nextflow.file(input) as ArrayList
+                    return inputFiles
+                }
+                if(format.contains("path")) {
+                    def Path inputFile = Nextflow.file(input) as Path
+                    return inputFile
+                }
             }
+            
 
             // Return the plain string value
             return result
