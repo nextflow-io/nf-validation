@@ -44,6 +44,47 @@ tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
 
 It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `.fromSamplesheet()`.
 
+## Using a samplesheet with no headers
+
+Sometimes you only have one possible input in the pipeline samplesheet. In this case it doesn't make sense to have a header in the samplesheet. This can be done by creating a samplesheet with an empty string as input key:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Schema for the file provided with params.input",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "": {
+        "type": "string"
+      }
+    }
+  }
+}
+```
+
+When using samplesheets like this CSV file:
+
+```csv
+test_1
+test_2
+```
+
+or this YAML file:
+
+```yaml
+- test_1
+- test_2
+```
+
+The output of `.fromSamplesheet()` will look like this:
+
+```bash
+[test_1]
+[test_2]
+```
+
 ## Changing the structure of channel items
 
 Each item in the channel will be a flat tuple, but some processes will use multiple files as a list in their input channel, this is common in nf-core modules. For example, consider the following input declaration in a process, where FASTQ could be > 1 file:

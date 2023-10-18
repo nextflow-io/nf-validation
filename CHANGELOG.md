@@ -1,6 +1,10 @@
 # nextflow-io/nf-validation: Changelog
 
-# Version 1.1.0
+# Version 1.1.0 - Miso
+
+## Features
+
+- Add support for samplesheets with no header ([#115](https://github.com/nextflow-io/nf-validation/pull/115))
 
 ## Bug fixes
 
@@ -11,7 +15,7 @@
 
 - Added `file-path-pattern` format to check every file fetched using a glob pattern. Using a glob is now also possible in the samplesheet and will create a list of all files found using that glob pattern. ([#118](https://github.com/nextflow-io/nf-validation/pull/118))
 
-# Version 1.0.0
+# Version 1.0.0 - Tonkotsu
 
 The nf-validation plugin is now in production use across many pipelines and has (we hope) now reached a point of relative stability. The bump to major version v1.0.0 signifies that it is suitable for use in production pipelines.
 
