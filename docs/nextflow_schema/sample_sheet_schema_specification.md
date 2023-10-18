@@ -78,6 +78,8 @@ Please refer to the [Nextflow schema specification](../nextflow_schema/nextflow_
     Be sure to set `"type": "string"` and `"format": "file-path"` for these properties,
     so that nf-validation correctly returns this sample sheet field as a `Nextflow.file` object.
 
+When using the `file-path-pattern` format for a globbing pattern, a list will be created with all files found by the globbing pattern. See [here](../nextflow_schema/nextflow_schema_specification.md#file-path-pattern) for more information.
+
 ## Sample sheet keys
 
 Below are the properties that are specific to sample sheet schema.

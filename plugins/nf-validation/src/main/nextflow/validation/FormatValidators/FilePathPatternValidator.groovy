@@ -17,7 +17,7 @@ public class FilePathPatternValidator implements FormatValidator {
         }
         ArrayList files = Nextflow.file(subject) as ArrayList
         ArrayList errors = []
-        println("${subject}: ${files.size()}")
+
         if(files.size() == 0) {
             return Optional.of("No files were found using the globbing pattern '${subject}'" as String)
         }
