@@ -184,16 +184,15 @@ class SchemaValidator extends PluginExtensionPoint {
         def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> fileContent
-        def List<Map<String,String>> fileContentCasted = []
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
+        def Map types = variableTypes(schemaFile.toString(), baseDir)
         if(fileType == "yaml"){
             fileContent = new Yaml().load((samplesheetFile.text))
         }
         else {
-            Map types = variableTypes(schemaFile.toString(), baseDir)
             fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
-            fileContentCasted = castToType(fileContent, types)
         }
+        def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
         if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
             log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
         }
