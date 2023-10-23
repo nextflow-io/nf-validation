@@ -194,6 +194,35 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should validate a schema yaml with failures' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/wrong.yaml'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines()
+        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
+        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
+        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
+        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
+        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
+        !stdout
+    }
+
     def 'should find unexpected params' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()

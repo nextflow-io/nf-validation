@@ -184,16 +184,25 @@ class SchemaValidator extends PluginExtensionPoint {
         def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> fileContent
-        def List<Map<String,String>> fileContentCasted = []
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
+        def Map types = variableTypes(schemaFile.toString(), baseDir)
+        def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
+
+        if(!containsHeader){
+            types = ["empty": types[""]]
+        }
         if(fileType == "yaml"){
-            fileContent = new Yaml().load((samplesheetFile.text))
+            fileContent = new Yaml().load((samplesheetFile.text)).collect {
+                if(containsHeader) {
+                    return it as Map
+                }
+                return ["empty": it] as Map
+            }
         }
         else {
-            Map types = variableTypes(schemaFile.toString(), baseDir)
-            fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
-            fileContentCasted = castToType(fileContent, types)
+            fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
         }
+        def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
         if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
             log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
         }
@@ -413,15 +422,25 @@ class SchemaValidator extends PluginExtensionPoint {
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
                     def List<Map<String,String>> fileContent
-                    def List<Map<String,String>> fileContentCasted = []
+                    def Map types = variableTypes(schema_name, baseDir)
+                    def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
+
+                    if(!containsHeader){
+                        types = ["empty": types[""]]
+                    }
+
                     if(fileType == "yaml"){
-                        fileContent = new Yaml().load((file_path.text))
+                        fileContent = new Yaml().load(file_path.text).collect {
+                            if(containsHeader) {
+                                return it as Map
+                            }
+                            return ["empty": it] as Map
+                        }
                     }
                     else {
-                        Map types = variableTypes(schema_name, baseDir)
-                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
-                        fileContentCasted = castToType(fileContent, types)
+                        fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
                     }
+                    def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
                     if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }

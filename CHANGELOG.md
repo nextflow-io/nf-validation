@@ -1,5 +1,12 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 1.1.1 - Shoyu
+
+## Bug fixes
+
+- Fixed an issue where samplesheet with a lot of null values would take forever to validate ([#120](https://github.com/nextflow-io/nf-validation/pull/120)) => Thanks @awgymer for fixing this!
+- Now YAML files are actually validated instead of skipped ([#124](https://github.com/nextflow-io/nf-validation/pull/120))
+
 # Version 1.1.0 - Miso
 
 ## Features
