@@ -6,5 +6,5 @@ ERROR ~ ERROR: Validation of pipeline parameters failed!
  -- Check '.nextflow.log' file for details
 The following invalid input values have been detected:
 
-* --input: string [samplesheet.txt] does not match pattern ^\S+\.(csv|tsv|yaml)$ (samplesheet.txt)
+* --input: string [samplesheet.txt] does not match pattern ^\S+\.(csv|tsv|yaml|json)$ (samplesheet.txt)
 * --input: the file 'samplesheet.txt' does not exist (samplesheet.txt)

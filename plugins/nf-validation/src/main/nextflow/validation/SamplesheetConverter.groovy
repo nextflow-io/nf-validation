@@ -215,7 +215,7 @@ class SamplesheetConverter {
         Path samplesheetFile
     ) {
         def String extension = samplesheetFile.getExtension()
-        if (extension in ["csv", "tsv", "yml", "yaml"]) {
+        if (extension in ["csv", "tsv", "yml", "yaml", "json"]) {
             return extension == "yml" ? "yaml" : extension
         }
 
