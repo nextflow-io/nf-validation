@@ -1,0 +1,11 @@
+- field_1: fullField
+  field_2: 10
+  field_3: true
+  field_4: string1
+  field_5: string
+  field_6: 20
+  field_7: non_existing_file.tsv
+  field_8: src/testResources/test.txt
+  field_9: non_existing_path
+  field_10: unique1
+  field_11: 1

@@ -194,6 +194,37 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'should validate a schema yaml with failures' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.input = 'src/testResources/wrong.yaml'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines()
+        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
+        errorMessages[2] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist."
+        errorMessages[3] == "* -- Entry 1 - field_7: the file or directory 'non_existing_file.tsv' does not exist."
+        errorMessages[4] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
+        errorMessages[5] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
+        errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
+        errorMessages[7] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
+        !stdout
+    }
+
     def 'should find unexpected params' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
