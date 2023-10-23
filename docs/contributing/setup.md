@@ -17,30 +17,18 @@ To compile and run the tests use the following command:
 
 To test with Nextflow for development purpose:
 
-Clone the Nextflow repo into a sibling directory
+Compile and install the plugin code
 
 ```bash
-cd .. && git clone https://github.com/nextflow-io/nextflow
-cd nextflow && ./gradlew exportClasspath
+make compile
+make install
 ```
 
-Append to the `settings.gradle` in this project the following line:
+!!! warning
 
-```bash
-includeBuild('../nextflow')
-```
-
-Compile the plugin code
-
-```bash
-./gradlew compileGroovy
-```
-
-Run nextflow with this command:
-
-```bash
-./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
-```
+    This installs the compiled plugin code into your `${HOME}/.nextflow/plugins`
+    directory. If the manifest version of your dev code matches an existing plugin any
+    install will be overwritten.
 
 ## Change and preview the docs
 
