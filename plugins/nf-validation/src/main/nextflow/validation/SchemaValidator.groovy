@@ -200,7 +200,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         else {
-            fileContent = samplesheetFile.splitCsv(header:true, strip:true, sep:delimiter)
+            fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
         }
         def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
         if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
@@ -438,7 +438,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         }
                     }
                     else {
-                        fileContent = file_path.splitCsv(header:true, strip:true, sep:delimiter)
+                        fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
                     }
                     def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
                     if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
