@@ -196,7 +196,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should validate a schema yaml with failures' () {
         given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/wrong.yaml'
             params.outdir = 'src/testResources/testDir'
@@ -216,12 +216,10 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines()
         errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1 - field_9: the file or directory 'non_existing_path' does not exist."
-        errorMessages[3] == "* -- Entry 1 - field_7: the file or directory 'non_existing_file.tsv' does not exist."
-        errorMessages[4] == '* -- Entry 1 - field_7: string [non_existing_file.tsv] does not match pattern ^.*\\.txt$ (non_existing_file.tsv)'
-        errorMessages[5] == "* -- Entry 1 - field_8: 'src/testResources/test.txt' is not a directory, but a file (src/testResources/test.txt)"
-        errorMessages[6] == "* -- Entry 1 - field_5: expected type: Number, found: String (string)"
-        errorMessages[7] == "* -- Entry 1 - field_6: expected type: Boolean, found: String (20)"
+        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
+        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
+        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
+        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
         !stdout
     }
 
