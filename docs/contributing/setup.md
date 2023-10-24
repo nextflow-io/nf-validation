@@ -56,6 +56,14 @@ make compile
 make install
 ```
 
+Then run `nextflow` as normal and specifying your plugin version in your config e.g.
+
+```
+plugins {
+    id 'nf-validation@1.1.1'
+}
+```
+
 ## Change and preview the docs
 
 The docs are generated using [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
