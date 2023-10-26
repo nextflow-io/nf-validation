@@ -599,11 +599,11 @@ class SchemaValidator extends PluginExtensionPoint {
         pathsToCheck.each { String fieldName ->
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
-                if ( entry.has(fieldName) && entry[fieldName] instanceof ArrayList ) {
-                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck)
+                if ( entry.has(fieldName) && entry[fieldName] instanceof JSONArray ) {
+                    entry[fieldName].collect{ pathExists(it.toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck) }
                 }
                 else if ( entry.has(fieldName) ) {
-                    entry[fieldName].collect{ pathExists(it.toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck) }
+                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck)
                 }
             }
         }
