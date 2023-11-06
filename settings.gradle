@@ -10,3 +10,4 @@
 rootProject.name = 'nf-validation'
 include 'plugins'
 include('plugins:nf-validation')
+includeBuild('../nextflow')
