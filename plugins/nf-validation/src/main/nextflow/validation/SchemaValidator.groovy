@@ -405,7 +405,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
-                if (key.contains(".") || !params[key]) { // ignore nested params with dot operator
+                if (key.contains(".") || !params[key]) { // ignore nested params with dot operator => TODO: remove this after adding nested params support
                     continue
                 }
                 def Map property = properties[key] as Map
