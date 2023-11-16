@@ -15,7 +15,7 @@ public class FilePathPatternValidator implements FormatValidator {
             log.debug("S3 paths are not supported by 'FilePathPatternValidator': '${subject}'")
             return Optional.empty()
         }
-        ArrayList files = Nextflow.file(subject) as ArrayList
+        ArrayList files = Nextflow.files(subject)
         ArrayList errors = []
 
         if(files.size() == 0) {
@@ -26,7 +26,7 @@ public class FilePathPatternValidator implements FormatValidator {
                 errors.add("'${file.toString()}' is not a file, but a directory" as String)
             }
         }
-        if(errors.size > 0) {
+        if(errors.size() > 0) {
             return Optional.of(errors.join('\n'))
         }
         return Optional.empty()
