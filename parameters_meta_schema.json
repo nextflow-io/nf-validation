@@ -75,7 +75,7 @@
                       },
                       "format": {
                         "type": "string",
-                        "enum": ["file-path", "directory-path", "path"]
+                        "enum": ["file-path", "directory-path", "path", "file-path-pattern"]
                       },
                       "exists": {
                         "type": "boolean"
