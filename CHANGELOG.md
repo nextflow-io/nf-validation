@@ -1,5 +1,17 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 1.1.3 - Asahikawa
+
+## Improvements
+
+- Added support for double quotes (`"`) in CSV and TSV samplesheets ([#134](https://github.com/nextflow-io/nf-validation/pull/134))
+
+# Version 1.1.2 - Wakayama
+
+## Bug fixes
+
+- Fixed an issue with inputs using `file-path-pattern` where only one file was found (`Path` casting to `ArrayList` error) ([#132](https://github.com/nextflow-io/nf-validation/pull/132))
+
 # Version 1.1.1 - Shoyu
 
 ## Bug fixes

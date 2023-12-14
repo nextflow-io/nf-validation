@@ -511,6 +511,50 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'correct validation of file-path-pattern - glob' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.glob = 'src/testResources/*.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'correct validation of file-path-pattern - single file' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.glob = 'src/testResources/correct.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
     def 'correct validation of numbers with lenient mode' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
