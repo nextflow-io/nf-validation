@@ -164,6 +164,33 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
+    def 'should work fine - JSON' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.json'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+    }
+
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''
@@ -213,6 +240,32 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[test_1]")
         stdout.contains("[test_2]")
     }
+
+    def 'no header - JSON' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/no_header.json'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_header.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[test_1]")
+        stdout.contains("[test_2]")
+    }
+
 
     def 'extra field' () {
         given:

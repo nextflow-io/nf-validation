@@ -78,6 +78,14 @@ class SamplesheetConverter {
                 return ["empty": it] as Map
             }
         }
+        else if(fileType == "json"){
+            samplesheetList = new JsonSlurper().parseText(samplesheetFile.text).collect {
+                if(containsHeader) {
+                    return it as Map
+                }
+                return ["empty": it] as Map
+            }
+        }
         else {
             Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
             samplesheetList = fileSamplesheet.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
@@ -215,7 +223,7 @@ class SamplesheetConverter {
         Path samplesheetFile
     ) {
         def String extension = samplesheetFile.getExtension()
-        if (extension in ["csv", "tsv", "yml", "yaml"]) {
+        if (extension in ["csv", "tsv", "yml", "yaml", "json"]) {
             return extension == "yml" ? "yaml" : extension
         }
 

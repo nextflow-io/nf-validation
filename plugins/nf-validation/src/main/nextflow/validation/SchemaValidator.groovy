@@ -199,6 +199,14 @@ class SchemaValidator extends PluginExtensionPoint {
                 return ["empty": it] as Map
             }
         }
+        else if(fileType == "json"){
+            fileContent = new JsonSlurper().parseText(samplesheetFile.text).collect {
+                if(containsHeader) {
+                    return it as Map
+                }
+                return ["empty": it] as Map
+            }
+        }
         else {
             fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
         }
@@ -431,6 +439,14 @@ class SchemaValidator extends PluginExtensionPoint {
 
                     if(fileType == "yaml"){
                         fileContent = new Yaml().load(file_path.text).collect {
+                            if(containsHeader) {
+                                return it as Map
+                            }
+                            return ["empty": it] as Map
+                        }
+                    }
+                    else if(fileType == "json"){
+                        fileContent = new JsonSlurper().parseText(file_path.text).collect {
                             if(containsHeader) {
                                 return it as Map
                             }
