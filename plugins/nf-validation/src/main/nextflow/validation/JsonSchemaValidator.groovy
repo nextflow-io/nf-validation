@@ -29,10 +29,10 @@ public class JsonSchemaValidator {
 
     public static List<String> validateObject(JSONObject input) {
         Validator validator = new Validator()
+        println(input.toMap())
         validator.validate(this.schema, input.toMap(), validationError -> {
             if (validationError instanceof MissingPropertyError) {
-                MissingPropertyError missingPropertyError = (MissingPropertyError) validationError
-                this.errors.add("* Missing required parameter: --${missingPropertyError.getProperty()}" as String)
+                this.errors.add("* Missing required parameter: --${validationError.getProperty()}" as String)
             } else {
                 // TODO write custom error messages for other types of errors
                 this.errors.add("* ${validationError}" as String)
@@ -43,12 +43,13 @@ public class JsonSchemaValidator {
 
     public static List<String> validateArray(JSONArray input) {
         Validator validator = new Validator()
+        Integer entryCount = 0
         input.forEach { entry ->
+            entryCount++
             JSONObject jsonEntry = (JSONObject) entry
             validator.validate(this.schema, jsonEntry.toMap(), validationError -> {
                 if (validationError instanceof MissingPropertyError) {
-                    MissingPropertyError missingPropertyError = (MissingPropertyError) validationError
-                    this.errors.add("* Missing required field: --${missingPropertyError.getProperty()}" as String)
+                    this.errors.add("* Entry ${entryCount}: Missing required field: ${validationError.getProperty()}" as String)
                 } else {
                     // TODO write custom error messages for other types of errors
                     this.errors.add("* ${validationError}" as String)
