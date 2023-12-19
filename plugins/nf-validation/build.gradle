@@ -55,6 +55,7 @@ dependencies {
     compileOnly 'org.slf4j:slf4j-api:1.7.10'
     compileOnly 'org.pf4j:pf4j:3.4.1'
     api 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.1'
+    implementation 'net.jimblackler.jsonschemafriend:core:0.12.3'
 
     // test configuration
     testImplementation "io.nextflow:nextflow:$nextflowVersion"
