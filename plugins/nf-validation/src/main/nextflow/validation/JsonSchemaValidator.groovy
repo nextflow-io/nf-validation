@@ -18,20 +18,18 @@ public class JsonSchemaValidator {
     private static List<String> errors = []
 
     JsonSchemaValidator(String schemaString) {
-        try {
-            SchemaStore schemaStore = new SchemaStore(); // Initialize a SchemaStore.
-            this.schema = schemaStore.loadSchemaJson(schemaString) // Load the schema.
-        } catch (SchemaException e) {
-            // TODO handle these exceptions better
-            e.printStackTrace()
-        }
+        SchemaStore schemaStore = new SchemaStore(); // Initialize a SchemaStore.
+        this.schema = schemaStore.loadSchemaJson(schemaString) // Load the schema.
     }
 
     public static List<String> validateObject(JSONObject input) {
         Validator validator = new Validator()
-        println(input.toMap())
         validator.validate(this.schema, input.toMap(), validationError -> {
-            if (validationError instanceof MissingPropertyError) {
+            if(validationError instanceof SchemaException) {
+                // TODO handle this better
+                log.error("* ${validationError.getMessage()}" as String)
+            }
+            else if (validationError instanceof MissingPropertyError) {
                 this.errors.add("* Missing required parameter: --${validationError.getProperty()}" as String)
             } else {
                 // TODO write custom error messages for other types of errors
@@ -48,7 +46,11 @@ public class JsonSchemaValidator {
             entryCount++
             JSONObject jsonEntry = (JSONObject) entry
             validator.validate(this.schema, jsonEntry.toMap(), validationError -> {
-                if (validationError instanceof MissingPropertyError) {
+                if(validationError instanceof SchemaException) {
+                    // TODO handle this better
+                    log.error("* ${validationError.getMessage()}" as String)
+                }
+                else if (validationError instanceof MissingPropertyError) {
                     this.errors.add("* Entry ${entryCount}: Missing required field: ${validationError.getProperty()}" as String)
                 } else {
                     // TODO write custom error messages for other types of errors
