@@ -4,9 +4,10 @@ import groovy.util.logging.Slf4j
 import groovy.transform.CompileStatic
 import net.jimblackler.jsonschemafriend.Schema
 import net.jimblackler.jsonschemafriend.SchemaException
-import net.jimblackler.jsonschemafriend.MissingPropertyError
 import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
+import net.jimblackler.jsonschemafriend.MissingPropertyError
+import net.jimblackler.jsonschemafriend.DependencyError
 import net.jimblackler.jsonschemafriend.ValidationError
 import org.json.JSONObject
 import org.json.JSONArray
@@ -31,14 +32,19 @@ public class JsonSchemaValidator {
                 log.error("* ${validationError.getMessage()}" as String)
             }
             else if (validationError instanceof MissingPropertyError) {
+                println(validationError.getMessage())
                 this.errors.add("* Missing required parameter: --${validationError.getProperty()}" as String)
             }
             else if (validationError instanceof ValidationError) {
-                    def String value = validationError.getObject()
-                    def String paramUri = "${validationError.getUri()}" as String
-                    def String param = paramUri.replaceFirst("#/", "")
-                    def String msg = validationError.getMessage()
-                    this.errors.add("* Error for parameter '${param}' (${value}): ${msg}" as String)   
+                def String paramUri = validationError.getUri().toString()
+                if (paramUri == '') {
+                    this.errors.add("* ${validationError.getMessage()}" as String)
+                    return
+                }
+                def String param = paramUri.replaceFirst("#/", "")
+                def String value = validationError.getObject()
+                def String msg = validationError.getMessage()
+                this.errors.add("* Error for parameter '${param}' (${value}): ${msg}" as String)   
             } else {
                 this.errors.add("* ${validationError}" as String)
             }
@@ -59,11 +65,15 @@ public class JsonSchemaValidator {
                 }
                 else if (validationError instanceof MissingPropertyError) {
                     this.errors.add("* Entry ${entryCount}: Missing required field: ${validationError.getProperty()}" as String)
-                } 
+                }
                 else if (validationError instanceof ValidationError) {
-                    def String value = validationError.getObject()
-                    def String fieldUri = "${validationError.getUri()}" as String
+                    def String fieldUri = validationError.getUri().toString()
+                    if (fieldUri == '') {
+                        this.errors.add("* Entry ${entryCount}: ${validationError.getMessage()}" as String)
+                        return
+                    }
                     def String field = fieldUri.replaceFirst("#/", "")
+                    def String value = validationError.getObject()
                     def String msg = validationError.getMessage()
                     this.errors.add("* Entry ${entryCount}: Error for field '${field}' (${value}): ${msg}" as String)
                 } else {
