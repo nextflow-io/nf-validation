@@ -25,7 +25,7 @@ public class JsonSchemaValidator {
     }
 
     public static List<String> validateObject(JSONObject input, String validationType, Integer entryCount) {
-        Validator validator = new Validator()
+        Validator validator = new Validator(true)
         def String entryString = entryCount != -1 ? "Entry ${entryCount}: " : ""
         validator.validate(this.schema, input.toMap(), validationError -> {
             if(validationError instanceof SchemaException) {
@@ -54,7 +54,6 @@ public class JsonSchemaValidator {
     }
 
     public static List<String> validateArray(JSONArray input) {
-        Validator validator = new Validator()
         Integer entryCount = 0
         input.forEach { entry ->
             entryCount++
