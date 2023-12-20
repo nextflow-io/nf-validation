@@ -24,8 +24,9 @@ public class JsonSchemaValidator {
         this.schema = schemaStore.loadSchemaJson(schemaString) // Load the schema.
     }
 
-    public static List<String> validateObject(JSONObject input) {
+    public static List<String> validateObject(JSONObject input, String validationType, Integer entryCount) {
         Validator validator = new Validator()
+        def String entryString = entryCount != -1 ? "Entry ${entryCount}: " : ""
         validator.validate(this.schema, input.toMap(), validationError -> {
             if(validationError instanceof SchemaException) {
                 // TODO handle this better
@@ -33,20 +34,20 @@ public class JsonSchemaValidator {
             }
             else if (validationError instanceof MissingPropertyError) {
                 println(validationError.getMessage())
-                this.errors.add("* Missing required parameter: --${validationError.getProperty()}" as String)
+                this.errors.add("* ${entryString}Missing required ${validationType}: --${validationError.getProperty()}" as String)
             }
             else if (validationError instanceof ValidationError) {
                 def String paramUri = validationError.getUri().toString()
                 if (paramUri == '') {
-                    this.errors.add("* ${validationError.getMessage()}" as String)
+                    this.errors.add("* ${entryString}${validationError.getMessage()}" as String)
                     return
                 }
                 def String param = paramUri.replaceFirst("#/", "")
                 def String value = validationError.getObject()
                 def String msg = validationError.getMessage()
-                this.errors.add("* Error for parameter '${param}' (${value}): ${msg}" as String)   
+                this.errors.add("* ${entryString}Error for ${validationType} '${param}' (${value}): ${msg}" as String)   
             } else {
-                this.errors.add("* ${validationError}" as String)
+                this.errors.add("* ${entryString}${validationError}" as String)
             }
         })
         return this.errors
@@ -58,28 +59,7 @@ public class JsonSchemaValidator {
         input.forEach { entry ->
             entryCount++
             JSONObject jsonEntry = (JSONObject) entry
-            validator.validate(this.schema, jsonEntry.toMap(), validationError -> {
-                if(validationError instanceof SchemaException) {
-                    // TODO handle this better
-                    log.error("* ${validationError.getMessage()}" as String)
-                }
-                else if (validationError instanceof MissingPropertyError) {
-                    this.errors.add("* Entry ${entryCount}: Missing required field: ${validationError.getProperty()}" as String)
-                }
-                else if (validationError instanceof ValidationError) {
-                    def String fieldUri = validationError.getUri().toString()
-                    if (fieldUri == '') {
-                        this.errors.add("* Entry ${entryCount}: ${validationError.getMessage()}" as String)
-                        return
-                    }
-                    def String field = fieldUri.replaceFirst("#/", "")
-                    def String value = validationError.getObject()
-                    def String msg = validationError.getMessage()
-                    this.errors.add("* Entry ${entryCount}: Error for field '${field}' (${value}): ${msg}" as String)
-                } else {
-                    this.errors.add("* ${validationError}" as String)
-                }
-            })
+            validateObject(jsonEntry, "field", entryCount)
         }
         return this.errors
     }

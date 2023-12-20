@@ -386,7 +386,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Validate
         // TODO find out how to enable lenient mode
-        List<String> validationErrors = validator.validateObject(paramsJSON)
+        List<String> validationErrors = validator.validateObject(paramsJSON, "parameter", -1)
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
