@@ -7,6 +7,7 @@ import net.jimblackler.jsonschemafriend.SchemaException
 import net.jimblackler.jsonschemafriend.MissingPropertyError
 import net.jimblackler.jsonschemafriend.SchemaStore
 import net.jimblackler.jsonschemafriend.Validator
+import net.jimblackler.jsonschemafriend.ValidationError
 import org.json.JSONObject
 import org.json.JSONArray
 
@@ -31,8 +32,14 @@ public class JsonSchemaValidator {
             }
             else if (validationError instanceof MissingPropertyError) {
                 this.errors.add("* Missing required parameter: --${validationError.getProperty()}" as String)
+            }
+            else if (validationError instanceof ValidationError) {
+                    def String value = validationError.getObject()
+                    def String paramUri = "${validationError.getUri()}" as String
+                    def String param = paramUri.replaceFirst("#/", "")
+                    def String msg = validationError.getMessage()
+                    this.errors.add("* Error for parameter '${param}' (${value}): ${msg}" as String)   
             } else {
-                // TODO write custom error messages for other types of errors
                 this.errors.add("* ${validationError}" as String)
             }
         })
@@ -52,8 +59,14 @@ public class JsonSchemaValidator {
                 }
                 else if (validationError instanceof MissingPropertyError) {
                     this.errors.add("* Entry ${entryCount}: Missing required field: ${validationError.getProperty()}" as String)
+                } 
+                else if (validationError instanceof ValidationError) {
+                    def String value = validationError.getObject()
+                    def String fieldUri = "${validationError.getUri()}" as String
+                    def String field = fieldUri.replaceFirst("#/", "")
+                    def String msg = validationError.getMessage()
+                    this.errors.add("* Entry ${entryCount}: Error for field '${field}' (${value}): ${msg}" as String)
                 } else {
-                    // TODO write custom error messages for other types of errors
                     this.errors.add("* ${validationError}" as String)
                 }
             })

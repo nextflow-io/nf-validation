@@ -491,7 +491,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
 
         // Obtain the type of each variable in the schema
-        def Map properties = (Map) parsed['items']['properties']
+        def Map properties = (Map) parsed['properties']
         for (p in properties) {
             def String key = (String) p.key
             def Map property = properties[key] as Map
@@ -590,7 +590,7 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check for params with expected values
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map schemaParams = (Map) ["items": parsed.get('items')] 
+        def Map schemaParams = (Map) ["properties": parsed.get('properties')] 
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
