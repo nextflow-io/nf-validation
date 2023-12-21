@@ -456,7 +456,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         }
                     }
                     else {
-                        fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
+                        fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
                         fileContentCasted = castToType(fileContent, types)
                     }
                     if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
