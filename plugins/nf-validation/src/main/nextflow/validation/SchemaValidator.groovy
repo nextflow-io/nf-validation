@@ -386,7 +386,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Validate
         // TODO find out how to enable lenient mode
-        List<String> validationErrors = validator.validateObject(paramsJSON, "parameter", -1)
+        List<String> validationErrors = validator.validate(paramsJSON, "parameter")
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
@@ -491,7 +491,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
 
         // Obtain the type of each variable in the schema
-        def Map properties = (Map) parsed['properties']
+        def Map properties = (Map) parsed['items']['properties']
         for (p in properties) {
             def String key = (String) p.key
             def Map property = properties[key] as Map
@@ -590,7 +590,7 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check for params with expected values
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map schemaParams = (Map) ["properties": parsed.get('properties')] 
+        def Map schemaParams = (Map) ["items": parsed.get('items')] 
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
@@ -611,7 +611,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Validate
-        def List<String> validationErrors = validator.validateArray(arrayJSON)
+        def List<String> validationErrors = validator.validate(arrayJSON, "field")
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def colors = logColours(monochrome_logs)
