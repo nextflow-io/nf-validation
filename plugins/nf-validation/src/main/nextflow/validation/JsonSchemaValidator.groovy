@@ -55,7 +55,7 @@ public class JsonSchemaValidator {
             // Create custom error messages
             if (validationError instanceof MissingPropertyError) {
                 def String paramUri = validationError.getUri().toString()
-                error = "Missing required ${validationType}: --${validationError.getProperty()}" as String
+                error = "Missing required ${validationType}: ${validationError.getProperty()}" as String
             }
             else if (validationError instanceof ValidationError) {
                 def String paramUri = validationError.getUri().toString()
