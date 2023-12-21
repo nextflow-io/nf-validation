@@ -201,15 +201,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         else if(fileType == "json"){
-            fileContent = new JsonSlurper().parseText(samplesheetFile.text).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
-        }
-        else if(fileType == "json"){
-            fileContent = new JsonSlurper().parseText(samplesheetFile.text).collect {
+            fileContentCasted = new JsonSlurper().parseText(samplesheetFile.text).collect {
                 if(containsHeader) {
                     return it as Map
                 }
@@ -218,6 +210,7 @@ class SchemaValidator extends PluginExtensionPoint {
         }
         else {
             fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
+            fileContentCasted = castToType(fileContent, types)
         }
         if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
             log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
@@ -455,7 +448,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         }
                     }
                     else if(fileType == "json"){
-                        fileContent = new JsonSlurper().parseText(file_path.text).collect {
+                        fileContentCasted = new JsonSlurper().parseText(file_path.text).collect {
                             if(containsHeader) {
                                 return it as Map
                             }
@@ -464,6 +457,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                     else {
                         fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter)
+                        fileContentCasted = castToType(fileContent, types)
                     }
                     if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"

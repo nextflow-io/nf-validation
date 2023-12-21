@@ -261,6 +261,8 @@ class SamplesheetConverter {
         def String type = field['value']['type']
         def String key = field.key
 
+        // Recursively call this function for each item in the array if the field is an array-type
+        // The returned values are collected into a single array
         if (type == "array") {
             def Map.Entry<String, Map> subfield = (Map.Entry<String, Map>) Map.entry(field.key, field['value']['items'])
             log.debug "subfield = $subfield"

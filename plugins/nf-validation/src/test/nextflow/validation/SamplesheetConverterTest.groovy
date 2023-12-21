@@ -266,7 +266,6 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[test_2]")
     }
 
-
     def 'extra field' () {
         given:
         def SCRIPT_TEXT = '''
