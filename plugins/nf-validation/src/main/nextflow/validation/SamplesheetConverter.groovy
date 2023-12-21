@@ -103,13 +103,13 @@ class SamplesheetConverter {
 
             Map<String,Object> row = fullRow.findAll { it.value != "" }
             def Set rowKeys = containsHeader ? row.keySet() : ["empty"].toSet()
-            def String yamlInfo = fileType == "yaml" ? " for entry ${this.getCount()}." : ""
+            def String entryInfo = fileType in ["yaml", "json"] ? " for entry ${this.getCount()}." : ""
 
             // Check the header (CSV/TSV) or present fields (YAML)
             if(headerCheck) {
                 def unexpectedFields = containsHeader ? rowKeys - allFields : []
                 if(unexpectedFields.size() > 0) {
-                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
+                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${entryInfo}".toString()
                 }
 
                 if(fileType != 'yaml'){
