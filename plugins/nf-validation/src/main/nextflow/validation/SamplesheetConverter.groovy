@@ -177,7 +177,7 @@ class SamplesheetConverter {
                 def List<String> metaNames = field['value']['meta'] as List<String>
                 if(metaNames) {
                     for(name : metaNames) {
-                        meta[name] = (input != '' && input) ?
+                        meta[name] = (input != '' && input != null) ?
                                 castToNFType(input, field) :
                             field['value']['default'] != null ?
                                 castToNFType(field['value']['default'], field) :
@@ -185,7 +185,7 @@ class SamplesheetConverter {
                     }
                 }
                 else {
-                    def inputVal = (input != '' && input) ?
+                    def inputVal = (input != '' && input != null) ?
                             castToNFType(input, field) :
                         field['value']['default'] != null ?
                             castToNFType(field['value']['default'], field) :

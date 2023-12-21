@@ -115,7 +115,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
-            params.input = 'src/testResources/correct.csv'
+            params.input = 'src/testResources/correct.tsv'
 
             workflow {
                 Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
@@ -142,7 +142,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
         def SCRIPT_TEXT = '''
             include { fromSamplesheet } from 'plugin/nf-validation'
 
-            params.input = 'src/testResources/correct.csv'
+            params.input = 'src/testResources/correct.yaml'
 
             workflow {
                 Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()

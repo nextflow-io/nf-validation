@@ -47,7 +47,7 @@
                 "type": "string",
                 "format": "path",
                 "exists": true
-                },
+            },
             "field_10": {
                 "type": "string",
                 "unique": true
