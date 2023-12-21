@@ -95,6 +95,13 @@
                     }
                 },
                 "default": [["src/testResources/testDir/testFile.txt"]] 
+            },
+            "field_12": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "meta": ["array_meta"]
             }
         },
         "required": ["field_4", "field_6"]

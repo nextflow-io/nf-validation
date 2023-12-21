@@ -30,6 +30,12 @@
   field_6:
     - 25
     - 26.5
+  field_12:
+    - look
+    - an
+    - array
+    - in
+    - meta
 - field_4:
     - string1
     - string2
