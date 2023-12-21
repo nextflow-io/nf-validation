@@ -21,11 +21,6 @@ import nextflow.script.WorkflowMetadata
 import nextflow.Session
 import nextflow.util.Duration
 import nextflow.util.MemoryUnit
-import org.everit.json.schema.loader.SchemaLoader
-import org.everit.json.schema.PrimitiveValidationStrategy
-import org.everit.json.schema.ValidationException
-import org.everit.json.schema.Validator
-import org.everit.json.schema.Schema
 import org.json.JSONException
 import org.json.JSONArray
 import org.json.JSONObject
@@ -364,16 +359,6 @@ class SchemaValidator extends PluginExtensionPoint {
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def validator = new JsonSchemaValidator(schema_string)
-        // TODO remove these comments once finished
-        // final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        // final SchemaLoader schemaLoader = SchemaLoader.builder()
-        //         .schemaJson(rawSchema)
-        //         .addFormatValidator("file-path", new FilePathValidator())
-        //         .addFormatValidator("directory-path", new DirectoryPathValidator())
-        //         .addFormatValidator("path", new PathValidator())
-        //         .addFormatValidator("file-path-pattern", new FilePathPatternValidator())
-        //         .build()
-        // final schema = schemaLoader.load().build()
 
         // check for warnings
         if( this.hasWarnings() ) {
@@ -393,30 +378,6 @@ class SchemaValidator extends PluginExtensionPoint {
             log.error("ERROR: Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
-        // TODO remove these comments once finished
-        // try {
-        //     if (lenientMode) {
-        //         // Create new validator with LENIENT mode 
-        //         Validator validator = Validator.builder()
-        //             .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-        //             .build();
-        //         validator.performValidation(schema, paramsJSON);
-        //     } else {
-        //         schema.validate(paramsJSON)
-        //     }
-        //     if (this.hasErrors()) {
-        //         // Needed when validationFailUnrecognisedParams is true
-        //         def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-        //         log.error("ERROR: Validation of pipeline parameters failed!")
-        //         throw new SchemaValidationException(msg, this.getErrors())
-        //     }
-        // } catch (ValidationException e) {
-        //     JSONObject exceptionJSON = (JSONObject) e.toJSON()
-        //     collectErrors(exceptionJSON, paramsJSON, enums, rawSchema)
-        //     def msg = "${colors.red}The following invalid input values have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-        //     log.error("ERROR: Validation of pipeline parameters failed!")
-        //     throw new SchemaValidationException(msg, this.getErrors())
-        // }
 
         //=====================================================================//
         // Look for other schemas to validate
@@ -569,15 +530,6 @@ class SchemaValidator extends PluginExtensionPoint {
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
         def validator = new JsonSchemaValidator(schema_string)
-        // final rawSchema = new JSONObject(new JSONTokener(schema_string))
-        // final SchemaLoader schemaLoader = SchemaLoader.builder()
-        //     .schemaJson(rawSchema)
-        //     .addFormatValidator("file-path", new FilePathValidator())
-        //     .addFormatValidator("directory-path", new DirectoryPathValidator())
-        //     .addFormatValidator("path", new PathValidator())
-        //     .addFormatValidator("file-path-pattern", new FilePathPatternValidator())
-        //     .build()
-        // final schema = schemaLoader.load().build()
 
         // Remove all null values from JSON object
         // and convert the groovy object to a JSONArray
@@ -619,29 +571,6 @@ class SchemaValidator extends PluginExtensionPoint {
             log.error("ERROR: Validation of '$paramName' file failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
-        // try {
-        //     // Create new validator with LENIENT mode 
-        //     Validator validator = Validator.builder()
-        //         .primitiveValidationStrategy(PrimitiveValidationStrategy.LENIENT)
-        //         .build();
-        //     validator.performValidation(schema, arrayJSON);
-        //     if (this.hasErrors()) {
-        //         // Needed for custom errors such as pathExists() errors
-        //         def colors = logColours(monochrome_logs)
-        //         def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-        //         log.error("ERROR: Validation of '$paramName' file failed!")
-        //         throw new SchemaValidationException(msg, this.getErrors())
-        //     }
-        // } catch (ValidationException e) {
-        //     def colors = logColours(monochrome_logs)
-        //     JSONObject exceptionJSON = (JSONObject) e.toJSON()
-        //     JSONObject objectJSON = new JSONObject();
-        //     objectJSON.put("objects",arrayJSON);            
-        //     collectErrors(exceptionJSON, objectJSON, enums, rawSchema)
-        //     def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-        //     log.error("ERROR: Validation of '$paramName' file failed!")
-        //     throw new SchemaValidationException(msg, this.getErrors())
-        // }
 
         return true
     }

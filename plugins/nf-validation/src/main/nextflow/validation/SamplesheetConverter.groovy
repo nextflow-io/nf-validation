@@ -12,11 +12,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 
 import org.yaml.snakeyaml.Yaml
-import org.everit.json.schema.loader.SchemaLoader
-import org.everit.json.schema.PrimitiveValidationStrategy
-import org.everit.json.schema.ValidationException
-import org.everit.json.schema.SchemaException
-import org.everit.json.schema.Schema
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
