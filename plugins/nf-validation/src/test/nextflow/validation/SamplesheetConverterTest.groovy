@@ -191,6 +191,96 @@ class SamplesheetConverterTest extends Dsl2Spec{
         stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
+    def 'arrays should work fine - YAML' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct_arrays.yaml'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
+    }
+
+    def 'arrays should work fine - JSON' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct_arrays.json'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
+    }
+
+    def 'array errors before channel conversion - YAML' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/error_arrays.yaml'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines()
+        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
+        errorMessages[2] == "* -- Entry 1 - field_3: the file or directory 'src/testResources/testDir3' does not exist."
+        errorMessages[3] == "* -- Entry 1 - field_3: the file or directory 'src/testResources/testDir2/testFile3.txt' does not exist."
+        errorMessages[4] == "* -- Entry 1 - field_2: the file or directory 'src/testResources/testDir3' does not exist."
+        errorMessages[5] == "* -- Entry 1 - field_1: the file or directory 'src/testResources/testDir/testFile.fasta' does not exist."
+        errorMessages[6] == "* -- Entry 1 - field_1: the file or directory 'src/testResources/testDir2/testFile3.txt' does not exist."
+        errorMessages[7] == '* -- Entry 1 - field_4: array items are not unique (["string2","string2","string1"])'
+        errorMessages[8] == '* -- Entry 1 - field_1: string [src/testResources/testDir/testFile.fasta] does not match pattern ^.*\\.txt$ (["src/testResources/testDir/testFile.fasta","src/testResources/testDir2/testFile3.txt"])'
+        errorMessages[9] == "* -- Entry 1 - field_5: expected maximum item count: 3, found: 4 ([25,25,27,28])"
+        errorMessages[10] == "* -- Entry 1 - field_6: array items are not unique ([25,25])"
+        errorMessages[11] == "* -- Entry 2: Missing required value: field_4"
+        errorMessages[12] == "* -- Entry 2 - field_5: expected minimum item count: 2, found: 1 ([25])"
+        errorMessages[13] == "* -- Entry 3 - field_4: expected type: JSONArray, found: String (abc)"
+        !stdout
+    }
+
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''
