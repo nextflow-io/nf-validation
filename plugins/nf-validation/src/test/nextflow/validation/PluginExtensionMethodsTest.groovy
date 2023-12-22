@@ -511,6 +511,57 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'correct validation of numerics - 0' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_required_numerics.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            params.integer = 0
+            params.number = 0
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'fail validation of numerics - null' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_required_numerics.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --integer\n* Missing required parameter: --number\n\n"
+        !stdout
+    }
+
     def 'correct validation of file-path-pattern - glob' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
