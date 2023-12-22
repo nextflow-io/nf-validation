@@ -1026,7 +1026,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map new_params = (Map) params.getClass().newInstance(params)
         for (p in params) {
             // remove anything evaluating to false
-            if (!p['value']) {
+            if (!p['value'] && p['value'] != 0) {
                 new_params.remove(p.key)
             }
             // Cast MemoryUnit to String
