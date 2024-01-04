@@ -187,6 +187,11 @@ class SchemaValidator extends PluginExtensionPoint {
         def List<Map<String,String>> fileContentCasted
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         def Map types = variableTypes(schemaFile.toString(), baseDir)
+        if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
+            def msg = "Using \"type\": \"array\" in schema with a \".$fileType\" samplesheet is not supported\n"
+            log.error("ERROR: Validation of pipeline parameters failed!")
+            throw new SchemaValidationException(msg, [])
+        }
         def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
 
         if(!containsHeader){
@@ -433,6 +438,11 @@ class SchemaValidator extends PluginExtensionPoint {
                     def List<Map<String,String>> fileContent
                     def List<Map<String,String>> fileContentCasted
                     def Map types = variableTypes(schema_name, baseDir)
+                    if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
+                        def msg = "${colors.red}Using {\"type\": \"array\"} in schema with a \".$fileType\" samplesheet is not supported${colors.reset}\n"
+                        log.error("ERROR: Validation of pipeline parameters failed!")
+                        throw new SchemaValidationException(msg, [])
+                    }
                     def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
 
                     if(!containsHeader){
@@ -556,6 +566,8 @@ class SchemaValidator extends PluginExtensionPoint {
         Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir, Boolean s3PathCheck = false
     
     ) {
+        // declare this once for the method
+        def colors = logColours(monochrome_logs)
 
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
@@ -612,13 +624,11 @@ class SchemaValidator extends PluginExtensionPoint {
             validator.performValidation(schema, arrayJSON);
             if (this.hasErrors()) {
                 // Needed for custom errors such as pathExists() errors
-                def colors = logColours(monochrome_logs)
                 def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
                 log.error("ERROR: Validation of '$paramName' file failed!")
                 throw new SchemaValidationException(msg, this.getErrors())
             }
         } catch (ValidationException e) {
-            def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             JSONObject objectJSON = new JSONObject();
             objectJSON.put("objects",arrayJSON);            

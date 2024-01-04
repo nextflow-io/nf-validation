@@ -281,6 +281,59 @@ class SamplesheetConverterTest extends Dsl2Spec{
         !stdout
     }
 
+    def 'array errors samplesheet format - CSV' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.csv'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines()
+        errorMessages[0] == 'Using "type": "array" in schema with a ".csv" samplesheet is not supported'
+        !stdout
+    }
+
+    def 'array errors samplesheet format - TSV' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/correct.tsv'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        def errorMessages = error.message.readLines()
+        errorMessages[0] == 'Using "type": "array" in schema with a ".tsv" samplesheet is not supported'
+        !stdout
+    }
+
+
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''

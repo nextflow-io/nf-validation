@@ -867,4 +867,28 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         error.message == '''The following errors have been detected:\n\n* -- Entry 1: Missing required value: sample\n* -- Entry 2: Missing required value: sample\n\n'''
         !stdout
     }
+
+    def 'should fail because of arrays with csv' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = 'src/testResources/correct.csv'
+            include { validateParameters } from 'plugin/nf-validation'
+            
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''Using {"type": "array"} in schema with a ".csv" samplesheet is not supported\n'''
+        !stdout
+    }
 }
