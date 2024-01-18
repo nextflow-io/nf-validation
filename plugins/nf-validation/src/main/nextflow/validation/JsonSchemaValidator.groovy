@@ -35,6 +35,10 @@ public class JsonSchemaValidator {
         def Validator.Result result = this.validator.validate(this.schema, input)
         for (error : result.getErrors()) {
             def String errorString = error.getError()
+            // Skip double error in the parameter schema
+            if (errorString.startsWith("Value does not match against the schemas at indexes") && validationType == "parameter") {
+                continue
+            }
             def String location = error.getInstanceLocation()
             def String[] locationList = location.split("/").findAll { it != "" }
             def String fieldName = ""
@@ -61,63 +65,6 @@ public class JsonSchemaValidator {
             }
 
         }
-
-        // for (annotation : result.getAnnotations()) {
-        //     println(annotation.getAnnotation())
-        //     println(annotation.getEvaluationPath())
-        //     println(annotation.getInstanceLocation())
-        //     println(annotation.getKeyword())
-        //     println(annotation.getSchemaLocation())
-        // }        
-
-
-        // Validator validator = new Validator(true)
-        // validator.validate(this.schema, input, validationError -> {
-        //     // Fail on other errors than validation errors
-        //     if(validationError !instanceof ValidationError) {
-        //         // TODO handle this better
-        //         log.error("* ${validationError.getMessage()}" as String)
-        //         return
-        //     }
-
-        //     // Get the name of the parameter and determine if it is a list entry
-        //     def Integer entry = 0
-        //     def String name = ''
-        //     def String[] uriSplit = validationError.getUri().toString().replaceFirst('#/', '').split('/')
-        //     def String error = ''
-
-        //     if (input instanceof Map) {
-        //         name = uriSplit.size() > 0 ? uriSplit[0..-1].join('/') : ''
-        //     }
-        //     else if (input instanceof List) {
-        //         entry = uriSplit[0].toInteger() + 1
-        //         name = uriSplit.size() > 1 ? uriSplit[1..-1].join('/') : ''
-        //     }
-
-        //     // Create custom error messages
-        //     if (validationError instanceof MissingPropertyError) {
-        //         def String paramUri = validationError.getUri().toString()
-        //         error = "Missing required ${validationType}: ${validationError.getProperty()}" as String
-        //     }
-        //     else if (validationError instanceof ValidationError) {
-        //         def String paramUri = validationError.getUri().toString()
-        //         if (name == '') {
-        //             this.errors.add("${validationError.getMessage()}" as String)
-        //             return
-        //         }
-        //         def String value = validationError.getObject()
-        //         def String msg = validationError.getMessage()
-        //         error = "Error for ${validationType} '${name}' (${value}): ${msg}" as String
-        //     }
-
-        //     // Add the error to the list
-        //     if (entry > 0) {
-        //         this.errors.add("* Entry ${entry}: ${error}" as String)
-        //     }
-        //     else {
-        //         this.errors.add("* ${error}" as String)
-        //     }
-        // })
     }
 
     public static List<String> validate(JSONArray input) {
