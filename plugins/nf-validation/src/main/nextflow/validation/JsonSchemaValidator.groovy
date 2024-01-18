@@ -39,29 +39,38 @@ public class JsonSchemaValidator {
             if (errorString.startsWith("Value does not match against the schemas at indexes") && validationType == "parameter") {
                 continue
             }
+
+            // Change some error messages to make them more clear
+            def String keyword = error.getKeyword()
+            def String customError = ""
+            if (keyword == "required") {
+                def Matcher matcher = errorString =~ ~/\[\[([^\[\]]*)\]\]$/
+                def String missingKeywords = matcher.findAll().flatten().last()
+                customError = "Missing required ${validationType}(s): ${missingKeywords}"
+            }
+
             def String location = error.getInstanceLocation()
             def String[] locationList = location.split("/").findAll { it != "" }
-            def String fieldName = ""
-            def String capValidationType = "${validationType[0].toUpperCase()}${validationType[1..-1]}"
 
-            if (locationList.size() > 0 && isInteger(location[0]) && validationType == "field") {
-                def Integer entryInteger = location[0] as Integer
+            if (locationList.size() > 0 && isInteger(locationList[0]) && validationType == "field") {
+                def Integer entryInteger = locationList[0] as Integer
                 def String entryString = "Entry ${entryInteger + 1}" as String
+                def String fieldError = ""
                 if(locationList.size() > 1) {
-                    fieldName = "Error for '${locationList[1..-1].join("/")}'"
+                    fieldError = "Error for ${validationType} '${locationList[1..-1].join("/")}': ${customError ?: errorString}"
                 } else {
-                    fieldName = "${capValidationType} error"
+                    fieldError = customError ?: errorString
                 }
-                this.errors.add("* ${entryString}: ${fieldName}: ${errorString}" as String)
+                this.errors.add("* ${entryString}: ${fieldError}" as String)
             } else if (validationType == "parameter") {
-                fieldName = locationList.join("/")
+                def String fieldName = locationList.join("/")
                 if(fieldName != "") {
-                    this.errors.add("* --${fieldName}: ${errorString}" as String)
+                    this.errors.add("* --${fieldName}: ${customError ?: errorString}" as String)
                 } else {
-                    this.errors.add("* ${capValidationType} error: ${errorString}" as String)
+                    this.errors.add("* ${customError ?: errorString}" as String)
                 }
             } else {
-                this.errors.add(errorString)
+                this.errors.add(customError ?: errorString)
             }
 
         }
