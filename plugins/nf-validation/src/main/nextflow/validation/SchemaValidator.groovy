@@ -321,14 +321,6 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         //=====================================================================//
-        // Check if files or directories exist
-        def List<String> pathsToCheck = (List) collectExists(schemaParams)
-        pathsToCheck.each {
-            if (params[it]) {
-                pathExists(params[it].toString(), it.toString(), s3PathCheck)
-            }
-        }
-
         def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
         def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
 
@@ -550,18 +542,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map enums = (Map) enumsTuple[1]
 
         //=====================================================================//
-        // Check if files or directories exist
-        def List<String> pathsToCheck = (List) collectExists(schemaParams)
-        pathsToCheck.each { String fieldName ->
-            for (int i=0; i < arrayJSON.size(); i++) {
-                def JSONObject entry = arrayJSON.getJSONObject(i)
-                if ( entry.has(fieldName) ) {
-                    pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck)
-                }
-            }
-        }
-
-        //=====================================================================//
         // Validate
         def List<String> validationErrors = validator.validate(arrayJSON)
         this.errors.addAll(validationErrors)
@@ -574,22 +554,6 @@ class SchemaValidator extends PluginExtensionPoint {
 
         return true
     }
-
-
-    //
-    // Function to check if a file or directory exists
-    //
-    List pathExists(String path, String paramName, Boolean s3PathCheck) {
-        if (path.startsWith('s3://') && !s3PathCheck) {
-            log.debug "Ignoring validation of S3 URL path '${path}'".toString()
-        } else {
-            def Path file = Nextflow.file(path) as Path
-            if (!file.exists()) {
-                errors << "* --${paramName}: the file or directory '${path}' does not exist.".toString()
-            }
-        }
-    }
-
 
     //
     // Function to collect parameters with an exists key in the schema.
