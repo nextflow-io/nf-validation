@@ -306,14 +306,14 @@ class SchemaValidator extends PluginExtensionPoint {
         // Check for nextflow core params and unexpected params
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map schemaParams = (Map) parsed.get('definitions')
+        def Map schemaParams = (Map) parsed.get('defs')
         def specifiedParamKeys = params.keySet()
 
         // Collect expected parameters from the schema
         def enumsTuple = collectEnums(schemaParams)
         def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
         def Map enums = (Map) enumsTuple[1]
-        // Collect expected parameters from the schema when parameters are specified outside of "definitions"
+        // Collect expected parameters from the schema when parameters are specified outside of "defs"
         if (parsed.containsKey('properties')) {
             def enumsTupleTopLevel = collectEnums(['top_level': ['properties': parsed.get('properties')]])
             expectedParams += (List) enumsTupleTopLevel[0]
@@ -1019,10 +1019,10 @@ class SchemaValidator extends PluginExtensionPoint {
     private static LinkedHashMap paramsRead(Path json_schema) throws Exception {
         def slurper = new JsonSlurper()
         def Map schema = (Map) slurper.parse( json_schema )
-        def Map schema_definitions = (Map) schema.get('definitions')
+        def Map schema_defs = (Map) schema.get('defs')
         def Map schema_properties = (Map) schema.get('properties')
         /* Tree looks like this in nf-core schema
-        * definitions <- this is what the first get('definitions') gets us
+        * defs <- this is what the first get('defs') gets us
                 group 1
                     title
                     description
@@ -1040,7 +1040,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         parameter 1
                             type
                             description
-        * properties <- parameters can also be ungrouped, outside of definitions
+        * properties <- parameters can also be ungrouped, outside of defs
                 parameter 1
                     type
                     description
@@ -1048,8 +1048,8 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def params_map = new LinkedHashMap()
         // Grouped params
-        if (schema_definitions) {
-            for (group in schema_definitions) {
+        if (schema_defs) {
+            for (group in schema_defs) {
                 def Map group_property = (Map) group.value['properties'] // Gets the property object of the group
                 def String title = (String) group.value['title']
                 def sub_params = new LinkedHashMap()

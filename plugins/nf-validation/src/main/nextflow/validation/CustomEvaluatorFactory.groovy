@@ -21,6 +21,8 @@ class CustomEvaluatorFactory implements EvaluatorFactory {
                 case "file-path-pattern":
                 return Optional.of(new FormatFilePathPatternEvaluator())
             }
+        } else if (fieldName == "exists" && schemaNode.isBoolean()) {
+            return Optional.of(new ExistsEvaluator(schemaNode.asBoolean()))
         }
         return Optional.empty();
     }

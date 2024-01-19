@@ -30,14 +30,14 @@ You can find more information about JSON Schema here:
 
 ## Definitions
 
-A slightly strange use of a JSON schema standard that we use for Nextflow schema is `definitions`.
+A slightly strange use of a JSON schema standard that we use for Nextflow schema is `defs`.
 
 JSON schema can group variables together in an `object`, but then the validation expects this structure to exist in the data that it is validating.
 In reality, we have a very long "flat" list of parameters, all at the top level of `params.foo`.
 
-In order to give some structure to log outputs, documentation and so on, we group parameters into `definitions`.
+In order to give some structure to log outputs, documentation and so on, we group parameters into `defs`.
 Each `definition` is an object with a title, description and so on.
-However, as they are under `definitions` scope they are effectively ignored by the validation and so their nested nature is not a problem.
+However, as they are under `defs` scope they are effectively ignored by the validation and so their nested nature is not a problem.
 We then bring the contents of each definition object back to the "flat" top level for validation using a series of `allOf` statements at the end of the schema,
 which reference the specific definition keys.
 
@@ -47,7 +47,7 @@ which reference the specific definition keys.
   "$schema": "http://json-schema.org/draft-07/schema",
   "type": "object",
   // Definition groups
-  "definitions": { // (1)!
+  "defs": { // (1)!
     "my_group_of_params": { // (2)!
       "title": "A virtual grouping used for docs and pretty-printing",
       "type": "object",
@@ -64,7 +64,7 @@ which reference the specific definition keys.
   },
   // Contents of each definition group brought into main schema for validation
   "allOf": [
-    { "$ref": "#/definitions/my_group_of_params" } // (6)!
+    { "$ref": "#/defs/my_group_of_params" } // (6)!
   ]
 }
 ```
@@ -77,7 +77,7 @@ which reference the specific definition keys.
 5. Shortened here for the example, see below for full parameter specification.
 6. A `$ref` line like this needs to be added for every definition group
 
-Parameters can be described outside of the `definitions` scope, in the regular JSON Schema top-level `properties` scope.
+Parameters can be described outside of the `defs` scope, in the regular JSON Schema top-level `properties` scope.
 However, they will be displayed as ungrouped in tools working off the schema.
 
 ## Nested parameters

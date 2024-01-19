@@ -4,7 +4,7 @@
     "title": "nf-core/testpipeline pipeline parameters",
     "description": "this is a test",
     "type": "object",
-    "definitions": {
+    "defs": {
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
