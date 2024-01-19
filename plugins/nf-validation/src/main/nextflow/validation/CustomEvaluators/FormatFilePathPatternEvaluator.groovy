@@ -28,9 +28,7 @@ class FormatFilePathPatternEvaluator implements Evaluator {
         }
 
         // Actual validation logic
-        println(value)
         def List<Path> files = Nextflow.files(value)
-        println(files)
         def List<String> errors = []
 
         if(files.size() == 0) {
