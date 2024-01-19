@@ -27,8 +27,7 @@ public class JsonSchemaValidator {
         this.schema = schemaString
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
-            // .withEvaluatorFactory(EvaluatorFactory.compose(customFactory, new FormatEvaluatorFactory()))
-            // .withEvaluatorFactory() => exists keyword should be implemented here
+            .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
     }
 
     private static validateObject(JsonNode input, String validationType) {
