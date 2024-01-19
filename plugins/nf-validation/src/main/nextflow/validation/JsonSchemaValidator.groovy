@@ -22,11 +22,44 @@ public class JsonSchemaValidator {
     private static String schema
     private static List<String> errors = []
     private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
+    // private static Dialect customDialect = new Dialect() {
+    //     @Override
+    //     public SpecificationVersion getSpecificationVersion() {
+    //         return SpecificationVersion.DRAFT2020_12;
+    //     }
+        
+    //     @Override
+    //     public String getMetaSchema() {
+    //         return "https://example.com/custom/schema"
+    //     }
+        
+    //     @Override
+    //     public EvaluatorFactory getEvaluatorFactory() {
+    //         return new Draft2020EvaluatorFactory()
+    //     }
+        
+    //     @Override
+    //     public Set<String> getSupportedVocabularies() {
+    //         return Collections.singleton("custom-vocabulary")
+    //     }
+        
+    //     @Override
+    //     public Set<String> getRequiredVocabularies() {
+    //         return Collections.emptySet()
+    //     }
+        
+    //     @Override
+    //     public Map<String, Boolean> getDefaultVocabularyObject() {
+    //         return Collections.singletonMap("custom-vocabulary", true)
+    //     }
+    // }
+
 
     JsonSchemaValidator(String schemaString) {
         this.schema = schemaString
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
+            // .withDialect()
             .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
     }
 
