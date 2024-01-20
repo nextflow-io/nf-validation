@@ -35,6 +35,12 @@ class ExistsEvaluator implements Evaluator {
        
         // Actual validation logic
         def Path file = Nextflow.file(value) as Path
+
+        // Don't evaluate file path patterns
+        if (file instanceof List) {
+            return Evaluator.Result.success()
+        }
+
         if (!file.exists() && this.exists == true) {
             return Evaluator.Result.failure("the file or directory '${value}' does not exist" as String)
         } else if(file.exists() && this.exists == false) {
