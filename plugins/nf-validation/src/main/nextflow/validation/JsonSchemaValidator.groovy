@@ -20,51 +20,19 @@ public class JsonSchemaValidator {
 
     private static ValidatorFactory validator
     private static String schema
-    private static List<String> errors = []
     private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
-    // private static Dialect customDialect = new Dialect() {
-    //     @Override
-    //     public SpecificationVersion getSpecificationVersion() {
-    //         return SpecificationVersion.DRAFT2020_12;
-    //     }
-        
-    //     @Override
-    //     public String getMetaSchema() {
-    //         return "https://example.com/custom/schema"
-    //     }
-        
-    //     @Override
-    //     public EvaluatorFactory getEvaluatorFactory() {
-    //         return new Draft2020EvaluatorFactory()
-    //     }
-        
-    //     @Override
-    //     public Set<String> getSupportedVocabularies() {
-    //         return Collections.singleton("custom-vocabulary")
-    //     }
-        
-    //     @Override
-    //     public Set<String> getRequiredVocabularies() {
-    //         return Collections.emptySet()
-    //     }
-        
-    //     @Override
-    //     public Map<String, Boolean> getDefaultVocabularyObject() {
-    //         return Collections.singletonMap("custom-vocabulary", true)
-    //     }
-    // }
-
 
     JsonSchemaValidator(String schemaString) {
         this.schema = schemaString
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
-            // .withDialect()
+            // .withDialect() // TODO define the dialect
             .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
     }
 
-    private static validateObject(JsonNode input, String validationType) {
+    private static List<String> validateObject(JsonNode input, String validationType) {
         def Validator.Result result = this.validator.validate(this.schema, input)
+        def List<String> errors = []
         for (error : result.getErrors()) {
             def String errorString = error.getError()
             // Skip double error in the parameter schema
@@ -93,31 +61,30 @@ public class JsonSchemaValidator {
                 } else {
                     fieldError = customError ?: errorString
                 }
-                this.errors.add("* ${entryString}: ${fieldError}" as String)
+                errors.add("* ${entryString}: ${fieldError}" as String)
             } else if (validationType == "parameter") {
                 def String fieldName = locationList.join("/")
                 if(fieldName != "") {
-                    this.errors.add("* --${fieldName}: ${customError ?: errorString}" as String)
+                    errors.add("* --${fieldName}: ${customError ?: errorString}" as String)
                 } else {
-                    this.errors.add("* ${customError ?: errorString}" as String)
+                    errors.add("* ${customError ?: errorString}" as String)
                 }
             } else {
-                this.errors.add(customError ?: errorString)
+                errors.add(customError ?: errorString)
             }
 
         }
+        return errors
     }
 
     public static List<String> validate(JSONArray input) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        this.validateObject(jsonInput, "field")
-        return this.errors
+        return this.validateObject(jsonInput, "field")
     }
 
     public static List<String> validate(JSONObject input) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        this.validateObject(jsonInput, "parameter")
-        return this.errors
+        return this.validateObject(jsonInput, "parameter")
     }
 
     private static Boolean isInteger(String input) {

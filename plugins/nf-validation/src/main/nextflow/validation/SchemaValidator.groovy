@@ -27,9 +27,6 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import org.yaml.snakeyaml.Yaml
 
-import static SamplesheetConverter.getHeader
-import static SamplesheetConverter.getFileType
-
 @Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {
@@ -123,17 +120,6 @@ class SchemaValidator extends PluginExtensionPoint {
     List<String> getWarnings() { warnings }
 
     //
-    // Resolve Schema path relative to main workflow directory
-    //
-    static String getSchemaPath(String baseDir, String schemaFilename='nextflow_schema.json') {
-        if (Path.of(schemaFilename).exists()) {
-            return schemaFilename
-        } else {
-            return "${baseDir}/${schemaFilename}"
-        }
-    }
-
-    //
     // Find a value in a nested map
     //
     def findDeep(Map m, String key) {
@@ -154,7 +140,7 @@ class SchemaValidator extends PluginExtensionPoint {
         def Boolean skipDuplicateCheck = options?.containsKey('skip_duplicate_check') ? options.skip_duplicate_check as Boolean : params.validationSkipDuplicateCheck ? params.validationSkipDuplicateCheck as Boolean : false
 
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
         if (samplesheetFile == null) {
@@ -167,48 +153,13 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException("", [])
         }
         else if (samplesheetValue.containsKey('schema')) {
-            schemaFile = Path.of(getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+            schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
         } else {
             log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
 
         log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
-
-        // Validate samplesheet
-        def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
-        def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-        def List<Map<String,String>> fileContent
-        def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
-        def Map types = variableTypes(schemaFile.toString(), baseDir)
-        def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
-
-        if(!containsHeader){
-            types = ["empty": types[""]]
-        }
-        if(fileType == "yaml"){
-            fileContent = new Yaml().load((samplesheetFile.text)).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
-        }
-        else if(fileType == "json"){
-            fileContent = new JsonSlurper().parseText(samplesheetFile.text).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
-        }
-        else {
-            fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
-        }
-        def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
-        if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
-            log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
-        }
 
         // Convert to channel
         final channel = CH.create()
@@ -305,7 +256,7 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Check for nextflow core params and unexpected params
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         def Map schemaParams = (Map) parsed.get('defs')
         def specifiedParamKeys = params.keySet()
 
@@ -349,7 +300,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         //=====================================================================//
         // Validate parameters against the schema
-        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def String schema_string = Files.readString( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         def validator = new JsonSchemaValidator(schema_string)
 
         // check for warnings
@@ -371,188 +322,7 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException(msg, this.getErrors())
         }
 
-        //=====================================================================//
-        // Look for other schemas to validate
-        for (group in schemaParams) {
-            def Map properties = (Map) group.value['properties']
-            for (p in properties) {
-                def String key = (String) p.key
-                if (!params[key]) {
-                    continue
-                }
-                def Map property = properties[key] as Map
-                if (property.containsKey('schema')) {
-                    def String schema_name = getSchemaPath(baseDir, property['schema'].toString())
-                    def Path file_path
-                    try {
-                        file_path = Nextflow.file(params[key]) as Path
-                    } catch (IllegalArgumentException e) {
-                        errors << "* --${key}: The file path '${params[key]}' is invalid. Unable to validate file.".toString()
-                        continue
-                    }
-                    log.debug "Starting validation: '$key': '$file_path' with '$schema_name'"
-                    def String fileType = SamplesheetConverter.getFileType(file_path)
-                    def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-                    def List<Map<String,String>> fileContent
-                    def Map types = variableTypes(schema_name, baseDir)
-                    def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
-
-                    if(!containsHeader){
-                        types = ["empty": types[""]]
-                    }
-
-                    if(fileType == "yaml"){
-                        fileContent = new Yaml().load(file_path.text).collect {
-                            if(containsHeader) {
-                                return it as Map
-                            }
-                            return ["empty": it] as Map
-                        }
-                    }
-                    else if(fileType == "json"){
-                        fileContent = new JsonSlurper().parseText(file_path.text).collect {
-                            if(containsHeader) {
-                                return it as Map
-                            }
-                            return ["empty": it] as Map
-                        }
-                    }
-                    else {
-                        fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
-                    }
-                    def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
-                    if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
-                        log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
-                    }
-                }
-            }
-        }
-
         log.debug "Finishing parameters validation"
-    }
-
-
-    //
-    // Function to obtain the variable types of properties from a JSON Schema
-    //
-    Map variableTypes(String schemaFilename, String baseDir) {
-        def Map variableTypes = [:]
-        def String type = ''
-
-        // Read the schema
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-
-        // Obtain the type of each variable in the schema
-        def Map properties = (Map) parsed['items']['properties']
-        for (p in properties) {
-            def String key = (String) p.key
-            def Map property = properties[key] as Map
-            if (property.containsKey('type')) {
-                if (property['type'] == 'number') {
-                    type = 'float'
-                }
-                else {
-                    type = property['type']
-                }
-                variableTypes[key] = type
-            }
-            else {
-                variableTypes[key] = 'string' // If there isn't a type specifyed, return 'string' to avoid having a null value
-            }
-        }
-
-        return variableTypes
-    }
-
-
-    //
-    // Cast a value to the provided type in a Strict mode
-    //
-    Set<String> VALID_BOOLEAN_VALUES = ['true', 'false'] as Set
-
-    List castToType(List<Map> rows, Map types) {
-        def List<Map> casted = []
-
-        for( Map row in rows) {
-            def Map castedRow = [:]
-
-            for (String key in row.keySet()) {
-                def String str = row[key]
-                def String type = types[key]
-
-                try {
-                    if( str == null || str == '' ) castedRow[key] = null
-                    else if( type == null ) castedRow[key] = str
-                    else if( type.toLowerCase() == 'boolean' && str.toLowerCase() in VALID_BOOLEAN_VALUES ) castedRow[key] = str.toBoolean()
-                    else if( type.toLowerCase() == 'character' ) castedRow[key] = str.toCharacter()
-                    else if( type.toLowerCase() == 'short' && str.isNumber() ) castedRow[key] = str.toShort()
-                    else if( type.toLowerCase() == 'integer' && str.isInteger() ) castedRow[key] = str.toInteger()
-                    else if( type.toLowerCase() == 'long' && str.isLong() ) castedRow[key] = str.toLong()
-                    else if( type.toLowerCase() == 'float' && str.isFloat() ) castedRow[key] = str.toFloat()
-                    else if( type.toLowerCase() == 'double' && str.isDouble() ) castedRow[key] = str.toDouble()
-                    else if( type.toLowerCase() == 'string' ) castedRow[key] = str
-                    else {
-                        castedRow[key] = str
-                    }
-                } catch( Exception e ) {
-                    log.warn "Unable to cast value $str to type $type: $e"
-                    castedRow[key] = str
-                }
-
-            }
-
-            casted = casted + castedRow
-        }
-
-        return casted
-    }
-
-
-    //
-    // Function to validate a file by its schema
-    //
-    /* groovylint-disable-next-line UnusedPrivateMethodParameter */
-    boolean validateFile(
-        
-        Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir, Boolean s3PathCheck = false
-    
-    ) {
-
-        // Load the schema
-        def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def validator = new JsonSchemaValidator(schema_string)
-
-        // Remove all null values from JSON object
-        // and convert the groovy object to a JSONArray
-        def jsonGenerator = new JsonGenerator.Options()
-            .excludeNulls()
-            .build()
-        def JSONArray arrayJSON = new JSONArray(jsonGenerator.toJson(fileContent))
-
-        //=====================================================================//
-        // Check for params with expected values
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
-        def Map schemaParams = (Map) ["items": parsed.get('items')] 
-
-        // Collect expected parameters from the schema
-        def enumsTuple = collectEnums(schemaParams)
-        def List expectedParams = (List) enumsTuple[0] + addExpectedParams()
-        def Map enums = (Map) enumsTuple[1]
-
-        //=====================================================================//
-        // Validate
-        def List<String> validationErrors = validator.validate(arrayJSON)
-        this.errors.addAll(validationErrors)
-        if (this.hasErrors()) {
-            def colors = logColours(monochrome_logs)
-            def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
-            log.error("ERROR: Validation of '$paramName' file failed!")
-            throw new SchemaValidationException(msg, this.getErrors())
-        }
-
-        return true
     }
 
     //
@@ -637,7 +407,7 @@ class SchemaValidator extends PluginExtensionPoint {
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
@@ -752,7 +522,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
-        def Map params_map = paramsLoad( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
             def Map group_params = params_map.get(group)  as Map // This gets the parameters of that particular group

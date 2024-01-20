@@ -10,7 +10,7 @@ import java.nio.file.Path
 
 @Slf4j
 class ExistsEvaluator implements Evaluator {
-    // The string should be a directory
+    // The file should or should not exist
 
     private final Boolean exists
 

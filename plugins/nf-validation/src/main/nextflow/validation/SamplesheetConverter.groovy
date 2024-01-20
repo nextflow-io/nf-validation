@@ -22,7 +22,6 @@ import nextflow.Nextflow
 import nextflow.plugin.extension.Function
 import nextflow.Session
 
-
 @Slf4j
 @CompileStatic
 class SamplesheetConverter {
@@ -61,7 +60,7 @@ class SamplesheetConverter {
         def List<String> requiredFields = (List) schemaMap["items"]["required"]
         def Boolean containsHeader = !(allFields.size() == 1 && allFields[0] == "")
 
-        def String fileType = getFileType(samplesheetFile)
+        def String fileType = Utils.getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> samplesheetList
 
@@ -211,40 +210,6 @@ class SamplesheetConverter {
         }
 
         return outputs
-    }
-
-    // Function to infer the file type of the samplesheet
-    public static String getFileType(
-        Path samplesheetFile
-    ) {
-        def String extension = samplesheetFile.getExtension()
-        if (extension in ["csv", "tsv", "yml", "yaml", "json"]) {
-            return extension == "yml" ? "yaml" : extension
-        }
-
-        def String header = getHeader(samplesheetFile)
-
-        def Integer commaCount = header.count(",")
-        def Integer tabCount = header.count("\t")
-
-        if ( commaCount == tabCount ){
-            throw new Exception("Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString())
-        }
-        if ( commaCount > tabCount ){
-            return "csv"
-        }
-        else {
-            return "tsv"
-        }
-    }
-
-    // Function to get the header from a CSV or TSV file
-    public static String getHeader(
-        Path samplesheetFile
-    ) {
-        def String header
-        samplesheetFile.withReader { header = it.readLine() }
-        return header
     }
 
     // Function to transform an input field from the samplesheet to its desired type
