@@ -154,4 +154,13 @@ public class Utils {
 
         return variableTypes
     }
+
+    public static Boolean isInteger(String input) {
+        try {
+            input as Integer
+            return true
+        } catch (NumberFormatException e) {
+            return false
+        }
+    }
 }

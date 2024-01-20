@@ -52,7 +52,7 @@ public class JsonSchemaValidator {
             def String location = error.getInstanceLocation()
             def String[] locationList = location.split("/").findAll { it != "" }
 
-            if (locationList.size() > 0 && isInteger(locationList[0]) && validationType == "field") {
+            if (locationList.size() > 0 && Utils.isInteger(locationList[0]) && validationType == "field") {
                 def Integer entryInteger = locationList[0] as Integer
                 def String entryString = "Entry ${entryInteger + 1}" as String
                 def String fieldError = ""
@@ -85,14 +85,5 @@ public class JsonSchemaValidator {
     public static List<String> validate(JSONObject input) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
         return this.validateObject(jsonInput, "parameter")
-    }
-
-    private static Boolean isInteger(String input) {
-        try {
-            input as Integer
-            return true
-        } catch (NumberFormatException e) {
-            return false
-        }
     }
 }
