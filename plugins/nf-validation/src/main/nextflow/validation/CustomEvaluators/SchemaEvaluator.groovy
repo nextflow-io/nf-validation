@@ -57,7 +57,7 @@ class SchemaEvaluator implements Evaluator {
             return Evaluator.Result.failure(errors.join("\n"))
         }
 
-        log.debug("Validatrion of file '${value}' passed!")
+        log.debug("Validation of file '${value}' passed!")
         return Evaluator.Result.success()
     }
 

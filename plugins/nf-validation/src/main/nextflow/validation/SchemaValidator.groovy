@@ -326,27 +326,6 @@ class SchemaValidator extends PluginExtensionPoint {
     }
 
     //
-    // Function to collect parameters with an exists key in the schema.
-    //
-    List collectExists(Map schemaParams) {
-        def exists = []
-        for (group in schemaParams) {
-            def Map properties = (Map) group.value['properties']
-            for (p in properties) {
-                def String key = (String) p.key
-                def Map property = properties[key] as Map
-                if (property.containsKey('exists') && property.containsKey('format')) {
-                    if (property['exists'] && (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') ) {
-                        exists.push(key)
-                    }
-                }
-            }
-        }
-        return exists
-    }
-
-
-    //
     // Function to collect enums (options) of a parameter and expected parameters (present in the schema)
     //
     Tuple collectEnums(Map schemaParams) {
@@ -601,105 +580,6 @@ class SchemaValidator extends PluginExtensionPoint {
         output += "!! Only displaying parameters that differ from the pipeline defaults !!\n"
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
         return output
-    }
-
-    //
-    // Loop over nested exceptions and print the causingException
-    //
-    private void collectErrors(JSONObject exJSON, JSONObject paramsJSON, Map enums, JSONObject schemaJSON, Integer limit=5) {
-        def JSONArray causingExceptions = (JSONArray) exJSON['causingExceptions']
-        def JSONArray valuesJSON = new JSONArray ()
-        def String validationType = "parameter: --"
-        if (paramsJSON.has('objects')) {
-            valuesJSON = (JSONArray) paramsJSON['objects']
-            validationType = "value: "
-        } 
-        def Integer entryNumber = 0
-        if (causingExceptions.length() == 0) {
-            def String pointer = (String) exJSON['pointerToViolation'] - ~/^#\//
-            def String message = (String) exJSON['message']
-            def Pattern p = (Pattern) ~/required key \[([^\]]+)\] not found/
-            def Matcher m = message =~ p
-            // Missing required param
-            if(m.matches()){
-                def List l = m[0] as ArrayList
-                if (pointer.isNumber()) {
-                    entryNumber = pointer.replace('/', ' - ') as Integer
-                    entryNumber = entryNumber + 1
-                    errors << "* -- Entry ${entryNumber}: Missing required ${validationType}${l[1]}".toString()
-                } else {
-                    errors << "* Missing required ${validationType}${l[1]}".toString()
-                }
-            }
-            // Other base-level error
-            else if(exJSON['pointerToViolation'] == '#'){
-                errors << "* ${message}".toString()
-            }
-            // Error with specific param
-            else {
-                def String param = (String) exJSON['pointerToViolation'] - ~/^#\//
-                def String paramName = param
-                def param_val = ""
-                if (paramsJSON.has('objects')) {
-                    def paramSplit = param.tokenize( '/' )
-                    int indexInt = paramSplit[0] as int
-                    String paramString = paramSplit[1] as String
-                    paramName = paramString
-                    param_val = valuesJSON[indexInt][paramString].toString()
-                } else {
-                    param_val = paramsJSON[param].toString()
-                }
-                if (enums.containsKey(param)) {
-                    def error_msg = "* --${param}: '${param_val}' is not a valid choice (Available choices"
-                    def List enums_param = (List) enums[param]
-                    if (enums_param.size() > limit) {
-                        errors << "${error_msg} (${limit} of ${enums_param.size()}): ${enums_param[0..limit-1].join(', ')}, ... )".toString()
-                    } else {
-                        errors << "${error_msg}: ${enums_param.join(', ')})".toString()
-                    }
-                } else {
-                    if (param.contains('/')) {
-                        entryNumber = param.split('/')[0] as Integer
-                        entryNumber = entryNumber + 1
-                        def String columnName = param.split('/')[1]
-                        paramName = columnName
-                        param = " Entry ${entryNumber} - ${columnName}"
-                    }
-                    // Custom errorMessage
-                    def String errorMessage
-                    try {
-                        errorMessage = schemaJSON['items']['properties'][paramName]['errorMessage']
-                    } catch (JSONException) {
-                        def Map paramMap = findDeep(schemaJSON.toMap(), paramName) as Map
-                        errorMessage = paramMap['errorMessage']
-                    }
-                    if (errorMessage) {
-                        log.debug "* --${param}: ${message} (${param_val})".toString()
-                        message = errorMessage
-                    }
-                    errors << "* --${param}: ${message} (${param_val})".toString()
-                }
-            }
-            errors.unique()
-        }
-        for (ex in causingExceptions) {
-            def JSONObject exception = (JSONObject) ex
-            collectErrors(exception, paramsJSON, enums, schemaJSON)
-        }
-    }
-
-    //
-    // Remove an element from a JSONArray
-    //
-    private static JSONArray removeElement(JSONArray json_array, String element) {
-        def list = []
-        int len = json_array.length()
-        for (int i=0;i<len;i++){
-            list.add(json_array.get(i).toString())
-        }
-        list.remove(element)
-        JSONArray jsArray = new JSONArray(list)
-        return jsArray
     }
 
     //
