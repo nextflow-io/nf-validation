@@ -25,7 +25,10 @@ class CustomEvaluatorFactory implements EvaluatorFactory {
             return Optional.of(new ExistsEvaluator(schemaNode.asBoolean()))
         } else if (fieldName == "schema" && schemaNode.isString()) {
             return Optional.of(new SchemaEvaluator(schemaNode.asString()))
+        } else if (fieldName == "uniqueEntries" && schemaNode.isArray()) {
+            return Optional.of(new UniqueEntriesEvaluator(schemaNode.asArray()))
         }
+
         return Optional.empty();
     }
 }

@@ -59,9 +59,9 @@ public class JsonSchemaValidator {
                 if(locationList.size() > 1) {
                     fieldError = "Error for ${validationType} '${locationList[1..-1].join("/")}': ${customError ?: errorString}"
                 } else {
-                    fieldError = customError ?: errorString
+                    fieldError = "${customError ?: errorString}" as String
                 }
-                errors.add("* ${entryString}: ${fieldError}" as String)
+                errors.add("-> ${entryString}: ${fieldError}" as String)
             } else if (validationType == "parameter") {
                 def String fieldName = locationList.join("/")
                 if(fieldName != "") {
@@ -70,7 +70,7 @@ public class JsonSchemaValidator {
                     errors.add("* ${customError ?: errorString}" as String)
                 }
             } else {
-                errors.add(customError ?: errorString)
+                errors.add("-> ${customError ?: errorString}" as String)
             }
 
         }
