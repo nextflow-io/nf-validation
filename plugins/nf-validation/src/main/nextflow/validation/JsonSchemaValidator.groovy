@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import groovy.transform.CompileStatic
 import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONPointer
 import dev.harrel.jsonschema.ValidatorFactory
 import dev.harrel.jsonschema.Validator
 import dev.harrel.jsonschema.EvaluatorFactory
@@ -30,7 +31,7 @@ public class JsonSchemaValidator {
             .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
     }
 
-    private static List<String> validateObject(JsonNode input, String validationType) {
+    private static List<String> validateObject(JsonNode input, String validationType, Object rawJson) {
         def Validator.Result result = this.validator.validate(this.schema, input)
         def List<String> errors = []
         for (error : result.getErrors()) {
@@ -39,6 +40,10 @@ public class JsonSchemaValidator {
             if (errorString.startsWith("Value does not match against the schemas at indexes") && validationType == "parameter") {
                 continue
             }
+
+            def String instanceLocation = error.getInstanceLocation()
+            def JSONPointer pointer = new JSONPointer(instanceLocation)
+            def String value = pointer.queryFrom(rawJson)
 
             // Change some error messages to make them more clear
             def String keyword = error.getKeyword()
@@ -49,15 +54,14 @@ public class JsonSchemaValidator {
                 customError = "Missing required ${validationType}(s): ${missingKeywords}"
             }
 
-            def String location = error.getInstanceLocation()
-            def String[] locationList = location.split("/").findAll { it != "" }
+            def String[] locationList = instanceLocation.split("/").findAll { it != "" }
 
             if (locationList.size() > 0 && Utils.isInteger(locationList[0]) && validationType == "field") {
                 def Integer entryInteger = locationList[0] as Integer
                 def String entryString = "Entry ${entryInteger + 1}" as String
                 def String fieldError = ""
                 if(locationList.size() > 1) {
-                    fieldError = "Error for ${validationType} '${locationList[1..-1].join("/")}': ${customError ?: errorString}"
+                    fieldError = "Error for ${validationType} '${locationList[1..-1].join("/")}' (${value}): ${customError ?: errorString}"
                 } else {
                     fieldError = "${customError ?: errorString}" as String
                 }
@@ -65,7 +69,7 @@ public class JsonSchemaValidator {
             } else if (validationType == "parameter") {
                 def String fieldName = locationList.join("/")
                 if(fieldName != "") {
-                    errors.add("* --${fieldName}: ${customError ?: errorString}" as String)
+                    errors.add("* --${fieldName} (${value}): ${customError ?: errorString}" as String)
                 } else {
                     errors.add("* ${customError ?: errorString}" as String)
                 }
@@ -79,11 +83,11 @@ public class JsonSchemaValidator {
 
     public static List<String> validate(JSONArray input) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        return this.validateObject(jsonInput, "field")
+        return this.validateObject(jsonInput, "field", input)
     }
 
     public static List<String> validate(JSONObject input) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        return this.validateObject(jsonInput, "parameter")
+        return this.validateObject(jsonInput, "parameter", input)
     }
 }

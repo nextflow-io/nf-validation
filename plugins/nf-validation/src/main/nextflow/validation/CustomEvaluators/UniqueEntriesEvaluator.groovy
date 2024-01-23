@@ -40,7 +40,7 @@ class UniqueEntriesEvaluator implements Evaluator {
                 .collectEntries { k,v -> [k, v.asString()] }
             for (uniqueNode : uniques) {
                 if(filteredNodes.equals(uniqueNode)) {
-                    return Evaluator.Result.failure("Detected non-unique combination of the following fields in entry ${count}: ${uniqueEntries}" as String)
+                    return Evaluator.Result.failure("Entry ${count}: Detected non-unique combination of the following fields: ${uniqueEntries}" as String)
                 }
             }
             uniques.add(filteredNodes)

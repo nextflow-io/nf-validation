@@ -53,7 +53,7 @@ class SchemaEvaluator implements Evaluator {
 
         def List<String> validationErrors = validator.validate(arrayJSON)
         if (validationErrors) {
-            def List<String> errors = ["Validation of '$value' file failed:" as String] + validationErrors.collect { "\t${it}" as String}
+            def List<String> errors = ["Validation of file failed:"] + validationErrors.collect { "\t${it}" as String}
             return Evaluator.Result.failure(errors.join("\n"))
         }
 
