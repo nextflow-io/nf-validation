@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 import org.json.JSONObject
 import org.json.JSONArray
 import org.json.JSONPointer
+import org.json.JSONPointerException
 import dev.harrel.jsonschema.ValidatorFactory
 import dev.harrel.jsonschema.Validator
 import dev.harrel.jsonschema.EvaluatorFactory
@@ -34,6 +35,7 @@ public class JsonSchemaValidator {
     private static List<String> validateObject(JsonNode input, String validationType, Object rawJson) {
         def Validator.Result result = this.validator.validate(this.schema, input)
         def List<String> errors = []
+        def JSONObject schemaObject = new JSONObject(this.schema)
         for (error : result.getErrors()) {
             def String errorString = error.getError()
             // Skip double error in the parameter schema
@@ -45,13 +47,24 @@ public class JsonSchemaValidator {
             def JSONPointer pointer = new JSONPointer(instanceLocation)
             def String value = pointer.queryFrom(rawJson)
 
-            // Change some error messages to make them more clear
-            def String keyword = error.getKeyword()
+            // Get the errorMessage if there is one
+            def String schemaLocation = error.getSchemaLocation().replaceFirst(/^[^#]+/, "")
+            def JSONPointer schemaPointer = new JSONPointer("${schemaLocation}/errorMessage")
             def String customError = ""
-            if (keyword == "required") {
-                def Matcher matcher = errorString =~ ~/\[\[([^\[\]]*)\]\]$/
-                def String missingKeywords = matcher.findAll().flatten().last()
-                customError = "Missing required ${validationType}(s): ${missingKeywords}"
+            try{
+                customError = schemaPointer.queryFrom(schemaObject) ?: ""
+            } catch (JSONPointerException e) {
+                customError = ""
+            }
+
+            // Change some error messages to make them more clear
+            if (customError == "") {
+                def String keyword = error.getKeyword()
+                if (keyword == "required") {
+                    def Matcher matcher = errorString =~ ~/\[\[([^\[\]]*)\]\]$/
+                    def String missingKeywords = matcher.findAll().flatten().last()
+                    customError = "Missing required ${validationType}(s): ${missingKeywords}"
+                }
             }
 
             def String[] locationList = instanceLocation.split("/").findAll { it != "" }
