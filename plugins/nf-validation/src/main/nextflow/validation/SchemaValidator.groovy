@@ -169,8 +169,8 @@ class SchemaValidator extends PluginExtensionPoint {
                 """ Following error has been found during samplesheet conversion:
     ${e}
 
-    Please run validateParameters() first before trying to convert a samplesheet to a channel.
-    Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
+Please run validateParameters() first before trying to convert a samplesheet to a channel.
+Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
                 """ as String
             )
         }
