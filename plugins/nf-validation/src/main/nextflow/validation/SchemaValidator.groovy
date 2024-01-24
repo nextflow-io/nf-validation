@@ -159,8 +159,6 @@ class SchemaValidator extends PluginExtensionPoint {
             throw new SchemaValidationException("", [])
         }
 
-        log.debug "Starting validation: '$samplesheetFile' with '$schemaFile'"
-
         // Convert to channel
         final channel = CH.create()
         List arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile, skipDuplicateCheck)
