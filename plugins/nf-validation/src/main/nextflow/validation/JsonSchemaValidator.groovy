@@ -21,11 +21,11 @@ import java.util.regex.Matcher
 public class JsonSchemaValidator {
 
     private static ValidatorFactory validator
-    private static String schema
+    private static JSONObject schema
     private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
 
     JsonSchemaValidator(String schemaString) {
-        this.schema = schemaString
+        this.schema = new JSONObject(schemaString)
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
             // .withDialect() // TODO define the dialect
@@ -35,7 +35,6 @@ public class JsonSchemaValidator {
     private static List<String> validateObject(JsonNode input, String validationType, Object rawJson) {
         def Validator.Result result = this.validator.validate(this.schema, input)
         def List<String> errors = []
-        def JSONObject schemaObject = new JSONObject(this.schema)
         for (error : result.getErrors()) {
             def String errorString = error.getError()
             // Skip double error in the parameter schema
@@ -52,7 +51,7 @@ public class JsonSchemaValidator {
             def JSONPointer schemaPointer = new JSONPointer("${schemaLocation}/errorMessage")
             def String customError = ""
             try{
-                customError = schemaPointer.queryFrom(schemaObject) ?: ""
+                customError = schemaPointer.queryFrom(this.schema) ?: ""
             } catch (JSONPointerException e) {
                 customError = ""
             }
