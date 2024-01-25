@@ -9,6 +9,8 @@ import nextflow.Nextflow
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 import java.util.stream.Collectors
+import static java.util.Collections.singleton
+import static java.util.Collections.unmodifiableList
 
 @Slf4j
 class LenientTypeEvaluator implements Evaluator {
@@ -25,7 +27,7 @@ class LenientTypeEvaluator implements Evaluator {
 
     LenientTypeEvaluator(JsonNode node) {
         if (node.isString()) {
-            this.types = [SimpleType.fromName(node.asString())].toSet()
+            this.types = singleton(SimpleType.fromName(node.asString()))
         } else {
             this.types = node.asArray().stream()
                     .map(JsonNode::asString)
@@ -43,7 +45,7 @@ class LenientTypeEvaluator implements Evaluator {
         if (types.contains(nodeType) || nodeType == SimpleType.INTEGER && types.contains(SimpleType.NUMBER)) {
             return Result.success()
         } else {
-            def List<String> typeNames = types.stream().map(SimpleType::getName).collect(Collectors.toList())
+            def List<String> typeNames = unmodifiableList(types.stream().map(SimpleType::getName).collect(Collectors.toList()))
             return Result.failure(String.format("Value is [%s] but should be %s", nodeType.getName(), typeNames))
         }
     }
