@@ -11,17 +11,22 @@ import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
+
 /**
- * @author : jorge <jorge.aguilera@seqera.io>
+ * @author : Nicolas Vannieuwkerke <nicolas.vannieuwkerke@ugent.be>
  *
  */
-class PluginExtensionMethodsTest extends Dsl2Spec{
+class ValidateParametersTest extends Dsl2Spec{
 
     @Rule
     OutputCapture capture = new OutputCapture()
 
 
     @Shared String pluginsMode
+
+    Path root = Path.of('.').toAbsolutePath().normalize()
+    Path getRoot() { this.root }
+    String getRootString() { this.root.toString() }
 
     def setup() {
         // reset previous instances
@@ -30,7 +35,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         pluginsMode = System.getProperty('pf4j.mode')
         System.setProperty('pf4j.mode', 'dev')
         // the plugin root should
-        def root = Path.of('.').toAbsolutePath().normalize()
+        def root = this.getRoot()
         def manager = new TestPluginManager(root){
             @Override
             protected PluginDescriptorFinder createPluginDescriptorFinder() {
@@ -49,28 +54,6 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         Plugins.stop()
         PluginExtensionProvider.reset()
         pluginsMode ? System.setProperty('pf4j.mode',pluginsMode) : System.clearProperty('pf4j.mode')
-    }
-
-    // 
-    // Params validation tests
-    //
-
-    def 'should import functions' () {
-        given:
-        def  SCRIPT_TEXT = '''
-            include { validateParameters } from 'plugin/nf-validation'
-        '''
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
-
-        then:
-        noExceptionThrown()
-        !stdout
     }
 
     def 'should validate when no params' () {
@@ -602,171 +585,6 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         !stdout
     }
 
-    //
-    // --help argument tests
-    //
-
-    def 'should print a help message' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
-
-            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
-            
-            def help_msg = paramsHelp(command, parameters_schema: '$schema')
-            log.info help_msg
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('Typical pipeline command:') ||
-                    it.contains('nextflow run') ||
-                    it.contains('Input/output options') ||
-                    it.contains('--input') ||
-                    it.contains('--outdir') ||
-                    it.contains('--email') ||
-                    it.contains('--multiqc_title') ||
-                    it.contains('Reference genome options') ||
-                    it.contains('--genome') ||
-                    it.contains('--fasta') 
-                    ? it : null }
-
-        then:
-        noExceptionThrown()
-        stdout.size() == 10
-    }
-
-    def 'should print a help message with argument options' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
-            params.validationShowHiddenParams = true
-            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
-            
-            def help_msg = paramsHelp(command, parameters_schema: '$schema')
-            log.info help_msg
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('publish_dir_mode') && 
-                    it.contains('(accepted: symlink, rellink, link, copy, copyNoFollow') 
-                    ? it : null }
-
-        then:
-        noExceptionThrown()
-        stdout.size() == 1
-    }
-
-    def 'should print a help message of one parameter' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
-            params.help = 'publish_dir_mode'
-
-            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
-            
-            def help_msg = paramsHelp(command, parameters_schema: '$schema')
-            log.info help_msg
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.startsWith('--publish_dir_mode') ||
-                    it.contains('type       :') ||
-                    it.contains('default    :') ||
-                    it.contains('description:') ||
-                    it.contains('help_text  :') ||
-                    it.contains('fa_icon    :') || // fa_icon shouldn't be printed
-                    it.contains('enum       :') ||
-                    it.contains('hidden     :') 
-                    ? it : null }
-
-        then:
-        noExceptionThrown()
-        stdout.size() == 7
-    }
-
-    def 'should fail when help param doesnt exist' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
-            params.help = 'no_exist'
-
-            def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
-            
-            def help_msg = paramsHelp(command, parameters_schema: '$schema')
-            log.info help_msg
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.startsWith('--no_exist') ? it : null }
-
-        then:
-        def error = thrown(Exception)
-        error.message == "Specified param 'no_exist' does not exist in JSON schema."
-        !stdout
-    }
-
-    //
-    // Summary of params tests
-    //
-
-    def 'should print params summary' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.outdir = "outDir"
-            include { paramsSummaryLog } from 'plugin/nf-validation'
-            
-            def summary_params = paramsSummaryLog(workflow, parameters_schema: '$schema')
-            log.info summary_params
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('Only displaying parameters that differ from the pipeline defaults') ||
-                    it.contains('Core Nextflow options') ||
-                    it.contains('runName') ||
-                    it.contains('launchDir') ||
-                    it.contains('workDir') ||
-                    it.contains('projectDir') ||
-                    it.contains('userName') ||
-                    it.contains('profile') ||
-                    it.contains('configFiles') ||
-                    it.contains('Input/output options') ||
-                    it.contains('outdir') 
-                    ? it : null }
-        
-        then:
-        noExceptionThrown()
-        stdout.size() == 11
-        stdout ==~ /.*\[0;34moutdir     : .\[0;32moutDir.*/
-    }
-
-    // 
-    // Samplesheet validation tests
-    //
 
     def 'should validate a schema from an input file' () {
         given:

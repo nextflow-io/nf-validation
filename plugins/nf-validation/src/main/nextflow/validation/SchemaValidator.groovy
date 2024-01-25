@@ -170,7 +170,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
 Please run validateParameters() first before trying to convert a samplesheet to a channel.
 Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
-                """ as String
+""" as String
             )
         }
 
