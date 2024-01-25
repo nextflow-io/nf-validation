@@ -283,7 +283,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         }
 
         //=====================================================================//
-        def Boolean lenientMode = params.validationLenientMode ? params.validationLenientMode : false
         def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
 
         for (String specifiedParam in specifiedParamKeys) {
@@ -324,7 +323,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         def colors = logColours(useMonochromeLogs)
 
         // Validate
-        // TODO find out how to enable lenient mode
         List<String> validationErrors = validator.validate(paramsJSON)
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {

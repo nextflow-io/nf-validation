@@ -242,11 +242,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines()
-        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
-        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
-        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
-        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
+        errorMessages[0] == "\033[0;31mThe following invalid input values have been detected:"
+        errorMessages[1] == ""
+        errorMessages[2] == "* --input (src/testResources/wrong.csv): Validation of file failed:"
+        errorMessages[3] == "\t-> Entry 1: Error for field 'strandedness' (weird): Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'"
+        errorMessages[4] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" does not match regular expression [^\\S+\\.f(ast)?q\\.gz\$]"
+        errorMessages[5] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" is longer than 0 characters"
+        errorMessages[6] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+        errorMessages[7] == "\t-> Entry 1: Missing required field(s): sample"
+        errorMessages[8] == "\t-> Entry 2: Error for field 'sample' (test 2): Sample name must be provided and cannot contain spaces"
         !stdout
     }
 
@@ -271,11 +275,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines()
-        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
-        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
-        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
-        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
+        errorMessages[0] == "\033[0;31mThe following invalid input values have been detected:"
+        errorMessages[1] == ""
+        errorMessages[2] == "* --input (src/testResources/wrong.tsv): Validation of file failed:"
+        errorMessages[3] == "\t-> Entry 1: Error for field 'strandedness' (weird): Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'"
+        errorMessages[4] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" does not match regular expression [^\\S+\\.f(ast)?q\\.gz\$]"
+        errorMessages[5] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" is longer than 0 characters"
+        errorMessages[6] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+        errorMessages[7] == "\t-> Entry 1: Missing required field(s): sample"
+        errorMessages[8] == "\t-> Entry 2: Error for field 'sample' (test 2): Sample name must be provided and cannot contain spaces"
         !stdout
     }
 
@@ -300,11 +308,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines()
-        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
-        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
-        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
-        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
+        errorMessages[0] == "\033[0;31mThe following invalid input values have been detected:"
+        errorMessages[1] == ""
+        errorMessages[2] == "* --input (src/testResources/wrong.yaml): Validation of file failed:"
+        errorMessages[3] == "\t-> Entry 1: Error for field 'strandedness' (weird): Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'"
+        errorMessages[4] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" does not match regular expression [^\\S+\\.f(ast)?q\\.gz\$]"
+        errorMessages[5] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" is longer than 0 characters"
+        errorMessages[6] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+        errorMessages[7] == "\t-> Entry 1: Missing required field(s): sample"
+        errorMessages[8] == "\t-> Entry 2: Error for field 'sample' (test 2): Sample name must be provided and cannot contain spaces"
         !stdout
     }
 
@@ -329,11 +341,15 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         then:
         def error = thrown(SchemaValidationException)
         def errorMessages = error.message.readLines()
-        errorMessages[0] == "\033[0;31mThe following errors have been detected:"
-        errorMessages[2] == "* -- Entry 1: Missing required value: sample"
-        errorMessages[3] == "* -- Entry 1 - strandedness: Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded' (weird)"
-        errorMessages[4] == "* -- Entry 1 - fastq_2: FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq2.fasta)"
-        errorMessages[5] == "* -- Entry 2 - sample: Sample name must be provided and cannot contain spaces (test 2)"
+        errorMessages[0] == "\033[0;31mThe following invalid input values have been detected:"
+        errorMessages[1] == ""
+        errorMessages[2] == "* --input (src/testResources/wrong.json): Validation of file failed:"
+        errorMessages[3] == "\t-> Entry 1: Error for field 'strandedness' (weird): Strandedness must be provided and be one of 'forward', 'reverse' or 'unstranded'"
+        errorMessages[4] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" does not match regular expression [^\\S+\\.f(ast)?q\\.gz\$]"
+        errorMessages[5] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): \"test1_fastq2.fasta\" is longer than 0 characters"
+        errorMessages[6] == "\t-> Entry 1: Error for field 'fastq_2' (test1_fastq2.fasta): FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+        errorMessages[7] == "\t-> Entry 1: Missing required field(s): sample"
+        errorMessages[8] == "\t-> Entry 2: Error for field 'sample' (test 2): Sample name must be provided and cannot contain spaces"
         !stdout
     }
 
@@ -794,7 +810,13 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* -- Entry 1 - fastq_1: FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test1_fastq1.txt)\n* -- Entry 2 - fastq_1: FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz' (test2_fastq1.txt)\n\n'''
+        error.message == """The following invalid input values have been detected:
+
+* --input (src/testResources/samplesheet_wrong_pattern.csv): Validation of file failed:
+\t-> Entry 1: Error for field 'fastq_1' (test1_fastq1.txt): FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'
+\t-> Entry 2: Error for field 'fastq_1' (test2_fastq1.txt): FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'
+
+"""
         !stdout
     }
 
@@ -805,7 +827,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
             params.monochrome_logs = true
             params.input = 'src/testResources/samplesheet_no_required.csv'
             include { validateParameters } from 'plugin/nf-validation'
-            
+
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
 
@@ -818,11 +840,11 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''
-The following invalid input values have been detected:
+        error.message == '''The following invalid input values have been detected:
+
 * --input (src/testResources/samplesheet_no_required.csv): Validation of file failed:
-        -> Entry 1: Missing required value: sample
-        -> Entry 2: Missing required value: sample
+\t-> Entry 1: Missing required field(s): sample
+\t-> Entry 2: Missing required field(s): strandedness, sample
 
 '''
         !stdout
