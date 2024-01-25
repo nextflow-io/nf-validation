@@ -20,7 +20,7 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/nf-core/rnaseq/master/assets/schema_input.json",
   "title": "nf-core/rnaseq pipeline - params.input schema",
   "description": "Schema for the file provided with params.input",

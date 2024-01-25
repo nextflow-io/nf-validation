@@ -329,7 +329,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
-            log.error("ERROR: Validation of pipeline parameters failed!")
+            log.error("Validation of pipeline parameters failed!")
             throw new SchemaValidationException(msg, this.getErrors())
         }
 

@@ -44,7 +44,7 @@ which reference the specific definition keys.
 <!-- prettier-ignore-start -->
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   // Definition groups
   "defs": { // (1)!

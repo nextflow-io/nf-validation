@@ -32,7 +32,7 @@ So, for CSV sample sheets, the top-level schema should look something like this:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "array",
   "items": {
     "type": "object",

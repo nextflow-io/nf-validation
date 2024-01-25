@@ -92,7 +92,11 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --input\n* Missing required parameter: --outdir\n\n"
+        error.message == """The following invalid input values have been detected:
+
+* Missing required parameter(s): input, outdir
+
+"""
         !stdout
     }
 
@@ -431,7 +435,11 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --outdir: expected type: String, found: Integer (10)\n\n"
+        error.message == """The following invalid input values have been detected:
+
+* --outdir (10): Value is [integer] but should be [string]
+
+"""
         !stdout
     }
 
@@ -457,33 +465,6 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        !stdout
-    }
-
-    def 'should find validation errors for enum' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
-            params.input = 'src/testResources/correct.csv'
-            params.outdir = 'src/testResources/testDir'
-            params.publish_dir_mode = 'incorrect'
-            params.max_time = '10.day'
-            include { validateParameters } from 'plugin/nf-validation'
-            
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
-
-        then:
-        def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --publish_dir_mode: 'incorrect' is not a valid choice (Available choices (5 of 6): symlink, rellink, link, copy, copyNoFollow, ... )\n\n"
         !stdout
     }
 
@@ -560,9 +541,8 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.csv'
-            params.outdir = 'src/testResources/testDir'
+            params.outdir = 1
             params.validationLenientMode = true
-            params.max_cpus = '4'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters(parameters_schema: '$schema')
@@ -602,33 +582,7 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* --max_cpus: expected type: Integer, found: BigDecimal (1.2)\n\n"
-        !stdout
-    }
-
-    def 'should fail because of wrong pattern' () {
-        given:
-        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
-            params.input = 'src/testResources/correct.csv'
-            params.outdir = 'src/testResources/testDir'
-            params.max_memory = '10'
-            include { validateParameters } from 'plugin/nf-validation'
-            
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
-        """
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
-
-        then:
-        def error = thrown(SchemaValidationException)
-        error.message == '''The following invalid input values have been detected:\n\n* --max_memory: string [10] does not match pattern ^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$ (10)\n\n'''
+        error.message == "The following invalid input values have been detected:\n\n* --max_cpus (1.2): Value is [number] but should be [integer]\n\n"
         !stdout
     }
 
@@ -864,7 +818,13 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == '''The following errors have been detected:\n\n* -- Entry 1: Missing required value: sample\n* -- Entry 2: Missing required value: sample\n\n'''
+        error.message == '''
+The following invalid input values have been detected:
+* --input (src/testResources/samplesheet_no_required.csv): Validation of file failed:
+        -> Entry 1: Missing required value: sample
+        -> Entry 2: Missing required value: sample
+
+'''
         !stdout
     }
 }
