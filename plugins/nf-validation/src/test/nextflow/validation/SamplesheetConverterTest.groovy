@@ -317,31 +317,4 @@ class SamplesheetConverterTest extends Dsl2Spec{
         noExceptionThrown()
         stdout.contains("[test1, test2]")
     }
-
-    def 'duplicates' () {
-        given:
-        def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
-
-            params.input = 'src/testResources/duplicate.csv'
-
-            workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
-            }
-        '''
-
-        when:
-        dsl_eval(SCRIPT_TEXT)
-        def stdout = capture
-                .toString()
-                .readLines()
-                .findResults {it.startsWith('[[') ? it : null }
-
-        then:
-        def error = thrown(SchemaValidationException)
-        def errorMessages = error.message.readLines() 
-        errorMessages[0] == "Samplesheet errors:"
-        errorMessages[4] == "\tThe samplesheet contains duplicate rows for entry 2 and entry 3 ([field_4:string1, field_5:25, field_6:false])"
-        !stdout
-    }
 }

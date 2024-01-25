@@ -50,8 +50,7 @@ class SamplesheetConverter {
 
     static List convertToList(
         Path samplesheetFile, 
-        Path schemaFile,
-        Boolean skipDuplicateCheck
+        Path schemaFile
         ) {
 
         def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
@@ -110,11 +109,6 @@ class SamplesheetConverter {
                 }
             }
 
-            // Check for row uniqueness
-            if(!skipDuplicateCheck && this.rows.contains(row)) {
-                def Integer firstDuplicate = this.rows.findIndexOf { it == row }
-                this.errors << "The samplesheet contains duplicate rows for entry ${firstDuplicate + 1} and entry ${getCount()} (${row})".toString()
-            }
             this.rows.add(row)
 
             def Map meta = [:]

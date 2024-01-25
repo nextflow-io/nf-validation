@@ -137,7 +137,6 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Set defaults for optional inputs
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean skipDuplicateCheck = options?.containsKey('skip_duplicate_check') ? options.skip_duplicate_check as Boolean : params.validationSkipDuplicateCheck ? params.validationSkipDuplicateCheck as Boolean : false
 
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
@@ -163,7 +162,7 @@ class SchemaValidator extends PluginExtensionPoint {
         final channel = CH.create()
         def List arrayChannel = []
         try {
-            arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile, skipDuplicateCheck)
+            arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
         } catch (Exception e) {
             log.error(
                 """ Following error has been found during samplesheet conversion:
@@ -203,9 +202,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         }
         if( !params.containsKey("validationSchemaIgnoreParams") ) {
             params.validationSchemaIgnoreParams = false
-        }
-        if( !params.containsKey("validationSkipDuplicateCheck") ) {
-            params.validationSkipDuplicateCheck = false
         }
         if( !params.containsKey("validationS3PathCheck") ) {
             params.validationS3PathCheck = false
@@ -258,7 +254,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
             false
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         log.debug "Starting parameters validation"
-        
+
         // Clean the parameters
         def cleanedParams = cleanParameters(params)
         // Convert to JSONObject
