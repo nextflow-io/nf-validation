@@ -538,7 +538,11 @@ class ValidateParametersTest extends Dsl2Spec{
 
         then:
         def error = thrown(SchemaValidationException)
-        error.message == "The following invalid input values have been detected:\n\n* Missing required parameter: --integer\n* Missing required parameter: --number\n\n"
+        error.message == """The following invalid input values have been detected:
+
+* Missing required parameter(s): number, integer
+
+"""
         !stdout
     }
 
