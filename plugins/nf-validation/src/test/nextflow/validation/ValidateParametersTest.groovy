@@ -723,4 +723,84 @@ class ValidateParametersTest extends Dsl2Spec{
 '''
         !stdout
     }
+
+    def 'should fail because of wrong draft' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_draft7.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            include { validateParameters } from 'plugin/nf-validation'
+
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        !stdout
+    }
+
+    def 'should fail because of existing file' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_exists_false.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.outdir = "src/testResources/"
+            include { validateParameters } from 'plugin/nf-validation'
+
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following invalid input values have been detected:
+
+* --outdir (src/testResources/): the file or directory 'src/testResources/' should not exist
+
+'''
+        !stdout
+    }
+
+    def 'should fail because of non-unique entries' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet_uniqueEntries.json').toAbsolutePath().toString()
+        def  SCRIPT_TEXT = """
+            params.monochrome_logs = true
+            params.input = "src/testResources/samplesheet_non_unique.csv"
+            include { validateParameters } from 'plugin/nf-validation'
+
+            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+        """
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        def error = thrown(SchemaValidationException)
+        error.message == '''The following invalid input values have been detected:
+
+* --input (src/testResources/samplesheet_non_unique.csv): Validation of file failed:
+	-> Entry 3: Detected non-unique combination of the following fields: [sample, fastq_1]
+
+'''
+        !stdout
+    }
+
 }
