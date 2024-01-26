@@ -34,7 +34,7 @@ class SchemaEvaluator implements Evaluator {
         // Actual validation logic
         def Path file = Nextflow.file(value)
         // Don't validate if the file does not exist or is a directory
-        if(!file.exists() && !file.isDirectory()) {
+        if(!file.exists() || file.isDirectory()) {
             log.debug("Could not validate the file ${file.toString()}")
             return Evaluator.Result.success()
         }

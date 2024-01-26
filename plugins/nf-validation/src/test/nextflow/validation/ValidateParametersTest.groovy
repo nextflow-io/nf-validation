@@ -718,6 +718,7 @@ class ValidateParametersTest extends Dsl2Spec{
 * --input (src/testResources/samplesheet_no_required.csv): Validation of file failed:
 \t-> Entry 1: Missing required field(s): sample
 \t-> Entry 2: Missing required field(s): strandedness, sample
+\t-> Entry 3: Missing required field(s): sample
 
 '''
         !stdout
