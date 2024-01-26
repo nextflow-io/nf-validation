@@ -26,6 +26,15 @@ public class JsonSchemaValidator {
 
     JsonSchemaValidator(String schemaString) {
         this.schema = new JSONObject(schemaString)
+        def JSONPointer schemaPointer = new JSONPointer("#/\$schema")
+        def String draft = schemaPointer.queryFrom(this.schema)
+        if(draft != "https://json-schema.org/draft/2020-12/schema") {
+            log.error("""Failed to load the meta schema:
+The used schema draft (${draft}) is not correct, please use \"https://json-schema.org/draft/2020-12/schema\" instead.
+See here for more information: https://json-schema.org/specification#migrating-from-older-drafts
+""")
+            throw new SchemaValidationException("", [])
+        }
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
             // .withDialect() // TODO define the dialect
