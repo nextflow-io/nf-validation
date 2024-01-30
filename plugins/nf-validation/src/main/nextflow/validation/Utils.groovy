@@ -47,6 +47,12 @@ public class Utils {
         def Map types = variableTypes(schemaName, baseDir)
         def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
 
+        if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
+            def msg = "Using \"type\": \"array\" in schema with a \".$fileType\" samplesheet is not supported\n"
+            log.error("ERROR: Validation of pipeline parameters failed!")
+            throw new SchemaValidationException(msg, [])
+        }
+
         if(!containsHeader){
             types = ["empty": types[""]]
         }
