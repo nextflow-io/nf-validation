@@ -15,7 +15,6 @@ import test.OutputCapture
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
- * @author : jorgeaguileraseqera
  */
 class SamplesheetConverterTest extends Dsl2Spec{
 
