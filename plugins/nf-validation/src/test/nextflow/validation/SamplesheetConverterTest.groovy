@@ -77,10 +77,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
-        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.0, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'should work fine - quoted CSV' () {
@@ -104,10 +104,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'should work fine - TSV' () {
@@ -131,10 +131,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'should work fine - YAML' () {
@@ -158,10 +158,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'should work fine - JSON' () {
@@ -185,10 +185,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 
     def 'arrays should work fine - YAML' () {
@@ -212,9 +212,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[array_meta:null], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
-        stdout.contains("[[array_meta:[look, an, array, in, meta]], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
-        stdout.contains("[[array_meta:null], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
+        stdout.contains("[[array_meta:null], [${getRootString()}/src/testResources/testDir/testFile.txt, ${getRootString()}/src/testResources/testDir2/testFile2.txt], [${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir2], [${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[array_meta:[look, an, array, in, meta]], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[array_meta:null], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt], [${getRootString()}/src/testResources/testDir/testFile.txt, ${getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
     }
 
     def 'arrays should work fine - JSON' () {
@@ -238,9 +238,9 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("[[array_meta:null], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2], [${this.getRootString()}/src/testResources/testDir, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
-        stdout.contains("[[array_meta:[look, an, array, in, meta]], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
-        stdout.contains("[[array_meta:null], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${this.getRootString()}/src/testResources/testDir/testFile.txt], [[${this.getRootString()}/src/testResources/testDir/testFile.txt], [${this.getRootString()}/src/testResources/testDir/testFile.txt, ${this.getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
+        stdout.contains("[[array_meta:null], [${getRootString()}/src/testResources/testDir/testFile.txt, ${getRootString()}/src/testResources/testDir2/testFile2.txt], [${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir2], [${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir2/testFile2.txt], [string1, string2], [25, 26], [25, 26.5], [false, true], [1, 2, 3], [true], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[array_meta:[look, an, array, in, meta]], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt]]]" as String)
+        stdout.contains("[[array_meta:null], [], [], [], [string1, string2], [25, 26], [25, 26.5], [], [1, 2, 3], [false, true, false], [${getRootString()}/src/testResources/testDir/testFile.txt], [[${getRootString()}/src/testResources/testDir/testFile.txt], [${getRootString()}/src/testResources/testDir/testFile.txt, ${getRootString()}/src/testResources/testDir2/testFile2.txt]]]" as String)
     }
 
     def 'array errors before channel conversion - YAML' () {
@@ -430,10 +430,10 @@ class SamplesheetConverterTest extends Dsl2Spec{
         then:
         noExceptionThrown()
         stdout.contains("\tThe samplesheet contains following unchecked field(s): [extraField]")
-        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
         stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
-        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${this.getRootString()}/src/testResources/test.txt, ${this.getRootString()}/src/testResources/testDir, [], unique3, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, [], unique3, 1, itDoesExist]" as String)
     }
 
     def 'no meta' () {

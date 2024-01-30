@@ -10,8 +10,7 @@
             "field_1": {
                 "type": "string",
                 "meta": ["string1","string2"],
-                "default": "value",
-                "dependentRequired": ["field_2", "field_3"]
+                "default": "value"
             },
             "field_2": {
                 "type": "integer",
@@ -49,18 +48,23 @@
                 "exists": true
             },
             "field_10": {
-                "type": "string",
-                "unique": true
+                "type": "string"
             },
             "field_11": {
-                "type": "integer",
-                "unique": ["field_10"]
+                "type": "integer"
             },
             "field_12": {
                 "type": "string",
                 "default": "itDoesExist"
             }
         },
-        "required": ["field_4", "field_6"]
-    }
+        "required": ["field_4", "field_6"],
+        "dependentRequired": {
+            "field_1": ["field_2", "field_3"]
+        }
+    },
+    "allOf": [
+        {"uniqueEntries": ["field_11", "field_10"]},
+        {"uniqueEntries": ["field_10"]}
+    ]
 }

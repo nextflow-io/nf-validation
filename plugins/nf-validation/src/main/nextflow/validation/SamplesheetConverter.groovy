@@ -60,29 +60,7 @@ class SamplesheetConverter {
         def Boolean containsHeader = !(allFields.size() == 1 && allFields[0] == "")
 
         def String fileType = Utils.getFileType(samplesheetFile)
-        def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-        def List<Map<String,String>> samplesheetList
-
-        if(fileType == "yaml"){
-            samplesheetList = new Yaml().load((samplesheetFile.text)).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
-        }
-        else if(fileType == "json"){
-            samplesheetList = new JsonSlurper().parseText(samplesheetFile.text).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
-        }
-        else {
-            Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
-            samplesheetList = fileSamplesheet.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
-        }
+        def List<Map<String,String>> samplesheetList = Utils.fileToMaps(samplesheetFile, schemaFile.toString(), Global.getSession().baseDir.toString())
 
         // Field checks + returning the channels
         def Map<String,List<String>> booleanUniques = [:]
