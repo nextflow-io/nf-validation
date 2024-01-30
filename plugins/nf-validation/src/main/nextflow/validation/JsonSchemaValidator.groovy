@@ -16,6 +16,10 @@ import dev.harrel.jsonschema.providers.OrgJsonNode
 import java.util.regex.Pattern
 import java.util.regex.Matcher
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 @CompileStatic
 public class JsonSchemaValidator {

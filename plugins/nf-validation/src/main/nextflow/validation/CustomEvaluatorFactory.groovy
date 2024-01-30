@@ -6,6 +6,10 @@ import dev.harrel.jsonschema.Evaluator
 import dev.harrel.jsonschema.SchemaParsingContext
 import dev.harrel.jsonschema.JsonNode
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 class CustomEvaluatorFactory implements EvaluatorFactory {
 
     private Boolean lenientMode

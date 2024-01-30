@@ -8,6 +8,10 @@ import nextflow.Nextflow
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 class ExistsEvaluator implements Evaluator {
     // The file should or should not exist

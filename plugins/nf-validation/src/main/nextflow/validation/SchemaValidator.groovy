@@ -27,6 +27,12 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import org.yaml.snakeyaml.Yaml
 
+/**
+ * @author : mirpedrol <mirp.julia@gmail.com>
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ * @author : KevinMenden
+ */
+
 @Slf4j
 @CompileStatic
 class SchemaValidator extends PluginExtensionPoint {

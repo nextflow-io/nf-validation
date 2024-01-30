@@ -10,6 +10,10 @@ import groovy.json.JsonBuilder
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 class UniqueEntriesEvaluator implements Evaluator {
     // Combinations of these columns should be unique

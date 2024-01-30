@@ -22,6 +22,12 @@ import nextflow.Nextflow
 import nextflow.plugin.extension.Function
 import nextflow.Session
 
+/**
+ * @author : mirpedrol <mirp.julia@gmail.com>
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ * @author : awgymer
+ */
+
 @Slf4j
 @CompileStatic
 class SamplesheetConverter {

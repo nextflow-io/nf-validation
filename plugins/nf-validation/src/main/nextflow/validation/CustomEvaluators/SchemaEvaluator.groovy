@@ -12,6 +12,10 @@ import groovy.util.logging.Slf4j
 import java.nio.file.Path
 import java.nio.file.Files
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 class SchemaEvaluator implements Evaluator {
     // Evaluate the file using the given schema

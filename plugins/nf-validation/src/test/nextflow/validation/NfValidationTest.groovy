@@ -12,8 +12,9 @@ import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
 /**
- * @author : jorge <jorge.aguilera@seqera.io>
- *
+ * @author : mirpedrol <mirp.julia@gmail.com>
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ * @author : jorgeaguileraseqera
  */
 class NfValidationTest extends Dsl2Spec{
 

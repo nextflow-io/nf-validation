@@ -8,6 +8,10 @@ import nextflow.Nextflow
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 class FormatDirectoryPathEvaluator implements Evaluator {
     // The string should be a directory

@@ -12,6 +12,10 @@ import java.util.stream.Collectors
 import static java.util.Collections.singleton
 import static java.util.Collections.unmodifiableList
 
+/**
+ * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
+ */
+
 @Slf4j
 class LenientTypeEvaluator implements Evaluator {
     // Validate against the type
