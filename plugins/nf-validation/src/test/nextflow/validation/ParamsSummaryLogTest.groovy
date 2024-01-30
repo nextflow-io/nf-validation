@@ -15,7 +15,7 @@ import test.OutputCapture
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
- * @author : jorgeaguileraseqera
+ * @author : KevinMenden
  */
 class ParamsSummaryLogTest extends Dsl2Spec{
 
