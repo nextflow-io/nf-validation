@@ -97,18 +97,19 @@ class SamplesheetConverter {
         def Boolean headerCheck = true
         this.rows = []
         resetCount()
+
         def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
             increaseCount()
 
-            Map<String,String> row = fullRow.findAll { it.value != "" }
+            Map<String,Object> row = fullRow.findAll { it.value != "" }
             def Set rowKeys = containsHeader ? row.keySet() : ["empty"].toSet()
-            def String yamlInfo = fileType == "yaml" ? " for entry ${this.getCount()}." : ""
+            def String entryInfo = fileType in ["yaml", "json"] ? " for entry ${this.getCount()}." : ""
 
             // Check the header (CSV/TSV) or present fields (YAML)
             if(headerCheck) {
                 def unexpectedFields = containsHeader ? rowKeys - allFields : []
                 if(unexpectedFields.size() > 0) {
-                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
+                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${entryInfo}".toString()
                 }
 
                 if(fileType != 'yaml'){
@@ -128,7 +129,7 @@ class SamplesheetConverter {
 
             for( Map.Entry<String, Map> field : schemaFields ){
                 def String key = containsHeader ? field.key : "empty"
-                def String input = row[key]
+                def Object input = row[key]
 
                 // Check if the field is deprecated
                 if(field['value']['deprecated']){
@@ -159,7 +160,7 @@ class SamplesheetConverter {
                     if(input in booleanUniques[key] && input){
                         this.errors << addSample("The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString())
                     }
-                    booleanUniques[key].add(input)
+                    booleanUniques[key].add(input as String)
                 }
                 else if(unique && uniqueIsList) {
                     def Map<String,String> newMap = (Map) row.subMap((List) [key] + (List) unique)
@@ -176,20 +177,20 @@ class SamplesheetConverter {
                 def List<String> metaNames = field['value']['meta'] as List<String>
                 if(metaNames) {
                     for(name : metaNames) {
-                        meta[name] = (input != '' && input) ? 
-                                castToType(input, field) : 
-                            field['value']['default'] != null ? 
-                                castToType(field['value']['default'] as String, field) : 
+                        meta[name] = (input != '' && input != null) ?
+                                castToNFType(input, field) :
+                            field['value']['default'] != null ?
+                                castToNFType(field['value']['default'], field) :
                                 null
                     }
                 }
                 else {
-                    def inputFile = (input != '' && input) ? 
-                            castToType(input, field) : 
-                        field['value']['default'] != null ? 
-                            castToType(field['value']['default'] as String, field) : 
+                    def inputVal = (input != '' && input != null) ?
+                            castToNFType(input, field) :
+                        field['value']['default'] != null ?
+                            castToNFType(field['value']['default'], field) :
                             []
-                    output.add(inputFile)
+                    output.add(inputVal)
                 }
             }
             // Add meta to the output when a meta field has been created
@@ -253,26 +254,36 @@ class SamplesheetConverter {
     }
 
     // Function to transform an input field from the samplesheet to its desired type
-    private static castToType(
-        String input,
+    private static castToNFType(
+        Object input,
         Map.Entry<String, Map> field
     ) {
         def String type = field['value']['type']
         def String key = field.key
 
+        // Recursively call this function for each item in the array if the field is an array-type
+        // The returned values are collected into a single array
+        if (type == "array") {
+            def Map.Entry<String, Map> subfield = (Map.Entry<String, Map>) Map.entry(field.key, field['value']['items'])
+            log.debug "subfield = $subfield"
+            def ArrayList result = input.collect{ castToNFType(it, subfield) } as ArrayList
+            return result
+        }
+
+        def String inputStr = input as String
         // Convert string values
         if(type == "string" || !type) {
-            def String result = input as String
+            def String result = inputStr as String
             
             // Check and convert to the desired format
             def String format = field['value']['format']
             if(format) {
                 if(format == "file-path-pattern") {
-                    def ArrayList inputFiles = Nextflow.file(input) as ArrayList
+                    def ArrayList inputFiles = Nextflow.file(inputStr) as ArrayList
                     return inputFiles
                 }
                 if(format.contains("path")) {
-                    def Path inputFile = Nextflow.file(input) as Path
+                    def Path inputFile = Nextflow.file(inputStr) as Path
                     return inputFile
                 }
             }
@@ -285,7 +296,7 @@ class SamplesheetConverter {
         // Convert number values
         else if(type == "number") {
             try {
-                def int result = input as int
+                def int result = inputStr as int
                 return result
             }
             catch (NumberFormatException e) {
@@ -293,28 +304,28 @@ class SamplesheetConverter {
             }
 
             try {
-                def float result = input as float
+                def float result = inputStr as float
                 return result
             }
             catch (NumberFormatException e) {
-                log.debug("Could not convert ${input} to a float. Trying to convert to a double.")
+                log.debug("Could not convert ${inputStr} to a float. Trying to convert to a double.")
             }
             
-            def double result = input as double
+            def double result = inputStr as double
             return result
         }
 
         // Convert integer values
         else if(type == "integer") {
 
-            def int result = input as int
+            def int result = inputStr as int
             return result
         }
 
         // Convert boolean values
         else if(type == "boolean") {
 
-            if(input.toLowerCase() == "true") {
+            if(inputStr.toLowerCase() == "true") {
                 return true
             }
             return false

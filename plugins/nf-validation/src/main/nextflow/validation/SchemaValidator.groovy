@@ -184,15 +184,21 @@ class SchemaValidator extends PluginExtensionPoint {
         def String fileType = SamplesheetConverter.getFileType(samplesheetFile)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
         def List<Map<String,String>> fileContent
+        def List<Map<String,String>> fileContentCasted
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         def Map types = variableTypes(schemaFile.toString(), baseDir)
+        if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
+            def msg = "Using \"type\": \"array\" in schema with a \".$fileType\" samplesheet is not supported\n"
+            log.error("ERROR: Validation of pipeline parameters failed!")
+            throw new SchemaValidationException(msg, [])
+        }
         def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
 
         if(!containsHeader){
             types = ["empty": types[""]]
         }
         if(fileType == "yaml"){
-            fileContent = new Yaml().load((samplesheetFile.text)).collect {
+            fileContentCasted = new Yaml().load((samplesheetFile.text)).collect {
                 if(containsHeader) {
                     return it as Map
                 }
@@ -200,7 +206,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         else if(fileType == "json"){
-            fileContent = new JsonSlurper().parseText(samplesheetFile.text).collect {
+            fileContentCasted = new JsonSlurper().parseText(samplesheetFile.text).collect {
                 if(containsHeader) {
                     return it as Map
                 }
@@ -209,8 +215,8 @@ class SchemaValidator extends PluginExtensionPoint {
         }
         else {
             fileContent = samplesheetFile.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
+            fileContentCasted = castToType(fileContent, types)
         }
-        def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
         if (validateFile(false, samplesheetFile.toString(), fileContentCasted, schemaFile.toString(), baseDir, s3PathCheck)) {
             log.debug "Validation passed: '$samplesheetFile' with '$schemaFile'"
         }
@@ -430,7 +436,13 @@ class SchemaValidator extends PluginExtensionPoint {
                     def String fileType = SamplesheetConverter.getFileType(file_path)
                     def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
                     def List<Map<String,String>> fileContent
+                    def List<Map<String,String>> fileContentCasted
                     def Map types = variableTypes(schema_name, baseDir)
+                    if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
+                        def msg = "${colors.red}Using {\"type\": \"array\"} in schema with a \".$fileType\" samplesheet is not supported${colors.reset}\n"
+                        log.error("ERROR: Validation of pipeline parameters failed!")
+                        throw new SchemaValidationException(msg, [])
+                    }
                     def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
 
                     if(!containsHeader){
@@ -438,7 +450,7 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
 
                     if(fileType == "yaml"){
-                        fileContent = new Yaml().load(file_path.text).collect {
+                        fileContentCasted = new Yaml().load(file_path.text).collect {
                             if(containsHeader) {
                                 return it as Map
                             }
@@ -446,7 +458,7 @@ class SchemaValidator extends PluginExtensionPoint {
                         }
                     }
                     else if(fileType == "json"){
-                        fileContent = new JsonSlurper().parseText(file_path.text).collect {
+                        fileContentCasted = new JsonSlurper().parseText(file_path.text).collect {
                             if(containsHeader) {
                                 return it as Map
                             }
@@ -455,8 +467,8 @@ class SchemaValidator extends PluginExtensionPoint {
                     }
                     else {
                         fileContent = file_path.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
+                        fileContentCasted = castToType(fileContent, types)
                     }
-                    def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
                     if (validateFile(useMonochromeLogs, key, fileContentCasted, schema_name, baseDir, s3PathCheck)) {
                         log.debug "Validation passed: '$key': '$file_path' with '$schema_name'"
                     }
@@ -554,6 +566,8 @@ class SchemaValidator extends PluginExtensionPoint {
         Boolean monochrome_logs, String paramName, Object fileContent, String schemaFilename, String baseDir, Boolean s3PathCheck = false
     
     ) {
+        // declare this once for the method
+        def colors = logColours(monochrome_logs)
 
         // Load the schema
         def String schema_string = Files.readString( Path.of(getSchemaPath(baseDir, schemaFilename)) )
@@ -591,7 +605,10 @@ class SchemaValidator extends PluginExtensionPoint {
         pathsToCheck.each { String fieldName ->
             for (int i=0; i < arrayJSON.size(); i++) {
                 def JSONObject entry = arrayJSON.getJSONObject(i)
-                if ( entry.has(fieldName) ) {
+                if ( entry.has(fieldName) && entry[fieldName] instanceof JSONArray ) {
+                    entry[fieldName].collect{ pathExists(it.toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck) }
+                }
+                else if ( entry.has(fieldName) ) {
                     pathExists(entry[fieldName].toString(), " Entry ${(i+1).toString()} - ${fieldName.toString()}", s3PathCheck)
                 }
             }
@@ -607,13 +624,11 @@ class SchemaValidator extends PluginExtensionPoint {
             validator.performValidation(schema, arrayJSON);
             if (this.hasErrors()) {
                 // Needed for custom errors such as pathExists() errors
-                def colors = logColours(monochrome_logs)
                 def msg = "${colors.red}The following errors have been detected:\n\n" + this.getErrors().join('\n').trim() + "\n${colors.reset}\n"
                 log.error("ERROR: Validation of '$paramName' file failed!")
                 throw new SchemaValidationException(msg, this.getErrors())
             }
         } catch (ValidationException e) {
-            def colors = logColours(monochrome_logs)
             JSONObject exceptionJSON = (JSONObject) e.toJSON()
             JSONObject objectJSON = new JSONObject();
             objectJSON.put("objects",arrayJSON);            
@@ -651,7 +666,10 @@ class SchemaValidator extends PluginExtensionPoint {
             def Map properties = (Map) group.value['properties']
             for (p in properties) {
                 def String key = (String) p.key
-                def Map property = properties[key] as Map
+                def Map<String,Object> property = properties[key] as Map
+                if(property.containsKey('items')){
+                    property = property.items as Map
+                }
                 if (property.containsKey('exists') && property.containsKey('format')) {
                     if (property['exists'] && (property['format'] == 'file-path' || property['format'] == 'directory-path' || property['format'] == 'path') ) {
                         exists.push(key)
