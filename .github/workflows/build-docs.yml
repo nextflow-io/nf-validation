@@ -16,11 +16,13 @@ jobs:
         with:
           python-version: 3.x
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - name: Obtain version from MANIFEST.MF
+        run: echo "plugin_version=$(grep "Plugin-Version" plugins/nf-validation/src/resources/META-INF/MANIFEST.MF | awk '{print $2}' | awk -F '.' '{print $1"."$2}')" >> $GITHUB_ENV
       - uses: actions/cache@v3
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material pymdown-extensions pillow cairosvg
-      - run: mkdocs gh-deploy --force
+      - run: pip install mkdocs-material pymdown-extensions pillow cairosvg mike
+      - run: mike deploy --push --update-aliases ${{ env.plugin_version }} latest
