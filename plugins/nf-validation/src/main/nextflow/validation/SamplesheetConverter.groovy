@@ -32,163 +32,66 @@ import nextflow.Session
 @CompileStatic
 class SamplesheetConverter {
 
-    private static List<String> errors = []
-    private static List<String> schemaErrors = []
-    private static List<String> warnings = []
-
     private static List<Map> rows = []
 
-    static boolean hasErrors() { errors.size()>0 }
-    static Set<String> getErrors() { errors.sort().collect { "\t${it}".toString() } as Set }
+    static List convertToList(Path samplesheetFile, Path schemaFile, Boolean header) {
 
-    static boolean hasSchemaErrors() { schemaErrors.size()>0 }
-    static Set<String> getSchemaErrors() { schemaErrors.sort().collect { "\t${it}".toString() } as Set }
+        def JSONObject schemaMap = new JSONObject(schemaFile.text)
+        def JSONArray samplesheetList = Utils.fileToJsonArray(samplesheetFile, schemaFile)
 
-    static boolean hasWarnings() { warnings.size()>0 }
-    static Set<String> getWarnings() { warnings.sort().collect { "\t${it}".toString() } as Set }
-
-    private static Integer sampleCount = 0
-
-    static resetCount(){ sampleCount = 0 }
-    static increaseCount(){ sampleCount++ }
-    static Integer getCount(){ sampleCount }
-
-
-    static List convertToList(
-        Path samplesheetFile, 
-        Path schemaFile
-        ) {
-
-        def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
-        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
-        def Set<String> allFields = schemaFields.keySet()
-        def List<String> requiredFields = (List) schemaMap["items"]["required"]
-        def Boolean containsHeader = !(allFields.size() == 1 && allFields[0] == "")
-
-        def String fileType = Utils.getFileType(samplesheetFile)
-        def List<Map<String,String>> samplesheetList = Utils.fileToMaps(samplesheetFile, schemaFile.toString(), Global.getSession().baseDir.toString())
-
-        // Field checks + returning the channels
-        def Map<String,List<String>> booleanUniques = [:]
-        def Map<String,List<Map<String,String>>> listUniques = [:]
-        def Boolean headerCheck = true
         this.rows = []
-        resetCount()
 
-        def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
-            increaseCount()
+        def Iterator<Object> samplesheetIterator = samplesheetList.iterator()
 
-            Map<String,Object> row = fullRow.findAll { it.value != "" }
-            def Set rowKeys = containsHeader ? row.keySet() : ["empty"].toSet()
-            def String entryInfo = fileType in ["yaml", "json"] ? " for entry ${this.getCount()}." : ""
+        while (samplesheetIterator.hasNext()) {
+            println(samplesheetIterator.next())
+        }
+
+        // def List outputs = samplesheetList.collect { fullRow ->
+
+        //     println(fullrow.getClass())
+
+            // def Map<String,Object> row = fullRow.findAll { it.value != "" }
+            // def Set rowKeys = header ? row.keySet() : ["empty"].toSet()
 
             // Check the header (CSV/TSV) or present fields (YAML)
-            if(headerCheck) {
-                def unexpectedFields = containsHeader ? rowKeys - allFields : []
-                if(unexpectedFields.size() > 0) {
-                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${entryInfo}".toString()
-                }
+            // TODO reimplement warning for unused fields
 
-                if(fileType != 'yaml'){
-                    headerCheck = false
-                }
-            }
+            // this.rows.add(row)
 
-            this.rows.add(row)
+            // def Map meta = [:]
+            // def ArrayList output = []
 
-            def Map meta = [:]
-            def ArrayList output = []
+            // for( Map.Entry<String, Map> field : schemaFields ){
+            //     def String key = header ? field.key : "empty"
+            //     def Object input = row[key]
 
-            for( Map.Entry<String, Map> field : schemaFields ){
-                def String key = containsHeader ? field.key : "empty"
-                def Object input = row[key]
+            //     // Convert field to a meta field or add it as an input to the channel
+            //     def List<String> metaNames = field['value']['meta'] as List<String>
+            //     if(metaNames) {
+            //         for(name : metaNames) {
+            //             meta[name] = (input != '' && input != null) ?
+            //                     castToNFType(input, field) :
+            //                 field['value']['default'] != null ?
+            //                     castToNFType(field['value']['default'], field) :
+            //                     null
+            //         }
+            //     }
+            //     else {
+            //         def inputVal = (input != '' && input != null) ?
+            //                 castToNFType(input, field) :
+            //             field['value']['default'] != null ?
+            //                 castToNFType(field['value']['default'], field) :
+            //                 []
+            //         output.add(inputVal)
+            //     }
+            // }
+            // // Add meta to the output when a meta field has been created
+            // if(meta != [:]) { output.add(0, meta) }
+        //     return []
+        // }
 
-                // Check if the field is deprecated
-                if(field['value']['deprecated']){
-                    this.warnings << "The '${key}' field is deprecated and will no longer be used in the future. Please check the official documentation of the pipeline for more information.".toString()
-                }
-
-                // Check required dependencies
-                def List<String> dependencies = field['value']["dependentRequired"] as List<String>
-                if(input && dependencies) {
-                    def List<String> missingValues = []
-                    for( dependency in dependencies ){
-                        if(row[dependency] == "" || !(row[dependency])) {
-                            missingValues.add(dependency)
-                        }
-                    }
-                    if (missingValues) {
-                        this.errors << addSample("${dependencies} field(s) should be defined when '${key}' is specified, but the field(s) ${missingValues} is/are not defined.".toString())
-                    }
-                }
-                
-                // Check if the field is unique
-                def unique = field['value']['unique']
-                def Boolean uniqueIsList = unique instanceof ArrayList
-                if(unique && !uniqueIsList){
-                    if(!(key in booleanUniques)){
-                        booleanUniques[key] = []
-                    }
-                    if(input in booleanUniques[key] && input){
-                        this.errors << addSample("The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString())
-                    }
-                    booleanUniques[key].add(input as String)
-                }
-                else if(unique && uniqueIsList) {
-                    def Map<String,String> newMap = (Map) row.subMap((List) [key] + (List) unique)
-                    if(!(key in listUniques)){
-                        listUniques[key] = []
-                    }
-                    if(newMap in listUniques[key] && input){
-                        this.errors << addSample("The combination of '${key}' with fields ${unique} needs to be unique. ${newMap} was found at least twice.".toString())
-                    }
-                    listUniques[key].add(newMap)
-                }
-
-                // Convert field to a meta field or add it as an input to the channel
-                def List<String> metaNames = field['value']['meta'] as List<String>
-                if(metaNames) {
-                    for(name : metaNames) {
-                        meta[name] = (input != '' && input != null) ?
-                                castToNFType(input, field) :
-                            field['value']['default'] != null ?
-                                castToNFType(field['value']['default'], field) :
-                                null
-                    }
-                }
-                else {
-                    def inputVal = (input != '' && input != null) ?
-                            castToNFType(input, field) :
-                        field['value']['default'] != null ?
-                            castToNFType(field['value']['default'], field) :
-                            []
-                    output.add(inputVal)
-                }
-            }
-            // Add meta to the output when a meta field has been created
-            if(meta != [:]) { output.add(0, meta) }
-            return output
-        }
-
-        // check for samplesheet errors
-        if (this.hasErrors()) {
-            String message = "Samplesheet errors:\n" + this.getErrors().join("\n")
-            throw new SchemaValidationException(message, this.getErrors() as List)
-        }
-
-        // check for schema errors
-        if (this.hasSchemaErrors()) {
-            String message = "Samplesheet schema errors:\n" + this.getSchemaErrors().join("\n")
-            throw new SchemaValidationException(message, this.getSchemaErrors() as List)
-        }
-
-        // check for warnings
-        if( this.hasWarnings() ) {
-            def msg = "Samplesheet warnings:\n" + this.getWarnings().join('\n')
-            log.warn(msg)
-        }
-
-        return outputs
+        return []
     }
 
     // Function to transform an input field from the samplesheet to its desired type
@@ -274,9 +177,4 @@ class SamplesheetConverter {
         }
     }
 
-    private static String addSample (
-        String message
-    ) {
-        return "Entry ${this.getCount()}: ${message}".toString()
-    }
 }

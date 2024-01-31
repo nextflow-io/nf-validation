@@ -4,8 +4,6 @@ import groovy.util.logging.Slf4j
 import groovy.transform.CompileStatic
 import org.json.JSONObject
 import org.json.JSONArray
-import org.json.JSONPointer
-import org.json.JSONPointerException
 import dev.harrel.jsonschema.ValidatorFactory
 import dev.harrel.jsonschema.Validator
 import dev.harrel.jsonschema.EvaluatorFactory
@@ -30,8 +28,7 @@ public class JsonSchemaValidator {
 
     JsonSchemaValidator(String schemaString) {
         this.schema = new JSONObject(schemaString)
-        def JSONPointer schemaPointer = new JSONPointer("#/\$schema")
-        def String draft = schemaPointer.queryFrom(this.schema)
+        def String draft = Utils.getValueFromJson("#/\$schema", this.schema)
         if(draft != "https://json-schema.org/draft/2020-12/schema") {
             log.error("""Failed to load the meta schema:
 The used schema draft (${draft}) is not correct, please use \"https://json-schema.org/draft/2020-12/schema\" instead.
@@ -56,18 +53,11 @@ See here for more information: https://json-schema.org/specification#migrating-f
             }
 
             def String instanceLocation = error.getInstanceLocation()
-            def JSONPointer pointer = new JSONPointer(instanceLocation)
-            def String value = pointer.queryFrom(rawJson)
+            def String value = Utils.getValueFromJson(instanceLocation, rawJson)
 
             // Get the errorMessage if there is one
             def String schemaLocation = error.getSchemaLocation().replaceFirst(/^[^#]+/, "")
-            def JSONPointer schemaPointer = new JSONPointer("${schemaLocation}/errorMessage")
-            def String customError = ""
-            try{
-                customError = schemaPointer.queryFrom(this.schema) ?: ""
-            } catch (JSONPointerException e) {
-                customError = ""
-            }
+            def String customError = Utils.getValueFromJson("${schemaLocation}/errorMessage", this.schema)
 
             // Change some error messages to make them more clear
             if (customError == "") {
