@@ -123,11 +123,11 @@ public class Utils {
     }
 
     // Resolve Schema path relative to main workflow directory
-    public static String getSchemaPath(String schemaFilename='nextflow_schema.json') {
+    public static String getSchemaPath(String baseDir, String schemaFilename='nextflow_schema.json') {
         if (Path.of(schemaFilename).exists()) {
             return schemaFilename
         } else {
-            return "${Global.getSession().baseDir.toString()}/${schemaFilename}"
+            return "${baseDir}/${schemaFilename}"
         }
     }
 
@@ -193,7 +193,7 @@ public class Utils {
     }
 
     // Function to get the value from a JSON pointer
-    public static String getValueFromJson(String jsonPointer, Object json) {
+    public static Object getValueFromJson(String jsonPointer, Object json) {
         def JSONPointer schemaPointer = new JSONPointer(jsonPointer)
         try {
             return schemaPointer.queryFrom(json) ?: ""

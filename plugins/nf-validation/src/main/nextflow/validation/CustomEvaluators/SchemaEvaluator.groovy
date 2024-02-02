@@ -21,8 +21,10 @@ class SchemaEvaluator implements Evaluator {
     // Evaluate the file using the given schema
 
     private final String schema
+    private final String baseDir
 
-    SchemaEvaluator(String schema) {
+    SchemaEvaluator(String schema, String baseDir) {
+        this.baseDir = baseDir
         this.schema = schema
     }
 
@@ -45,7 +47,7 @@ class SchemaEvaluator implements Evaluator {
 
         log.debug("Started validating ${file.toString()}")
 
-        def String schemaFull = Utils.getSchemaPath(this.schema)
+        def String schemaFull = Utils.getSchemaPath(this.baseDir, this.schema)
         def JSONArray arrayJSON = Utils.fileToJsonArray(file, Path.of(schemaFull))
         def String schemaContents = Files.readString( Path.of(schemaFull) )
         def validator = new JsonSchemaValidator(schemaContents)
