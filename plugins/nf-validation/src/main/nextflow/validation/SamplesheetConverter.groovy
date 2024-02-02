@@ -71,6 +71,7 @@ class SamplesheetConverter {
         return channelFormat
     }
 
+    // TODO add path casting
     private static Object formatEntry(Object input, LinkedHashMap schema) {
 
         if (input instanceof Map) {
@@ -84,20 +85,40 @@ class SamplesheetConverter {
                         addMeta(["${it}":value])
                     }
                 } else {
-                    result += [formatEntry(value, schemaValues as LinkedHashMap)]                
+                    result.add(formatEntry(value, schemaValues as LinkedHashMap))
                 }
             }
             return result
         } else if (input instanceof List) {
             def List result = []
             input.each {
-                result += [formatEntry(it, schema["items"] as LinkedHashMap)]
+                result.add(formatEntry(it, schema["items"] as LinkedHashMap))
             }
             return result
         } else {
+            def List formats = getPathFormats(schema)
+            if (formats && input instanceof String) {
+                return Nextflow.file(input)
+            }
             return input
         }
 
+    }
+
+    private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
+
+    private static List getPathFormats(Map schemaEntry) {
+        def List formats = []
+        formats.add(schemaEntry.format ?: [])
+        def List options = ["anyOf", "oneOf", "allOf"]
+        options.each { option ->
+            if(schemaEntry[option]) {
+                schemaEntry[option].each {
+                    formats.add(it["format"] ?: [])
+                }
+            }
+        }
+        return formats.findAll { it != [] && this.validPathFormats.contains(it) }
     }
 
 }
