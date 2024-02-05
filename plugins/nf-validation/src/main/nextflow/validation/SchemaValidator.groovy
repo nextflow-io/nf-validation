@@ -171,7 +171,8 @@ class SchemaValidator extends PluginExtensionPoint {
         def List arrayChannel = []
         // TODO turn this back on when done
         // try {
-            arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+            SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
+            arrayChannel = converter.convertToList()
 //         } catch (Exception e) {
 //             log.error(
 //                 """ Following error has been found during samplesheet conversion:

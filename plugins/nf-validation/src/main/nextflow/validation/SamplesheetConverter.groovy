@@ -32,6 +32,14 @@ import nextflow.Session
 @CompileStatic
 class SamplesheetConverter {
 
+    private static Path samplesheetFile
+    private static Path schemaFile
+
+    SamplesheetConverter(Path samplesheetFile, Path schemaFile) {
+        this.samplesheetFile = samplesheetFile
+        this.schemaFile = schemaFile
+    }
+
     private static List<Map> rows = []
     private static Map meta = [:]
 
@@ -51,10 +59,24 @@ class SamplesheetConverter {
         this.meta.size() > 0
     }
 
-    public static List convertToList(Path samplesheetFile, Path schemaFile) {
+    private static List unusedHeaders = []
 
-        def LinkedHashMap schemaMap = new JsonSlurper().parseText(schemaFile.text) as LinkedHashMap
-        def List samplesheetList = Utils.fileToList(samplesheetFile, schemaFile)
+    private static addUnusedHeader (String header) {
+        this.unusedHeaders.add(header)
+    }
+
+    private static logUnusedHeadersWarning(String fileName) {
+        def Set unusedHeaders = this.unusedHeaders as Set
+        if(unusedHeaders.size() > 0) {
+            def String processedHeaders = unusedHeaders.collect { "\t- ${it}" }.join("\n")
+            log.warn("Found the following unidentified headers in ${fileName}:\n${processedHeaders}" as String)
+        }
+    }
+
+    public static List convertToList() {
+
+        def LinkedHashMap schemaMap = new JsonSlurper().parseText(this.schemaFile.text) as LinkedHashMap
+        def List samplesheetList = Utils.fileToList(this.samplesheetFile, this.schemaFile)
 
         this.rows = []
 
@@ -68,15 +90,18 @@ class SamplesheetConverter {
             }
             return result
         }
+        logUnusedHeadersWarning(this.samplesheetFile.toString())
         return channelFormat
     }
 
-    // TODO add path casting
-    private static Object formatEntry(Object input, LinkedHashMap schema) {
+    // TODO add warning for headers that aren't in the schema
+    private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
 
         if (input instanceof Map) {
             def List result = []
             def LinkedHashMap properties = schema["properties"]
+            def Set unusedKeys = input.keySet() - properties.keySet()
+            unusedKeys.each{addUnusedHeader("${headerPrefix}${it}" as String)}
             properties.each { property, schemaValues ->
                 def value = input[property] ?: []
                 def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
@@ -85,14 +110,18 @@ class SamplesheetConverter {
                         addMeta(["${it}":value])
                     }
                 } else {
-                    result.add(formatEntry(value, schemaValues as LinkedHashMap))
+                    def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
+                    result.add(formatEntry(value, schemaValues as LinkedHashMap, prefix))
                 }
             }
             return result
         } else if (input instanceof List) {
             def List result = []
+            def Integer count = 0
             input.each {
-                result.add(formatEntry(it, schema["items"] as LinkedHashMap))
+                def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
+                result.add(formatEntry(it, schema["items"] as LinkedHashMap, prefix))
+                count++
             }
             return result
         } else {
