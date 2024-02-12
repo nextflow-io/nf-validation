@@ -169,20 +169,19 @@ class SchemaValidator extends PluginExtensionPoint {
         // Convert to channel
         final channel = CH.create()
         def List arrayChannel = []
-        // TODO turn this back on when done
-        // try {
+        try {
             SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
             arrayChannel = converter.convertToList()
-//         } catch (Exception e) {
-//             log.error(
-//                 """ Following error has been found during samplesheet conversion:
-//     ${e}
+        } catch (Exception e) {
+            log.error(
+                """ Following error has been found during samplesheet conversion:
+    ${e}
 
-// Please run validateParameters() first before trying to convert a samplesheet to a channel.
-// Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
-// """ as String
-//             )
-//         }
+Please run validateParameters() first before trying to convert a samplesheet to a channel.
+Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
+""" as String
+            )
+        }
 
         session.addIgniter {
             arrayChannel.each { 

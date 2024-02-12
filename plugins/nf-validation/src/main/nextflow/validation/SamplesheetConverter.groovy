@@ -135,29 +135,60 @@ class SamplesheetConverter {
             return result
         } else {
             // Cast value to path type if needed and return the value
-            def List formats = getPathFormats(schema)
-            if (formats && input instanceof String) {
-                return Nextflow.file(input)
-            }
-            return input
+            return castToFormat(input, schema)
         }
 
     }
 
     private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
+    private static List schemaOptions = ["anyOf", "oneOf", "allOf"]
 
-    private static List getPathFormats(Map schemaEntry) {
-        def List formats = []
-        formats.add(schemaEntry.format ?: [])
-        def List options = ["anyOf", "oneOf", "allOf"]
-        options.each { option ->
-            if(schemaEntry[option]) {
-                schemaEntry[option].each {
-                    formats.add(it["format"] ?: [])
+    private static Object castToFormat(Object value, Map schemaEntry) {
+        if(!(value instanceof String)) {
+            return value
+        }
+
+        // A valid path format has been found in the schema
+        def Boolean foundStringFileFormat = false
+
+        // Type string has been found without a valid path format
+        def Boolean foundStringNoFileFormat = false
+
+        if ((schemaEntry.type ?: "") == "string") {
+            if (validPathFormats.contains(schemaEntry.format ?: "")) {
+                foundStringFileFormat = true
+            } else {
+                foundStringNoFileFormat = true
+            }
+        }
+
+        schemaOptions.each { option ->
+            schemaEntry[option]?.each { subSchema ->
+                if ((subSchema["type"] ?: "" ) == "string") {
+                    if (validPathFormats.contains(subSchema["format"] ?: "")) {
+                        foundStringFileFormat = true
+                    } else {
+                        foundStringNoFileFormat = true
+                    }
                 }
             }
         }
-        return formats.findAll { it != [] && this.validPathFormats.contains(it) }
+
+        if(foundStringFileFormat && !foundStringNoFileFormat) {
+            return Nextflow.file(value)
+        } else if(foundStringFileFormat && foundStringNoFileFormat) {
+            // Do a simple check if the object could be a path
+            // This check looks for / in the filename or if a dot is
+            // present in the last 7 characters (possibly indicating an extension)
+            if(
+                value.contains("/") || 
+                (value.size() >= 7 && value[-7..-1].contains(".")) || 
+                (value.size() < 7 && value.contains("."))
+            ) {
+                return Nextflow.file(value)
+            }
+        }
+        return value
     }
 
 }
