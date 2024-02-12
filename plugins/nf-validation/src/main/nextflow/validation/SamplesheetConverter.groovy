@@ -101,15 +101,23 @@ class SamplesheetConverter {
             def List result = []
             def LinkedHashMap properties = schema["properties"]
             def Set unusedKeys = input.keySet() - properties.keySet()
+            
+            // Check for properties in the samplesheet that have not been defined in the schema
             unusedKeys.each{addUnusedHeader("${headerPrefix}${it}" as String)}
+
+            // Loop over every property to maintain the correct order
             properties.each { property, schemaValues ->
                 def value = input[property] ?: []
                 def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
+                
+                // Add the value to the meta map if needed
                 if (metaIds) {
                     metaIds.each {
                         addMeta(["${it}":value])
                     }
-                } else {
+                } 
+                // return the correctly casted value
+                else {
                     def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
                     result.add(formatEntry(value, schemaValues as LinkedHashMap, prefix))
                 }
@@ -119,12 +127,14 @@ class SamplesheetConverter {
             def List result = []
             def Integer count = 0
             input.each {
+                // return the correctly casted value
                 def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
                 result.add(formatEntry(it, schema["items"] as LinkedHashMap, prefix))
                 count++
             }
             return result
         } else {
+            // Cast value to path type if needed and return the value
             def List formats = getPathFormats(schema)
             if (formats && input instanceof String) {
                 return Nextflow.file(input)
