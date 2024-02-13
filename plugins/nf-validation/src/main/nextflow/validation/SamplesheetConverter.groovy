@@ -72,10 +72,12 @@ class SamplesheetConverter {
         def List channelFormat = samplesheetList.collect { entry ->
             resetMeta()
             def Object result = formatEntry(entry, schemaMap["items"] as LinkedHashMap)
-            if (result instanceof List) {
-                result.add(0,getMeta())
-            } else if (isMeta()) {
-                result = [getMeta(), result]
+            if(isMeta()) {
+                if(result instanceof List) {
+                    result.add(0,getMeta())
+                } else {
+                    result = [getMeta(), result]
+                }
             }
             return result
         }
