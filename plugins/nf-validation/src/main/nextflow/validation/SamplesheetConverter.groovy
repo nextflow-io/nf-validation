@@ -59,6 +59,9 @@ class SamplesheetConverter {
         }
     }
 
+    /*
+    Convert the samplesheet to a list of entries based on a schema
+    */
     public static List convertToList() {
 
         def LinkedHashMap schemaMap = new JsonSlurper().parseText(this.schemaFile.text) as LinkedHashMap
@@ -80,10 +83,14 @@ class SamplesheetConverter {
         return channelFormat
     }
 
+    /*
+    This function processes an input value based on a schema. 
+    The output will be created for addition to the output channel.
+    */
     private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
 
         // Add default values for missing entries
-        input = input != null ? input : schema.default != null ? schema.default : []
+        input = input != null ? input : schema.containsKey("default") ? schema.default : []
 
         if (input instanceof Map) {
             def List result = []
@@ -97,16 +104,16 @@ class SamplesheetConverter {
             properties.each { property, schemaValues ->
                 def value = input[property]
                 def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
+                def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
                 
                 // Add the value to the meta map if needed
                 if (metaIds) {
                     metaIds.each {
-                        addMeta(["${it}":value])
+                        addMeta(["${it}":processMeta(value, schemaValues as LinkedHashMap, prefix)])
                     }
                 } 
                 // return the correctly casted value
                 else {
-                    def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
                     result.add(formatEntry(value, schemaValues as LinkedHashMap, prefix))
                 }
             }
@@ -131,6 +138,11 @@ class SamplesheetConverter {
     private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
     private static List schemaOptions = ["anyOf", "oneOf", "allOf"]
 
+    /*
+    This function processes a value that's not a map or list and casts it to a file type if necessary.
+    When there is uncertainty if the value should be a path, some simple logic is applied that tries
+    to guess if it should be a file type
+    */
     private static Object processValue(Object value, Map schemaEntry) {
         if(!(value instanceof String)) {
             return value
@@ -177,6 +189,45 @@ class SamplesheetConverter {
             }
         }
         return value
+    }
+
+    /*
+    This function processes an input value based on a schema. 
+    The output will be created for addition to the meta map.
+    */
+    private static Object processMeta(Object input, LinkedHashMap schema, String headerPrefix) {
+        // Add default values for missing entries
+        input = input != null ? input : schema.containsKey("default") ? schema.default : []
+
+        if (input instanceof Map) {
+            def Map result = [:]
+            def LinkedHashMap properties = schema["properties"]
+            def Set unusedKeys = input.keySet() - properties.keySet()
+            
+            // Check for properties in the samplesheet that have not been defined in the schema
+            unusedKeys.each{addUnusedHeader("${headerPrefix}${it}" as String)}
+
+            // Loop over every property to maintain the correct order
+            properties.each { property, schemaValues ->
+                def value = input[property]
+                def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
+                result[property] = processMeta(value, schemaValues as LinkedHashMap, prefix)
+            }
+            return result
+        } else if (input instanceof List) {
+            def List result = []
+            def Integer count = 0
+            input.each {
+                // return the correctly casted value
+                def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
+                result.add(processMeta(it, schema["items"] as LinkedHashMap, prefix))
+                count++
+            }
+            return result
+        } else {
+            // Cast value to path type if needed and return the value
+            return processValue(input, schema)
+        }
     }
 
 }
