@@ -370,4 +370,52 @@ class SamplesheetConverterTest extends Dsl2Spec{
         noExceptionThrown()
         stdout.contains("[test1, test2]")
     }
+
+    def 'deeply nested samplesheet - YAML' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/deeply_nested.yaml'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_deeply_nested_samplesheet.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+    }
+
+    def 'deeply nested samplesheet - JSON' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { fromSamplesheet } from 'plugin/nf-validation'
+
+            params.input = 'src/testResources/deeply_nested.json'
+
+            workflow {
+                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_deeply_nested_samplesheet.json").view()
+            }
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+    }
 }
