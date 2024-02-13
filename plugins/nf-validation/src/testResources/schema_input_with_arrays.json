@@ -89,6 +89,7 @@
                 "items": {
                     "type": "array",
                     "items": {
+                        "type": "string",
                         "format": "file-path",
                         "pattern": "^.*\\.txt$",
                         "exists": true

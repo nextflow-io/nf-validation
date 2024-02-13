@@ -3,12 +3,7 @@
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
-        "type": "object",
-        "properties": {
-            "": {
-                "type": "string"
-            }
-        }
+        "type": "string"
     }
 }
 
