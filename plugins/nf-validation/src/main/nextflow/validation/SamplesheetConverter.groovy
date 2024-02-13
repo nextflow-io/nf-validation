@@ -1,26 +1,12 @@
 package nextflow.validation
 
 import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import groovyx.gpars.dataflow.DataflowReadChannel
-import groovyx.gpars.dataflow.DataflowWriteChannel
 
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionException
 
-import org.yaml.snakeyaml.Yaml
-import org.json.JSONArray
-import org.json.JSONObject
-import org.json.JSONTokener
-
-import nextflow.Channel
-import nextflow.Global
 import nextflow.Nextflow
-import nextflow.plugin.extension.Function
-import nextflow.Session
 
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
