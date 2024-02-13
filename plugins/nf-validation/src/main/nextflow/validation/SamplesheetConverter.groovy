@@ -82,6 +82,9 @@ class SamplesheetConverter {
 
     private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
 
+        // Add default values for missing entries
+        input = input != null ? input : schema.default != null ? schema.default : []
+
         if (input instanceof Map) {
             def List result = []
             def LinkedHashMap properties = schema["properties"]
@@ -92,7 +95,7 @@ class SamplesheetConverter {
 
             // Loop over every property to maintain the correct order
             properties.each { property, schemaValues ->
-                def value = input[property] ?: []
+                def value = input[property]
                 def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
                 
                 // Add the value to the meta map if needed
@@ -120,7 +123,7 @@ class SamplesheetConverter {
             return result
         } else {
             // Cast value to path type if needed and return the value
-            return castToFormat(input, schema)
+            return processValue(input, schema)
         }
 
     }
@@ -128,7 +131,7 @@ class SamplesheetConverter {
     private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
     private static List schemaOptions = ["anyOf", "oneOf", "allOf"]
 
-    private static Object castToFormat(Object value, Map schemaEntry) {
+    private static Object processValue(Object value, Map schemaEntry) {
         if(!(value instanceof String)) {
             return value
         }
