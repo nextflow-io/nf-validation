@@ -94,7 +94,6 @@ class SamplesheetConverter {
         return channelFormat
     }
 
-    // TODO add warning for headers that aren't in the schema
     private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
 
         if (input instanceof Map) {
