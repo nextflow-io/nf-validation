@@ -46,6 +46,14 @@ go to the pipeline root and run the following:
 nf-core schema build
 ```
 
+!!! warning
+
+    The current version of `nf-core` tools (v2.12.1) does not support the new schema draft used in `nf-validation`. Running this command after building the schema will convert the schema to the right draft:
+
+    ```bash
+    sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' nextflow_schema.json
+    ```
+
 The tool will run the `nextflow config` command to extract your pipeline's configuration
 and compare the output to your `nextflow_schema.json` file (if it exists).
 It will prompt you to update the schema file with any changes, then it will ask if you
