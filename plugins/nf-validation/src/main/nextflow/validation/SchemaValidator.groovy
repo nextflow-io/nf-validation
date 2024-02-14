@@ -142,35 +142,51 @@ class SchemaValidator extends PluginExtensionPoint {
 
         // Set defaults for optional inputs
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean header = options?.containsKey("header") ? options.header as Boolean : true
+        def String baseDir = session.baseDir.toString()
 
-        def baseDir = session.baseDir.toString()
-
+        // Get the samplesheet schema from the parameters schema
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
-        if (samplesheetFile == null) {
+
+        // Some safeguard to make sure the channel factory runs correctly
+        if (samplesheetValue == null) {
+            log.error """
+Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). 
+Unable to create a channel from it.
+
+Please make sure you correctly specified the inputs to `.fromSamplesheet`:
+
+--------------------------------------------------------------------------------------
+Channel.fromSamplesheet("input")
+--------------------------------------------------------------------------------------
+
+This would create a channel from params.input using the schema specified in the parameters JSON schema for this parameter.
+
+Alternatively if you used another parameters schema than the default (\${projectDir}/nextflow_schema.json), make sure you specified the new schema like this:
+
+--------------------------------------------------------------------------------------
+Channel.fromSamplesheet("input", parameters_schema:"path/to/other/json/schema.json")
+--------------------------------------------------------------------------------------
+"""
+            throw new SchemaValidationException("", [])
+        }
+        else if (samplesheetFile == null) {
             log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
-        def Path schemaFile = null
-        if (samplesheetValue == null) {
-            log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
-        }
-        else if (samplesheetValue.containsKey('schema')) {
-            schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
-        } else {
+        else if (!samplesheetValue.containsKey('schema')) {
             log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
-
+        
         // Convert to channel
         final channel = CH.create()
         def List arrayChannel = []
         try {
-            SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
+            def Path schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+            def SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
             arrayChannel = converter.convertToList()
         } catch (Exception e) {
             log.error(
