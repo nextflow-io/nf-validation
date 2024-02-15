@@ -111,7 +111,7 @@ class SamplesheetConverter {
                 // Add the value to the meta map if needed
                 if (metaIds) {
                     metaIds.each {
-                        addMeta(["${it}":processMeta(value, schemaValues as LinkedHashMap, prefix)])
+                        meta["${it}"] = processMeta(value, schemaValues as LinkedHashMap, prefix)
                     }
                 } 
                 // return the correctly casted value
