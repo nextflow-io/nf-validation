@@ -150,6 +150,8 @@ class SamplesheetConverter {
             return value
         }
 
+        def String defaultFormat = schemaEntry.format ?: ""
+
         // A valid path format has been found in the schema
         def Boolean foundStringFileFormat = false
 
@@ -157,7 +159,7 @@ class SamplesheetConverter {
         def Boolean foundStringNoFileFormat = false
 
         if ((schemaEntry.type ?: "") == "string") {
-            if (validPathFormats.contains(schemaEntry.format ?: "")) {
+            if (validPathFormats.contains(schemaEntry.format ?: defaultFormat)) {
                 foundStringFileFormat = true
             } else {
                 foundStringNoFileFormat = true
@@ -167,7 +169,7 @@ class SamplesheetConverter {
         schemaOptions.each { option ->
             schemaEntry[option]?.each { subSchema ->
                 if ((subSchema["type"] ?: "" ) == "string") {
-                    if (validPathFormats.contains(subSchema["format"] ?: "")) {
+                    if (validPathFormats.contains(subSchema["format"] ?: defaultFormat)) {
                         foundStringFileFormat = true
                     } else {
                         foundStringNoFileFormat = true
