@@ -21,21 +21,16 @@ The function has one mandatory argument: the name of the parameter which specifi
 
 The path specified in the `schema` key determines the JSON used for validation of the sample sheet.
 
-When using the `.fromSamplesheet` channel factory, some additional optional arguments can be used:
+When using the `.fromSamplesheet` channel factory, some one optional arguments can be used:
 
 - `parameters_schema`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
-- `skip_duplicate_check`: Skip the checking for duplicates. Can also be skipped with the `--validationSkipDuplicateCheck` parameter. (Default: `false`)
 
 ```groovy
 Channel.fromSamplesheet('input')
 ```
 
 ```groovy
-Channel.fromSamplesheet(
-  'input',
-  parameters_schema: 'custom_nextflow_schema.json',
-  skip_duplicate_check: false
-)
+Channel.fromSamplesheet('input', parameters_schema: 'custom_nextflow_schema.json')
 ```
 
 ## Basic example
