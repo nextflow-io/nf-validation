@@ -50,9 +50,9 @@ class SchemaEvaluator implements Evaluator {
         def String schemaFull = Utils.getSchemaPath(this.baseDir, this.schema)
         def JSONArray arrayJSON = Utils.fileToJsonArray(file, Path.of(schemaFull))
         def String schemaContents = Files.readString( Path.of(schemaFull) )
-        def validator = new JsonSchemaValidator(schemaContents)
+        def validator = new JsonSchemaValidator()
 
-        def List<String> validationErrors = validator.validate(arrayJSON)
+        def List<String> validationErrors = validator.validate(arrayJSON, schemaContents)
         if (validationErrors) {
             def List<String> errors = ["Validation of file failed:"] + validationErrors.collect { "\t${it}" as String}
             return Evaluator.Result.failure(errors.join("\n"))
