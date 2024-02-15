@@ -95,4 +95,3 @@ For example:
 
 will convert the `field` value to a meta value, resulting in the channel `[[id:value]...]`
 See [here](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
-

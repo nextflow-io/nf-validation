@@ -28,10 +28,8 @@ sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.or
 ```
 
 !!! note
-    Repeat this command for every JSON schema you use in your pipeline. e.g. for the default samplesheet schema:
-    ```bash
-    sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' assets/schema_input.json
-    ```
+Repeat this command for every JSON schema you use in your pipeline. e.g. for the default samplesheet schema:
+`bash sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' assets/schema_input.json `
 
 If you are using any special features in your schemas, you will need to update your schemas manually. Please refer to the [JSON Schema draft 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) and [JSON schema draft 2019-09 release notes](https://json-schema.org/draft/2019-09/release-notes) for more information.
 
@@ -43,118 +41,26 @@ When you use `unique` in your schemas, you should update it to use `uniqueItems`
 
 If you used the `unique:true` field, you should update it to use `uniqueItems` like this:
 
-
 === "Before v2.0"
-    ```json hl_lines="9"
-    {
-        "$schema": "http://json-schema.org/draft-07/schema",
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "sample": {
-                    "type": "string",
-                    "unique": true
-                }
-            }
-        }
-    }
-    ```
+`json hl_lines="9" { "$schema": "http://json-schema.org/draft-07/schema", "type": "array", "items": { "type": "object", "properties": { "sample": { "type": "string", "unique": true } } } } `
 
 === "After v2.0"
-    ```json hl_lines="12"
-    {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "sample": {
-                    "type": "string"
-                }
-            }
-        },
-        "uniqueItems": true
-    }
-    ```
-
+`json hl_lines="12" { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "array", "items": { "type": "object", "properties": { "sample": { "type": "string" } } }, "uniqueItems": true } `
 
 If you used the `unique: ["field1", "field2"]` field, you should update it to use `uniqueEntries` like this:
 
 === "Before v2.0"
-    ```json hl_lines="9"
-    {
-        "$schema": "http://json-schema.org/draft-07/schema",
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "sample": {
-                    "type": "string",
-                    "unique": ["sample"]
-                }
-            }
-        }
-    }
-    ```
+`json hl_lines="9" { "$schema": "http://json-schema.org/draft-07/schema", "type": "array", "items": { "type": "object", "properties": { "sample": { "type": "string", "unique": ["sample"] } } } } `
 
 === "After v2.0"
-    ```json hl_lines="12"
-    {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "sample": {
-                    "type": "string"
-                }
-            }
-        },
-        "uniqueEntries": ["sample"]
-    }
-    ```
+`json hl_lines="12" { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "array", "items": { "type": "object", "properties": { "sample": { "type": "string" } } }, "uniqueEntries": ["sample"] } `
 
 ### Updating `dependentRequired` keyword
 
 When you use `dependentRequired` in your schemas, you should update it like this:
 
 === "Before v2.0"
-    ```json hl_lines="12"
-    {
-        "$schema": "http://json-schema.org/draft-07/schema",
-        "type": "object",
-        "properties": {
-            "fastq_1": {
-                "type": "string",
-                "format": "file-path"
-            },
-            "fastq_2": {
-                "type": "string",
-                "format": "file-path"
-                "dependentRequired": ["fastq_1"]
-            }
-        }
-    }
-    ```
+`json hl_lines="12" { "$schema": "http://json-schema.org/draft-07/schema", "type": "object", "properties": { "fastq_1": { "type": "string", "format": "file-path" }, "fastq_2": { "type": "string", "format": "file-path" "dependentRequired": ["fastq_1"] } } } `
 
 === "After v2.0"
-    ```json hl_lines="14 15 16"
-    {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "fastq_1": {
-                "type": "string",
-                "format": "file-path"
-            },
-            "fastq_2": {
-                "type": "string",
-                "format": "file-path"
-            }
-        },
-        "dependentRequired": {
-            "fastq_2": ["fastq_1"]
-        }
-    }
-    ```
+`json hl_lines="14 15 16" { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "properties": { "fastq_1": { "type": "string", "format": "file-path" }, "fastq_2": { "type": "string", "format": "file-path" } }, "dependentRequired": { "fastq_2": ["fastq_1"] } } `
