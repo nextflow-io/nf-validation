@@ -4,11 +4,7 @@
 
 :warning: This version contains a number of breaking changes. Please read the changelog carefully before upgrading. :warning:
 
-To migrate simple schemas, you can simply follow the next steps:
-
-1. Change the `$schema` to `https://json-schema.org/draft/2020-12/schema`
-2. Change the `definitions` keyword to `defs`. See [reason](https://json-schema.org/draft/2019-09/release-notes#semi-incompatible-changes).
-3. Change the reference links in all `$ref` keywords to use the new `defs` keyword instead of `definitions`
+To migrate your schemas please follow the [migration guide](docs/migration_guide.md)
 
 ## New features
 
