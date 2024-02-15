@@ -77,7 +77,7 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
 
 !!! danger
 
-    It is the order of fields **in the sample sheet JSON schema** which defines the order of items in the channel returned by `fromSamplesheet()`, _not_ the order of fields in the CSV file.
+    It is the order of fields **in the sample sheet JSON schema** which defines the order of items in the channel returned by `fromSamplesheet()`, _not_ the order of fields in the sample sheet file.
 
 ```
 --8<-- "examples/fromSamplesheetOrder/log.txt"

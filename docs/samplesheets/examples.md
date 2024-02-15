@@ -17,7 +17,7 @@ Understanding channel structure and manipulation is critical for getting the mos
 
 ## Default mode
 
-Each item in the channel emitted by `.fromSamplesheet()` is a flat tuple, corresponding with each row of the sample sheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the sample sheet, e.g.:
+Each item in the channel emitted by `.fromSamplesheet()` is a tuple, corresponding with each row of the sample sheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the sample sheet, e.g.:
 
 ```csv
 sample,fastq_1,fastq_2,bed
@@ -46,7 +46,7 @@ It may be necessary to manipulate this channel to fit your process inputs. For m
 
 ## Using a sample sheet with no headers
 
-Sometimes you only have one possible input in the pipeline sample sheet. In this case it doesn't make sense to have a header in the sample sheet. This can be done by creating a sample sheet with an empty string as input key:
+Sometimes you only have one possible input in the pipeline sample sheet. In this case it doesn't make sense to have a header in the sample sheet. This can be done by removing the `properties` section fro m the samplesheet and changing the type of the element from `object` to whatever type you want:
 
 ```json
 {
@@ -54,12 +54,7 @@ Sometimes you only have one possible input in the pipeline sample sheet. In this
   "description": "Schema for the file provided with params.input",
   "type": "array",
   "items": {
-    "type": "object",
-    "properties": {
-      "": {
-        "type": "string"
-      }
-    }
+    "type": "string"
   }
 }
 ```
@@ -81,15 +76,15 @@ or this YAML file:
 The output of `.fromSamplesheet()` will look like this:
 
 ```bash
-[test_1]
-[test_2]
+test_1
+test_2
 ```
 
 ## Changing the structure of channel items
 
-Each item in the channel will be a flat tuple, but some processes will use multiple files as a list in their input channel, this is common in nf-core modules. For example, consider the following input declaration in a process, where FASTQ could be > 1 file:
+Each item in the channel will be a tuple, but some processes will use multiple files as a list in their input channel, this is common in nf-core modules. For example, consider the following input declaration in a process, where FASTQ could be > 1 file:
 
-```nextflow
+```groovy
 process ZCAT_FASTQS {
     input:
         tuple val(meta), path(fastq)
@@ -102,13 +97,13 @@ process ZCAT_FASTQS {
 
 The output of `.fromSamplesheet()` can be used by default with a process with the following input declaration:
 
-```nextflow
+```groovy
 val(meta), path(fastq_1), path(fastq_2)
 ```
 
 To manipulate each item within a channel, you should use the [Nextflow `.map()` operator](https://www.nextflow.io/docs/latest/operator.html#map). This will apply a function to each element of the channel in turn. Here, we convert the flat tuple into a tuple composed of a meta and a list of FASTQ files:
 
-```nextflow
+```groovy
 Channel.fromSamplesheet("input")
     .map { meta, fastq_1, fastq_2 -> tuple(meta, [ fastq_1, fastq_2 ]) }
     .set { input }
@@ -118,7 +113,7 @@ input.view() // Channel has 2 elements: meta, fastqs
 
 This is now compatible with the process defined above and will not raise a warning about input cardinality:
 
-```nextflow
+```groovy
 ZCAT_FASTQS(input)
 ```
 
@@ -126,7 +121,7 @@ ZCAT_FASTQS(input)
 
 For example, to remove the BED file from the channel created above, we could not return it from the map. Note the absence of the `bed` item in the return of the closure below:
 
-```nextflow
+```groovy
 Channel.fromSamplesheet("input")
     .map { meta, fastq_1, fastq_2, bed -> tuple(meta, fastq_1, fastq_2) }
     .set { input }
@@ -140,7 +135,7 @@ In this way you can drop items from a channel.
 
 We could perform this twice to create one channel containing the FASTQs and one containing the BED files, however Nextflow has a native operator to separate channels called [`.multiMap()`](https://www.nextflow.io/docs/latest/operator.html#multimap). Here, we separate the FASTQs and BEDs into two separate channels using `multiMap`. Note, the channels are both contained in `input` and accessed as an attribute using dot notation:
 
-```nextflow
+```groovy
 Channel.fromSamplesheet("input")
     .multiMap { meta, fastq_1, fastq_2, bed ->
         fastq: tuple(meta, fastq_1, fastq_2)
@@ -151,7 +146,7 @@ Channel.fromSamplesheet("input")
 
 The channel has two attributes, `fastq` and `bed`, which can be accessed separately.
 
-```nextflow
+```groovy
 input.fastq.view() // Channel has 3 elements: meta, fastq_1, fastq_2
 input.bed.view()   // Channel has 2 elements: meta, bed
 ```
@@ -164,7 +159,7 @@ You can use the [`.branch()` operator](https://www.nextflow.io/docs/latest/opera
 
 This example shows a channel which can have entries for WES or WGS data. WES data includes a BED file denoting the target regions, but WGS data does not. These analysis are different so we want to separate the WES and WGS entries from each other. We can separate the two using `.branch` based on the presence of the BED file:
 
-```nextflow
+```groovy
 // Channel with four elements - see docs for examples
 params.input = "sample sheet.csv"
 
@@ -208,7 +203,7 @@ It's useful to determine the count of channel entries with similar values when y
 
 This example contains a channel where multiple samples can be in the same family. Later on in the pipeline we want to merge the analyzed files so one file gets created for each family. The result will be a channel with an extra meta field containing the count of channel entries with the same family name.
 
-```nextflow
+```groovy
 // channel created by fromSamplesheet() previous to modification:
 // [[id:example1, family:family1], example1.txt]
 // [[id:example2, family:family1], example2.txt]
