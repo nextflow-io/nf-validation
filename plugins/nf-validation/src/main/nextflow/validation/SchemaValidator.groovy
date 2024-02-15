@@ -329,7 +329,7 @@ Also make sure that the same schema is used for validation and conversion of the
         //=====================================================================//
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
-        def validator = new JsonSchemaValidator(schema_string)
+        def validator = new JsonSchemaValidator()
 
         // check for warnings
         if( this.hasWarnings() ) {
@@ -341,7 +341,7 @@ Also make sure that the same schema is used for validation and conversion of the
         def colors = logColours(useMonochromeLogs)
 
         // Validate
-        List<String> validationErrors = validator.validate(paramsJSON)
+        List<String> validationErrors = validator.validate(paramsJSON, schema_string)
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
