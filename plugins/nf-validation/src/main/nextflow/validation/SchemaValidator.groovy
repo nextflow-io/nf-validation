@@ -163,12 +163,6 @@ Channel.fromSamplesheet("input")
 --------------------------------------------------------------------------------------
 
 This would create a channel from params.input using the schema specified in the parameters JSON schema for this parameter.
-
-Alternatively if you used another parameters schema than the default (\${projectDir}/nextflow_schema.json), make sure you specified the new schema like this:
-
---------------------------------------------------------------------------------------
-Channel.fromSamplesheet("input", parameters_schema:"path/to/other/json/schema.json")
---------------------------------------------------------------------------------------
 """
             throw new SchemaValidationException("", [])
         }
