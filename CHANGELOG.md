@@ -4,7 +4,7 @@
 
 :warning: This version contains a number of breaking changes. Please read the changelog carefully before upgrading. :warning:
 
-To migrate your schemas please follow the [migration guide](docs/migration_guide.md)
+To migrate your schemas please follow the [migration guide](https://nextflow-io.github.io/nf-validation/latest/migration_guide/)
 
 ## New features
 
