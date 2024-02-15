@@ -7,9 +7,9 @@ description: Channel factory to create a channel from a sample sheet.
 
 ## `fromSamplesheet`
 
-This function validates and converts a samplesheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
+This function validates and converts a sample sheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
 
-The function has one mandatory argument: the name of the parameter which specifies the input samplesheet. The parameter specified must have the format `file-path` and include additional field `schema`:
+The function has one mandatory argument: the name of the parameter which specifies the input sample sheet. The parameter specified must have the format `file-path` and include additional field `schema`:
 
 ```json hl_lines="4"
 {
@@ -19,7 +19,7 @@ The function has one mandatory argument: the name of the parameter which specifi
 }
 ```
 
-The path specified in the `schema` key determines the JSON used for validation of the samplesheet.
+The path specified in the `schema` key determines the JSON used for validation of the sample sheet.
 
 When using the `.fromSamplesheet` channel factory, some additional optional arguments can be used:
 
@@ -40,7 +40,7 @@ Channel.fromSamplesheet(
 
 ## Basic example
 
-In [this example](../../examples/fromSamplesheetBasic/), we create a simple channel from a CSV samplesheet.
+In [this example](../../examples/fromSamplesheetBasic/), we create a simple channel from a CSV sample sheet.
 
 ```
 --8<-- "examples/fromSamplesheetBasic/log.txt"
@@ -52,10 +52,10 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
     --8<-- "examples/fromSamplesheetBasic/pipeline/main.nf"
     ```
 
-=== "samplesheet.csv"
+=== "sample sheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetBasic/samplesheet.csv"
+    --8<-- "examples/fromSamplesheetBasic/sample sheet.csv"
     ```
 
 === "nextflow.config"
@@ -88,10 +88,10 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
 --8<-- "examples/fromSamplesheetOrder/log.txt"
 ```
 
-=== "samplesheet.csv"
+=== "sample sheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetOrder/samplesheet.csv"
+    --8<-- "examples/fromSamplesheetOrder/sample sheet.csv"
     ```
 
 === "assets/schema_input.json"
@@ -139,10 +139,10 @@ This returns a channel with a meta map.
     --8<-- "examples/fromSamplesheetMeta/pipeline/main.nf"
     ```
 
-=== "samplesheet.csv"
+=== "sample sheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetMeta/samplesheet.csv"
+    --8<-- "examples/fromSamplesheetMeta/sample sheet.csv"
     ```
 
 === "nextflow.config"

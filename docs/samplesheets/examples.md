@@ -12,12 +12,12 @@ Understanding channel structure and manipulation is critical for getting the mos
 ### Glossary
 
 - A channel is the Nextflow object, referenced in the code
-- An item is each thing passing through the channel, equivalent to one row in the samplesheet
+- An item is each thing passing through the channel, equivalent to one row in the sample sheet
 - An element is each thing in the item, e.g., the meta value, fastq_1 etc. It may be a file or value
 
 ## Default mode
 
-Each item in the channel emitted by `.fromSamplesheet()` is a flat tuple, corresponding with each row of the samplesheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the samplesheet, e.g.:
+Each item in the channel emitted by `.fromSamplesheet()` is a flat tuple, corresponding with each row of the sample sheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the sample sheet, e.g.:
 
 ```csv
 sample,fastq_1,fastq_2,bed
@@ -33,7 +33,7 @@ Might create a channel where each element consists of 4 items, a map value follo
 
 // Resulting in:
 [ [ id: "sample" ], fastq1.R1.fq.gz, fastq1.R2.fq.gz, sample1.bed]
-[ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, [] ] // A missing value from the samplesheet is an empty list
+[ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, [] ] // A missing value from the sample sheet is an empty list
 ```
 
 This channel can be used as input of a process where the input declaration is:
@@ -44,9 +44,9 @@ tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
 
 It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `.fromSamplesheet()`.
 
-## Using a samplesheet with no headers
+## Using a sample sheet with no headers
 
-Sometimes you only have one possible input in the pipeline samplesheet. In this case it doesn't make sense to have a header in the samplesheet. This can be done by creating a samplesheet with an empty string as input key:
+Sometimes you only have one possible input in the pipeline sample sheet. In this case it doesn't make sense to have a header in the sample sheet. This can be done by creating a sample sheet with an empty string as input key:
 
 ```json
 {
@@ -166,7 +166,7 @@ This example shows a channel which can have entries for WES or WGS data. WES dat
 
 ```nextflow
 // Channel with four elements - see docs for examples
-params.input = "samplesheet.csv"
+params.input = "sample sheet.csv"
 
 Channel.fromSamplesheet("input")
     .branch { meta, fastq_1, fastq_2, bed ->
@@ -214,7 +214,7 @@ This example contains a channel where multiple samples can be in the same family
 // [[id:example2, family:family1], example2.txt]
 // [[id:example3, family:family2], example3.txt]
 
-params.input = "samplesheet.csv"
+params.input = "sample sheet.csv"
 
 Channel.fromSamplesheet("input")
     .tap { ch_raw }                       // Create a copy of the original channel

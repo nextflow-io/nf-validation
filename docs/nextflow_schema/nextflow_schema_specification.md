@@ -389,7 +389,7 @@ Should only be set when `format` is `file-path`.
 
 !!! tip
 
-    Setting this field is key to working with samplesheet validation and channel generation, as described in the next section of the nf-validation docs.
+    Setting this field is key to working with sample sheet validation and channel generation, as described in the next section of the nf-validation docs.
 
 These schema files are typically stored in the pipeline `assets` directory, but can be anywhere.
 
@@ -432,3 +432,41 @@ Specify a minimum / maximum value for an integer or float number length with `mi
     The JSON schema doc also mention `exclusiveMinimum`, `exclusiveMaximum` and `multipleOf` keys.
     Because nf-validation uses stock JSON schema validation libraries, these _should_ work for validating keys.
     However, they are not officially supported within the Nextflow schema ecosystem and so some interfaces may not recognise them.
+
+## Array-specific keys
+
+### `uniqueItems`
+
+All items in the array should be unique.
+
+- See the [JSON schema docs](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems)
+  for details.
+
+```json
+{
+  "type": "array",
+  "uniqueItems": true
+}
+```
+
+### `uniqueEntries`
+
+!!! example "Non-standard key"
+
+The combination of all values in the given keys should be unique. For this key to work you need to make sure the array items are of type `object` and contains the keys in the `uniqueEntries` list.
+
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "uniqueEntries": ["foo", "bar"],
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "string" }
+    }
+  }
+}
+```
+
+This schema tells `nf-validation` that the combination of `foo` and `bar` should be unique across all objects in the array.

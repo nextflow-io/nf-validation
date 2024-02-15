@@ -11,10 +11,10 @@ This [Nextflow plugin](https://www.nextflow.io/docs/latest/plugins.html#plugins)
 - 📖 Print usage instructions to the terminal (for use with `--help`)
 - ✍️ Print log output showing parameters with non-default values
 - ✅ Validate supplied parameters against the pipeline schema
-- 📋 Validate the contents of supplied samplesheet files
-- 🛠️ Create a Nextflow channel with a parsed samplesheet
+- 📋 Validate the contents of supplied sample sheet files
+- 🛠️ Create a Nextflow channel with a parsed sample sheet
 
-Supported samplesheet formats are CSV, TSV, JSON and YAML.
+Supported sample sheet formats are CSV, TSV, JSON and YAML.
 
 ## Quick Start
 

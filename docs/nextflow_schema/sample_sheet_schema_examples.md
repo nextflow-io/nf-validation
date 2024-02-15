@@ -42,17 +42,9 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
       },
       "fastq_2": {
         "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
-        "anyOf": [
-          {
-            "type": "string",
-            "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-            "format": "file-path"
-          },
-          {
-            "type": "string",
-            "maxLength": 0
-          }
-        ]
+        "type": "string",
+        "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+        "format": "file-path"
       },
       "strandedness": {
         "type": "string",
