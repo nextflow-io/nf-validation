@@ -241,6 +241,18 @@ and get:
 * --input (samples.yml): File name must end in '.csv' cannot contain spaces
 ```
 
+### `deprecated`
+
+!!! example "Extended key"
+
+A boolean JSON flag that instructs anything using the schema that this parameter/field is deprecated and should not be used. This can be useful to generate messages telling the user that a parameter has changed between versions. 
+
+JSON schema states that this is an informative key only, but in `nf-validation` this will cause a validation error if the parameter/field is used.
+
+!!! tip
+
+    Using the [`errorMessage`](#errormessage) keyword can be useful to provide more information about the deprecation and what to use instead.
+
 ### `enum`
 
 An array of enumerated values: the parameter must match one of these values exactly to pass validation.
