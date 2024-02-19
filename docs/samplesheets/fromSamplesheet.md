@@ -137,7 +137,7 @@ This returns a channel with a meta map.
 === "sample sheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetMeta/sample sheet.csv"
+    --8<-- "examples/fromSamplesheetMeta/samplesheet.csv"
     ```
 
 === "nextflow.config"
