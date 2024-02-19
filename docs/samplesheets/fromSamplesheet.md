@@ -134,7 +134,7 @@ This returns a channel with a meta map.
     --8<-- "examples/fromSamplesheetMeta/pipeline/main.nf"
     ```
 
-=== "sample sheet.csv"
+=== "samplesheet.csv"
 
     ```csv
     --8<-- "examples/fromSamplesheetMeta/samplesheet.csv"
