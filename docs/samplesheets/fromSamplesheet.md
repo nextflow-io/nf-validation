@@ -83,7 +83,7 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
 --8<-- "examples/fromSamplesheetOrder/log.txt"
 ```
 
-=== "sample sheet.csv"
+=== "samplesheet.csv"
 
     ```csv
     --8<-- "examples/fromSamplesheetOrder/sample sheet.csv"
