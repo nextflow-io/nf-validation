@@ -161,7 +161,7 @@ This example shows a channel which can have entries for WES or WGS data. WES dat
 
 ```groovy
 // Channel with four elements - see docs for examples
-params.input = "sample sheet.csv"
+params.input = "samplesheet.csv"
 
 Channel.fromSamplesheet("input")
     .branch { meta, fastq_1, fastq_2, bed ->
