@@ -15,7 +15,7 @@ import test.OutputCapture
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
  * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
- * @author : jorgeaguileraseqera
+ * @author : KevinMenden
  */
 class ParamsHelpTest extends Dsl2Spec{
 
