@@ -46,7 +46,7 @@ It may be necessary to manipulate this channel to fit your process inputs. For m
 
 ## Using a sample sheet with no headers
 
-Sometimes you only have one possible input in the pipeline sample sheet. In this case it doesn't make sense to have a header in the sample sheet. This can be done by removing the `properties` section fro m the samplesheet and changing the type of the element from `object` to whatever type you want:
+Sometimes you only have one possible input in the pipeline sample sheet. In this case it doesn't make sense to have a header in the sample sheet. This can be done by removing the `properties` section from the sample sheet and changing the type of the element from `object` the desired type:
 
 ```json
 {
