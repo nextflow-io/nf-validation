@@ -4,8 +4,6 @@ import groovy.util.logging.Slf4j
 import groovy.transform.CompileStatic
 import org.json.JSONObject
 import org.json.JSONArray
-import org.json.JSONPointer
-import org.json.JSONPointerException
 import dev.harrel.jsonschema.ValidatorFactory
 import dev.harrel.jsonschema.Validator
 import dev.harrel.jsonschema.EvaluatorFactory
@@ -25,13 +23,18 @@ import java.util.regex.Matcher
 public class JsonSchemaValidator {
 
     private static ValidatorFactory validator
-    private static JSONObject schema
     private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
 
-    JsonSchemaValidator(String schemaString) {
-        this.schema = new JSONObject(schemaString)
-        def JSONPointer schemaPointer = new JSONPointer("#/\$schema")
-        def String draft = schemaPointer.queryFrom(this.schema)
+    JsonSchemaValidator() {
+        this.validator = new ValidatorFactory()
+            .withJsonNodeFactory(new OrgJsonNode.Factory())
+            // .withDialect() // TODO define the dialect
+            .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
+    }
+
+    private static List<String> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {
+        def JSONObject schema = new JSONObject(schemaString)
+        def String draft = Utils.getValueFromJson("#/\$schema", schema)
         if(draft != "https://json-schema.org/draft/2020-12/schema") {
             log.error("""Failed to load the meta schema:
 The used schema draft (${draft}) is not correct, please use \"https://json-schema.org/draft/2020-12/schema\" instead.
@@ -39,14 +42,8 @@ See here for more information: https://json-schema.org/specification#migrating-f
 """)
             throw new SchemaValidationException("", [])
         }
-        this.validator = new ValidatorFactory()
-            .withJsonNodeFactory(new OrgJsonNode.Factory())
-            // .withDialect() // TODO define the dialect
-            .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
-    }
-
-    private static List<String> validateObject(JsonNode input, String validationType, Object rawJson) {
-        def Validator.Result result = this.validator.validate(this.schema, input)
+        
+        def Validator.Result result = this.validator.validate(schema, input)
         def List<String> errors = []
         for (error : result.getErrors()) {
             def String errorString = error.getError()
@@ -56,17 +53,13 @@ See here for more information: https://json-schema.org/specification#migrating-f
             }
 
             def String instanceLocation = error.getInstanceLocation()
-            def JSONPointer pointer = new JSONPointer(instanceLocation)
-            def String value = pointer.queryFrom(rawJson)
+            def String value = Utils.getValueFromJson(instanceLocation, rawJson)
 
-            // Get the errorMessage if there is one
+            // Get the custom errorMessage if there is one and the validation errors are not about the content of the file
             def String schemaLocation = error.getSchemaLocation().replaceFirst(/^[^#]+/, "")
-            def JSONPointer schemaPointer = new JSONPointer("${schemaLocation}/errorMessage")
             def String customError = ""
-            try{
-                customError = schemaPointer.queryFrom(this.schema) ?: ""
-            } catch (JSONPointerException e) {
-                customError = ""
+            if (!errorString.startsWith("Validation of file failed:")) {
+                customError = Utils.getValueFromJson("${schemaLocation}/errorMessage", schema) as String
             }
 
             // Change some error messages to make them more clear
@@ -106,13 +99,13 @@ See here for more information: https://json-schema.org/specification#migrating-f
         return errors
     }
 
-    public static List<String> validate(JSONArray input) {
+    public static List<String> validate(JSONArray input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        return this.validateObject(jsonInput, "field", input)
+        return this.validateObject(jsonInput, "field", input, schemaString)
     }
 
-    public static List<String> validate(JSONObject input) {
+    public static List<String> validate(JSONObject input, String schemaString) {
         def JsonNode jsonInput = new OrgJsonNode.Factory().wrap(input)
-        return this.validateObject(jsonInput, "parameter", input)
+        return this.validateObject(jsonInput, "parameter", input, schemaString)
     }
 }

@@ -1,6 +1,7 @@
 package nextflow.validation
 
 import nextflow.Global
+import nextflow.Session
 import dev.harrel.jsonschema.EvaluatorFactory
 import dev.harrel.jsonschema.Evaluator
 import dev.harrel.jsonschema.SchemaParsingContext
@@ -13,9 +14,12 @@ import dev.harrel.jsonschema.JsonNode
 class CustomEvaluatorFactory implements EvaluatorFactory {
 
     private Boolean lenientMode
+    private String baseDir
 
     CustomEvaluatorFactory() {
-        this.lenientMode = Global.getSession().params.validationLenientMode ?: false
+        def Session session = Global.getSession()
+        this.lenientMode = session.params.validationLenientMode ?: false
+        this.baseDir = session.baseDir.toString()
     }
 
     @Override
@@ -35,7 +39,7 @@ class CustomEvaluatorFactory implements EvaluatorFactory {
         } else if (fieldName == "exists" && schemaNode.isBoolean()) {
             return Optional.of(new ExistsEvaluator(schemaNode.asBoolean()))
         } else if (fieldName == "schema" && schemaNode.isString()) {
-            return Optional.of(new SchemaEvaluator(schemaNode.asString()))
+            return Optional.of(new SchemaEvaluator(schemaNode.asString(), this.baseDir))
         } else if (fieldName == "uniqueEntries" && schemaNode.isArray()) {
             return Optional.of(new UniqueEntriesEvaluator(schemaNode.asArray()))
         } else if (fieldName == "type" && (schemaNode.isString() || schemaNode.isArray()) && lenientMode) {

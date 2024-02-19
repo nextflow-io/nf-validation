@@ -138,44 +138,60 @@ class SchemaValidator extends PluginExtensionPoint {
         Map options = null,
         String samplesheetParam
     ) {
-        def String baseDir = session.baseDir
         def Map params = session.params
 
         // Set defaults for optional inputs
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
+        def String baseDir = session.baseDir.toString()
 
+        // Get the samplesheet schema from the parameters schema
         def slurper = new JsonSlurper()
         def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
         def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
         def Path samplesheetFile = params[samplesheetParam] as Path
-        if (samplesheetFile == null) {
+
+        // Some safeguard to make sure the channel factory runs correctly
+        if (samplesheetValue == null) {
+            log.error """
+Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). 
+Unable to create a channel from it.
+
+Please make sure you correctly specified the inputs to `.fromSamplesheet`:
+
+--------------------------------------------------------------------------------------
+Channel.fromSamplesheet("input")
+--------------------------------------------------------------------------------------
+
+This would create a channel from params.input using the schema specified in the parameters JSON schema for this parameter.
+"""
+            throw new SchemaValidationException("", [])
+        }
+        else if (samplesheetFile == null) {
             log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
-        def Path schemaFile = null
-        if (samplesheetValue == null) {
-            log.error "Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
-        }
-        else if (samplesheetValue.containsKey('schema')) {
-            schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
-        } else {
+        else if (!samplesheetValue.containsKey('schema')) {
             log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
             throw new SchemaValidationException("", [])
         }
-
+        
         // Convert to channel
         final channel = CH.create()
         def List arrayChannel = []
         try {
-            arrayChannel = SamplesheetConverter.convertToList(samplesheetFile, schemaFile)
+            def Path schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
+            def SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
+            arrayChannel = converter.convertToList()
         } catch (Exception e) {
             log.error(
                 """ Following error has been found during samplesheet conversion:
     ${e}
+    ${e.getStackTrace().join("\n\t")}
 
 Please run validateParameters() first before trying to convert a samplesheet to a channel.
 Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
+
+Also make sure that the same schema is used for validation and conversion of the samplesheet
 """ as String
             )
         }
@@ -252,7 +268,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
     ) {
 
         def Map params = initialiseExpectedParams(session.params)
-        def String baseDir = session.baseDir
+        def String baseDir = session.baseDir.toString()
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
             params.monochrome_logs ? params.monochrome_logs as Boolean : 
@@ -313,7 +329,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         //=====================================================================//
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
-        def validator = new JsonSchemaValidator(schema_string)
+        def validator = new JsonSchemaValidator()
 
         // check for warnings
         if( this.hasWarnings() ) {
@@ -325,7 +341,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         def colors = logColours(useMonochromeLogs)
 
         // Validate
-        List<String> validationErrors = validator.validate(paramsJSON)
+        List<String> validationErrors = validator.validate(paramsJSON, schema_string)
         this.errors.addAll(validationErrors)
         if (this.hasErrors()) {
             def msg = "${colors.red}The following invalid input values have been detected:\n\n" + errors.join('\n').trim() + "\n${colors.reset}\n"
@@ -384,7 +400,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         String command
     ) {
         def Map params = initialiseExpectedParams(session.params)
-        def String baseDir = session.baseDir
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
@@ -397,7 +412,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
         output        += "  ${colors.cyan}${command}${colors.reset}\n\n"
-        Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
+        Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
         Integer max_chars  = paramsMaxChars(params_map) + 1
         Integer desc_indent = max_chars + 14
         Integer dec_linewidth = 160 - desc_indent
@@ -487,7 +502,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         ) {
         
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def String baseDir = session.baseDir
         def Map params = session.params
         
         // Get a selection of core Nextflow workflow options
@@ -512,7 +526,7 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
 
         // Get pipeline parameters defined in JSON Schema
         def Map params_summary = [:]
-        def Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
+        def Map params_map = paramsLoad( Path.of(Utils.getSchemaPath(session.baseDir.toString(), schemaFilename)) )
         for (group in params_map.keySet()) {
             def sub_params = new LinkedHashMap()
             def Map group_params = params_map.get(group)  as Map // This gets the parameters of that particular group
@@ -565,7 +579,6 @@ Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
         WorkflowMetadata workflow
     ) {
 
-        def String baseDir = session.baseDir
         def Map params = session.params
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'

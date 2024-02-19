@@ -5,8 +5,8 @@ import dev.harrel.jsonschema.EvaluationContext
 import dev.harrel.jsonschema.JsonNode
 import nextflow.Nextflow
 import nextflow.Global
-import groovy.json.JsonGenerator
 import org.json.JSONArray
+import org.json.JSONObject
 
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
@@ -21,8 +21,10 @@ class SchemaEvaluator implements Evaluator {
     // Evaluate the file using the given schema
 
     private final String schema
+    private final String baseDir
 
-    SchemaEvaluator(String schema) {
+    SchemaEvaluator(String schema, String baseDir) {
+        this.baseDir = baseDir
         this.schema = schema
     }
 
@@ -45,20 +47,12 @@ class SchemaEvaluator implements Evaluator {
 
         log.debug("Started validating ${file.toString()}")
 
-        def String baseDir = Global.getSession().baseDir
-        def String schemaFull = Utils.getSchemaPath(baseDir, this.schema)
-        def List<Map> fileMaps = Utils.fileToMaps(file, this.schema, baseDir)
+        def String schemaFull = Utils.getSchemaPath(this.baseDir, this.schema)
+        def JSONArray arrayJSON = Utils.fileToJsonArray(file, Path.of(schemaFull))
         def String schemaContents = Files.readString( Path.of(schemaFull) )
-        def validator = new JsonSchemaValidator(schemaContents)
+        def validator = new JsonSchemaValidator()
 
-        // Remove all null values from JSON object
-        // and convert the groovy object to a JSONArray
-        def jsonGenerator = new JsonGenerator.Options()
-            .excludeNulls()
-            .build()
-        def JSONArray arrayJSON = new JSONArray(jsonGenerator.toJson(fileMaps))
-
-        def List<String> validationErrors = validator.validate(arrayJSON)
+        def List<String> validationErrors = validator.validate(arrayJSON, schemaContents)
         if (validationErrors) {
             def List<String> errors = ["Validation of file failed:"] + validationErrors.collect { "\t${it}" as String}
             return Evaluator.Result.failure(errors.join("\n"))

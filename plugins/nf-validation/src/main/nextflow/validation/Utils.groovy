@@ -1,8 +1,14 @@
 package nextflow.validation
 
 import org.yaml.snakeyaml.Yaml
-import groovy.json.JsonSlurper
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONPointer
+import org.json.JSONPointerException
+import nextflow.Global
 
+import groovy.json.JsonGenerator
+import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import java.nio.file.Path
 
@@ -45,13 +51,11 @@ public class Utils {
         return header
     }
 
-    // Converts a given file to a map
-    public static List<Map> fileToMaps(Path file, String schemaName, String baseDir) {
+    // Converts a given file to a List
+    public static List fileToList(Path file, Path schema) {
         def String fileType = Utils.getFileType(file)
         def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
-        def List<Map<String,String>> fileContent
-        def Map types = variableTypes(schemaName, baseDir)
-        def Boolean containsHeader = !(types.keySet().size() == 1 && types.keySet()[0] == "")
+        def Map types = variableTypes(schema)
 
         if (types.find{ it.value == "array" } as Boolean && fileType in ["csv", "tsv"]){
             def msg = "Using \"type\": \"array\" in schema with a \".$fileType\" samplesheet is not supported\n"
@@ -59,72 +63,63 @@ public class Utils {
             throw new SchemaValidationException(msg, [])
         }
 
-        if(!containsHeader){
-            types = ["empty": types[""]]
-        }
         if(fileType == "yaml"){
-            fileContent = new Yaml().load((file.text)).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
+            return new Yaml().load((file.text))
         }
         else if(fileType == "json"){
-            fileContent = new JsonSlurper().parseText(file.text).collect {
-                if(containsHeader) {
-                    return it as Map
-                }
-                return ["empty": it] as Map
-            }
+            return new JsonSlurper().parseText(file.text) as List
         }
         else {
-            fileContent = file.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
+            def Boolean header = getValueFromJson("#/items/properties", new JSONObject(schema.text)) ? true : false
+            def List fileContent = file.splitCsv(header:header, strip:true, sep:delimiter, quote:'\"')
+            if (!header) {
+                // Flatten no header inputs if they contain one value
+                fileContent = fileContent.collect { it instanceof List && it.size() == 1 ? it[0] : it }
+            }
+
+            return castToType(fileContent)
         }
-        def List<Map<String,String>> fileContentCasted = castToType(fileContent, types)
-        return fileContentCasted
+    }
+
+    // Converts a given file to a JSONArray
+    public static JSONArray fileToJsonArray(Path file, Path schema) {
+        // Remove all null values from JSON object
+        // and convert the groovy object to a JSONArray
+        def jsonGenerator = new JsonGenerator.Options()
+            .excludeNulls()
+            .build()
+        return new JSONArray(jsonGenerator.toJson(fileToList(file, schema)))
     }
 
     //
     // Cast a value to the provided type in a Strict mode
     //
 
-    public static List castToType(List<Map> rows, Map types) {
-        def List<Map> casted = []
+    public static Object castToType(Object input) {
         def Set<String> validBooleanValues = ['true', 'false'] as Set
 
-        for( Map row in rows) {
-            def Map castedRow = [:]
-
-            for (String key in row.keySet()) {
-                def String str = row[key]
-                def String type = types[key]
-
-                try {
-                    if( str == null || str == '' ) castedRow[key] = null
-                    else if( type == null ) castedRow[key] = str
-                    else if( type.toLowerCase() == 'boolean' && str.toLowerCase() in validBooleanValues ) castedRow[key] = str.toBoolean()
-                    else if( type.toLowerCase() == 'character' ) castedRow[key] = str.toCharacter()
-                    else if( type.toLowerCase() == 'short' && str.isNumber() ) castedRow[key] = str.toShort()
-                    else if( type.toLowerCase() == 'integer' && str.isInteger() ) castedRow[key] = str.toInteger()
-                    else if( type.toLowerCase() == 'long' && str.isLong() ) castedRow[key] = str.toLong()
-                    else if( type.toLowerCase() == 'float' && str.isFloat() ) castedRow[key] = str.toFloat()
-                    else if( type.toLowerCase() == 'double' && str.isDouble() ) castedRow[key] = str.toDouble()
-                    else if( type.toLowerCase() == 'string' ) castedRow[key] = str
-                    else {
-                        castedRow[key] = str
-                    }
-                } catch( Exception e ) {
-                    log.warn "Unable to cast value $str to type $type: $e"
-                    castedRow[key] = str
-                }
-
+        if (input instanceof Map) {
+            // Cast all values in the map
+            def Map output = [:]
+            input.each { k, v ->
+                output[k] = castToType(v)
             }
-
-            casted = casted + castedRow
+            return output
         }
-
-        return casted
+        else if (input instanceof List) {
+            // Cast all values in the list
+            def List output = []
+            for( entry : input ) {
+                output.add(castToType(entry))
+            }
+            return output
+        } else if (input instanceof String) {
+            // Cast the string if there is one
+            if (input == "") {
+                return null
+            }
+            return JSONObject.stringToValue(input)
+        }
     }
 
     // Resolve Schema path relative to main workflow directory
@@ -137,13 +132,13 @@ public class Utils {
     }
 
     // Function to obtain the variable types of properties from a JSON Schema
-    public static Map variableTypes(String schemaFilename, String baseDir) {
+    public static Map variableTypes(Path schema) {
         def Map variableTypes = [:]
         def String type = ''
 
         // Read the schema
         def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(getSchemaPath(baseDir, schemaFilename)) )
+        def Map parsed = (Map) slurper.parse( schema )
 
         // Obtain the type of each variable in the schema
         def Map properties = (Map) parsed['items']['properties']
@@ -160,19 +155,50 @@ public class Utils {
                 variableTypes[key] = type
             }
             else {
-                variableTypes[key] = 'string' // If there isn't a type specifyed, return 'string' to avoid having a null value
+                variableTypes[key] = 'string' // If there isn't a type specified, return 'string' to avoid having a null value
             }
         }
 
         return variableTypes
     }
 
+    // Function to check if a String value is an Integer
     public static Boolean isInteger(String input) {
         try {
             input as Integer
             return true
         } catch (NumberFormatException e) {
             return false
+        }
+    }
+
+    // Function to check if a String value is a Float
+    public static Boolean isFloat(String input) {
+        try {
+            input as Float
+            return true
+        } catch (NumberFormatException e) {
+            return false
+        }
+    }
+
+    // Function to check if a String value is a Double
+    public static Boolean isDouble(String input) {
+        try {
+            input as Double
+            return true
+        } catch (NumberFormatException e) {
+            return false
+        }
+    }
+
+    // Function to get the value from a JSON pointer
+    public static Object getValueFromJson(String jsonPointer, Object json) {
+        def JSONPointer schemaPointer = new JSONPointer(jsonPointer)
+        try {
+            return schemaPointer.queryFrom(json) ?: ""
+        } catch (JSONPointerException e) {
+            return ""
         }
     }
 }
