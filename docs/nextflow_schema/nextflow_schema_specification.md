@@ -245,7 +245,7 @@ and get:
 
 !!! example "Extended key"
 
-A boolean JSON flag that instructs anything using the schema that this parameter/field is deprecated and should not be used. This can be useful to generate messages telling the user that a parameter has changed between versions. 
+A boolean JSON flag that instructs anything using the schema that this parameter/field is deprecated and should not be used. This can be useful to generate messages telling the user that a parameter has changed between versions.
 
 JSON schema states that this is an informative key only, but in `nf-validation` this will cause a validation error if the parameter/field is used.
 
