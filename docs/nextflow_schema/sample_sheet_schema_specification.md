@@ -72,7 +72,7 @@ Please refer to the [Nextflow schema specification](../nextflow_schema/nextflow_
 
     Sample sheets are commonly used to define input file paths.
     Be sure to set `"type": "string"`, `exists: true`, `"format": "file-path"` and `"schema":"path/to/samplesheet/schema.json"` for these properties,
-    so that `fromSamplesheet` will not result in any errors.
+    so that samplesheets are correctly validated and `fromSamplesheet` does not result in any errors.
 
 ## Sample sheet keys
 
