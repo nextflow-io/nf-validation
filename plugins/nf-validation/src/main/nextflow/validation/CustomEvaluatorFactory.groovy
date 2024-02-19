@@ -44,6 +44,8 @@ class CustomEvaluatorFactory implements EvaluatorFactory {
             return Optional.of(new UniqueEntriesEvaluator(schemaNode.asArray()))
         } else if (fieldName == "type" && (schemaNode.isString() || schemaNode.isArray()) && lenientMode) {
             return Optional.of(new LenientTypeEvaluator(schemaNode))
+        } else if (fieldName == "deprecated" && schemaNode.isBoolean()) {
+            return Optional.of(new DeprecatedEvaluator(schemaNode.asBoolean()))
         }
 
         return Optional.empty()
