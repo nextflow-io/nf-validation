@@ -2,7 +2,7 @@
 description: Schema specification for sample sheet validation
 ---
 
-# Sample sheetschema specification
+# Sample sheet schema specification
 
 Sample sheet schema files are used by the nf-validation plugin for validation of sample sheet contents and type conversion / channel generation.
 
