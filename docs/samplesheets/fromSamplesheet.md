@@ -21,7 +21,7 @@ The function has one mandatory argument: the name of the parameter which specifi
 
 The path specified in the `schema` key determines the JSON used for validation of the sample sheet.
 
-When using the `.fromSamplesheet` channel factory, some one optional arguments can be used:
+When using the `.fromSamplesheet` channel factory, one optional arguments can be used:
 
 - `parameters_schema`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
 
