@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/nf-validation/example/master/assets/schema_input.json",
   "title": "nf-validation example - params.input schema",
   "description": "Schema for the file provided with params.input",

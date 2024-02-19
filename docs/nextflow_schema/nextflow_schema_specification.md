@@ -30,24 +30,24 @@ You can find more information about JSON Schema here:
 
 ## Definitions
 
-A slightly strange use of a JSON schema standard that we use for Nextflow schema is `definitions`.
+A slightly strange use of a JSON schema standard that we use for Nextflow schema is `defs`.
 
 JSON schema can group variables together in an `object`, but then the validation expects this structure to exist in the data that it is validating.
 In reality, we have a very long "flat" list of parameters, all at the top level of `params.foo`.
 
-In order to give some structure to log outputs, documentation and so on, we group parameters into `definitions`.
-Each `definition` is an object with a title, description and so on.
-However, as they are under `definitions` scope they are effectively ignored by the validation and so their nested nature is not a problem.
+In order to give some structure to log outputs, documentation and so on, we group parameters into `defs`.
+Each `def` is an object with a title, description and so on.
+However, as they are under `defs` scope they are effectively ignored by the validation and so their nested nature is not a problem.
 We then bring the contents of each definition object back to the "flat" top level for validation using a series of `allOf` statements at the end of the schema,
 which reference the specific definition keys.
 
 <!-- prettier-ignore-start -->
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   // Definition groups
-  "definitions": { // (1)!
+  "defs": { // (1)!
     "my_group_of_params": { // (2)!
       "title": "A virtual grouping used for docs and pretty-printing",
       "type": "object",
@@ -64,7 +64,7 @@ which reference the specific definition keys.
   },
   // Contents of each definition group brought into main schema for validation
   "allOf": [
-    { "$ref": "#/definitions/my_group_of_params" } // (6)!
+    { "$ref": "#/defs/my_group_of_params" } // (6)!
   ]
 }
 ```
@@ -77,7 +77,7 @@ which reference the specific definition keys.
 5. Shortened here for the example, see below for full parameter specification.
 6. A `$ref` line like this needs to be added for every definition group
 
-Parameters can be described outside of the `definitions` scope, in the regular JSON Schema top-level `properties` scope.
+Parameters can be described outside of the `defs` scope, in the regular JSON Schema top-level `properties` scope.
 However, they will be displayed as ungrouped in tools working off the schema.
 
 ## Nested parameters
@@ -115,8 +115,7 @@ Any parameters that _must_ be specified should be set as `required` in the schem
 
 !!! tip
 
-    Make sure you do not set a default value for the parameter, as then it will have
-    a value even if not supplied by the pipeline user and the required property will have no effect.
+    Make sure you do set `null` as a default value for the parameter, otherwise it will have a value even if not supplied by the pipeline user and the required property will have no effect.
 
 This is not done with a property key like other things described below, but rather by naming
 the parameter in the `required` array in the definition object / top-level object.
@@ -164,13 +163,13 @@ Variable type, taken from the [JSON schema keyword vocabulary](https://json-sche
 - `number` (float)
 - `integer`
 - `boolean` (true / false)
+- `object` (currently only supported for file validation, see [Nested paramters](#nested-parameters))
+- `array` (currently only supported for file validation, see [Nested paramters](#nested-parameters))
 
 Validation checks that the supplied parameter matches the expected type, and will fail with an error if not.
 
-These JSON schema types are _not_ supported (see [Nested paramters](#nested-parameters)):
+This JSON schema type is _not_ supported:
 
-- `object`
-- `array`
 - `null`
 
 ### `default`
@@ -223,7 +222,7 @@ If validation fails, this `errorMessage` is printed instead, and the raw JSON sc
 For example, instead of printing:
 
 ```
-ERROR ~ * --input: string [samples.yml] does not match pattern ^\S+\.csv$ (samples.yml)
+* --input (samples.yml): "samples.yml" does not match regular expression [^\S+\.csv$]
 ```
 
 We can set
@@ -239,8 +238,20 @@ We can set
 and get:
 
 ```
-ERROR ~ * --input: File name must end in '.csv' cannot contain spaces (samples.yml)
+* --input (samples.yml): File name must end in '.csv' cannot contain spaces
 ```
+
+### `deprecated`
+
+!!! example "Extended key"
+
+A boolean JSON flag that instructs anything using the schema that this parameter/field is deprecated and should not be used. This can be useful to generate messages telling the user that a parameter has changed between versions.
+
+JSON schema states that this is an informative key only, but in `nf-validation` this will cause a validation error if the parameter/field is used.
+
+!!! tip
+
+    Using the [`errorMessage`](#errormessage) keyword can be useful to provide more information about the deprecation and what to use instead.
 
 ### `enum`
 
@@ -325,11 +336,6 @@ Formats can be used to give additional validation checks against `string` values
     The `format` key is a [standard JSON schema key](https://json-schema.org/understanding-json-schema/reference/string.html#format),
     however we primarily use it for validating file / directory path operations with non-standard schema values.
 
-!!! note
-
-    In addition to _validating_ the strings as the provided format type, nf-validation also _coerces_ the parameter variable type.
-    That is: if the schema defines `params.input` as a `file-path`, nf-validation will convert the parameter from a `String` into a `Nextflow.File`.
-
 Example usage is as follows:
 
 ```json
@@ -342,7 +348,7 @@ Example usage is as follows:
 The available `format` types are below:
 
 `file-path`
-: States that the provided value is a file. Does not check its existence, but it does check that the path is not a directory.
+: States that the provided value is a file. Does not check its existence, but it does check if the path is not a directory.
 
 `directory-path`
 : States that the provided value is a directory. Does not check its existence, but if it exists, it does check that the path is not a file.
@@ -351,11 +357,11 @@ The available `format` types are below:
 : States that the provided value is a path (file or directory). Does not check its existence.
 
 `file-path-pattern`
-: States that the provided value is a globbing pattern that will be used to fetch files. Checks that the pattern is valid and that at least one file is found.
+: States that the provided value is a glob pattern that will be used to fetch files. Checks that the pattern is valid and that at least one file is found.
 
 ### `exists`
 
-When a format is specified for a value, you can provide the key `exists` set to true in order to validate that the provided path exists.
+When a format is specified for a value, you can provide the key `exists` set to true in order to validate that the provided path exists. Set this to `false` to validate that the path does not exist.
 
 Example usage is as follows:
 
@@ -369,16 +375,7 @@ Example usage is as follows:
 
 !!! note
 
-    If `exists` is set to `false`, this validation is ignored. Does not check if the path exists.
-
-!!! note
-
-    If the parameter is set to `null`, `false` or an empty string, this validation is ignored. It does not check if the path exists.
-
-!!! note
-
     If the parameter is an S3 URL path, this validation is ignored.
-    Use `--validationS3PathCheck` or set `params.validationS3PathCheck = true` to validate them.
 
 ### `mimetype`
 
@@ -404,8 +401,7 @@ Should only be set when `format` is `file-path`.
 
 !!! tip
 
-    Setting this field is key to working with sample sheet validation and channel generation,
-    as described in the next section of the nf-validation docs.
+    Setting this field is key to working with sample sheet validation and channel generation, as described in the next section of the nf-validation docs.
 
 These schema files are typically stored in the pipeline `assets` directory, but can be anywhere.
 
@@ -448,3 +444,41 @@ Specify a minimum / maximum value for an integer or float number length with `mi
     The JSON schema doc also mention `exclusiveMinimum`, `exclusiveMaximum` and `multipleOf` keys.
     Because nf-validation uses stock JSON schema validation libraries, these _should_ work for validating keys.
     However, they are not officially supported within the Nextflow schema ecosystem and so some interfaces may not recognise them.
+
+## Array-specific keys
+
+### `uniqueItems`
+
+All items in the array should be unique.
+
+- See the [JSON schema docs](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems)
+  for details.
+
+```json
+{
+  "type": "array",
+  "uniqueItems": true
+}
+```
+
+### `uniqueEntries`
+
+!!! example "Non-standard key"
+
+The combination of all values in the given keys should be unique. For this key to work you need to make sure the array items are of type `object` and contains the keys in the `uniqueEntries` list.
+
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "uniqueEntries": ["foo", "bar"],
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "string" }
+    }
+  }
+}
+```
+
+This schema tells `nf-validation` that the combination of `foo` and `bar` should be unique across all objects in the array.

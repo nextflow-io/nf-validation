@@ -8,6 +8,7 @@ nav:
   - Home:
       - index.md
       - background.md
+      - migration_guide.md
   - Schema:
       - nextflow_schema/index.md
       - nextflow_schema/create_schema.md
@@ -19,7 +20,7 @@ nav:
       - parameters/validation.md
       - parameters/help_text.md
       - parameters/summary_log.md
-  - Sample sheets:
+  - Samplesheets:
       - samplesheets/validate_sample_sheet.md
       - samplesheets/fromSamplesheet.md
       - samplesheets/examples.md

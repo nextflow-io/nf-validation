@@ -10,7 +10,7 @@ This function returns a string that can be logged to the terminal, summarizing t
 
 !!! note
 
-    The summary prioritizes displaying only the parameters that are **different** the default schema values.
+    The summary prioritizes displaying only the parameters that are **different** than the default schema values.
     Parameters which don't have a default in the JSON Schema and which have a value of `null`, `""`, `false` or `'false'` won't be returned in the map.
     This is to streamline the extensive parameter lists often associated with pipelines, and highlight the customized elements.
     This feature is essential for users to verify their configurations, like checking for typos or confirming proper resolution,
