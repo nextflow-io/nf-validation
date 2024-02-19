@@ -86,7 +86,7 @@ In [this example](../../examples/fromSamplesheetBasic/), we create a simple chan
 === "samplesheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetOrder/sample sheet.csv"
+    --8<-- "examples/fromSamplesheetOrder/samplesheet.csv"
     ```
 
 === "assets/schema_input.json"
