@@ -1,6 +1,6 @@
 # nextflow-io/nf-validation: Changelog
 
-# Version 2.0.0dev
+# Version 2.0.0 - Kagoshima
 
 :warning: This version contains a number of breaking changes. Please read the changelog carefully before upgrading. :warning:
 
