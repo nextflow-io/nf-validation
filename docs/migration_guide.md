@@ -17,7 +17,7 @@ Following list shows the major breaking changes introduced in version 2.0.0:
 2. The `unique` keyword for samplesheet schemas has been removed. Please use [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems) or [`uniqueEntries`](nextflow_schema/nextflow_schema_specification.md#uniqueentries) now instead.
 3. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information
 
-A full list of changes can be found in the [changelog](../CHANGELOG.md).
+A full list of changes can be found in the [changelog](https://github.com/nextflow-io/nf-validation/blob/master/CHANGELOG.md).
 
 ## Updating your pipeline
 

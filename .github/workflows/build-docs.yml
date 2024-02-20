@@ -31,6 +31,6 @@ jobs:
       - name: Install dependencies
         run: pip install mkdocs-material pymdown-extensions pillow cairosvg mike
       - name: Build docs
-        run: mike deploy --push --update-aliases ${{ env.plugin_version }} latest
+        run: mike deploy --push --ignore-remote-status --update-aliases ${{ env.plugin_version }} latest
       - name: Set default docs
-        run: mike set-default --push latest
+        run: mike set-default --push --ignore-remote-status latest
