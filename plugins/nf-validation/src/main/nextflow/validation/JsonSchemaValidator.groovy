@@ -37,9 +37,10 @@ public class JsonSchemaValidator {
         def String draft = Utils.getValueFromJson("#/\$schema", schema)
         if(draft != "https://json-schema.org/draft/2020-12/schema") {
             log.error("""Failed to load the meta schema:
-The used schema draft (${draft}) is not correct, please use \"https://json-schema.org/draft/2020-12/schema\" instead.
-See here for more information: https://json-schema.org/specification#migrating-from-older-drafts
-""")
+    The used schema draft (${draft}) is not correct, please use \"https://json-schema.org/draft/2020-12/schema\" instead.
+        - If you are a pipeline developer, check our migration guide for more information: https://nextflow-io.github.io/nf-validation/latest/migration_guide/
+        - If you are a pipeline user, pin the previous version of the plugin (1.1.3) to avoid this error: https://www.nextflow.io/docs/latest/plugins.html#using-plugins
+            """)
             throw new SchemaValidationException("", [])
         }
         
