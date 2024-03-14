@@ -1,10 +1,9 @@
 # ![nf-validation](docs/images/nf-validation.svg)
 
-> [!IMPORTANT]
-> **`nf-validation` has now been deprecated and won't be updated anymore.**
+> [!IMPORTANT] **`nf-validation` has now been deprecated and won't be updated anymore.**
 >
 > **Please update your pipelines to use [`nf-schema`](https://github.com/nextflow-io/nf-schema) instead.**
-> 
+>
 > This change was necessary to prevent older versions of `nf-core` pipelines from breaking when updating to the latest version of `nf-validation`. Some older and current versions of the pipelines did not pin the version of nf-validation, which caused the pipelines to break when the latest version of nf-validation was released. This change will prevent this from happening in the future. **Please pin the version of `nf-schema` in your pipeline's `nextflow.config` file.**
 
 ## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-validation>
