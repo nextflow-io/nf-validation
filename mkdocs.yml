@@ -1,7 +1,7 @@
 site_name: nf-validation
 repo_name: nextflow-io/nf-validation
 repo_url: https://github.com/nextflow-io/nf-validation
-site_url: https://nextflow-io.github.io/nf-validation/
+site_url: https://nextflow-io.github.io/nf-validation/latest/
 edit_uri: edit/main/docs/
 
 nav:
