@@ -13,7 +13,7 @@ It is used as a test fixture in the nf-schemakage [here](https://github.com/next
 
 !!! note
 
-    More examples can be found in the plugin [`testResources` directory](https://github.com/nextflow-io/nf-schemab/master/plugins/nf-snf-schematResources/).
+    More examples can be found in the plugin [`testResources` directory](https://github.com/nextflow-io/nf-schema/blob/master/plugins/nf-schema/src/testResources/).
 
 ```json
 --8<-- "plugins/nf-schema/testResources/nextflow_schema.json"

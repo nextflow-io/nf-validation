@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/nf-schemample/master/assets/schema_input.json",
-  "title": "nf-schemample - params.input schema",
+  "$id": "https://raw.githubusercontent.com/nf-schema/example/master/assets/schema_input.json",
+  "title": "nf-schema example - params.input schema",
   "description": "Schema for the file provided with params.input",
   "type": "array",
   "items": {
