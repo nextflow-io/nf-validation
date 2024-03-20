@@ -6,6 +6,7 @@ import groovy.json.JsonGenerator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import groovyx.gpars.dataflow.DataflowWriteChannel
+import groovyx.gpars.dataflow.DataflowReadChannel
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
@@ -14,7 +15,7 @@ import nextflow.extension.CH
 import nextflow.Channel
 import nextflow.Global
 import nextflow.Nextflow
-import nextflow.plugin.extension.Factory
+import nextflow.plugin.extension.Operator
 import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.script.WorkflowMetadata
@@ -133,10 +134,11 @@ class SchemaValidator extends PluginExtensionPoint {
         m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
     }
 
-    @Factory
+    @Operator
     public DataflowWriteChannel fromSamplesheet(
-        Map options = null,
-        String samplesheetParam
+        final DataflowReadChannel source,
+        final Path schema,
+        final Map options = null,
     ) {
         def Map params = session.params
 
