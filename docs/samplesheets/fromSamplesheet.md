@@ -35,7 +35,7 @@ Channel.fromSamplesheet('input', parameters_schema: 'custom_nextflow_schema.json
 
 ## Basic example
 
-In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetBasic), we create a simple channel from a CSV sample sheet.
+In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/fromSamplesheetBasic), we create a simple channel from a CSV sample sheet.
 
 ```
 --8<-- "examples/fromSamplesheetBasic/log.txt"
@@ -73,7 +73,7 @@ In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examp
 
 ## Order of fields
 
-[This example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetOrder) demonstrates that the order of columns in the sample sheet file has no effect.
+[This example](https://github.com/nextflow-io/nf-schema/tree/master/examples/fromSamplesheetOrder) demonstrates that the order of columns in the sample sheet file has no effect.
 
 !!! danger
 
@@ -115,7 +115,7 @@ In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examp
 
 ## Channel with meta map
 
-In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetMeta), we use the schema to mark two columns as meta fields.
+In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/fromSamplesheetMeta), we use the schema to mark two columns as meta fields.
 This returns a channel with a meta map.
 
 ```

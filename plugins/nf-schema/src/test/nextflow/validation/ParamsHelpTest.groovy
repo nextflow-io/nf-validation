@@ -61,7 +61,7 @@ class ParamsHelpTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
+            include { paramsHelp } from 'plugin/nf-schema'
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
@@ -95,7 +95,7 @@ class ParamsHelpTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
+            include { paramsHelp } from 'plugin/nf-schema'
             params.validationShowHiddenParams = true
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
@@ -121,7 +121,7 @@ class ParamsHelpTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
+            include { paramsHelp } from 'plugin/nf-schema'
             params.help = 'publish_dir_mode'
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
@@ -154,7 +154,7 @@ class ParamsHelpTest extends Dsl2Spec{
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            include { paramsHelp } from 'plugin/nf-validation'
+            include { paramsHelp } from 'plugin/nf-schema'
             params.help = 'no_exist'
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"

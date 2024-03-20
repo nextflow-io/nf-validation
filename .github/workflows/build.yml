@@ -51,4 +51,4 @@ jobs:
         with:
           name: test-reports-jdk-${{ matrix.java_version }}
           path: |
-            ./plugins/nf-validation/build/reports/tests/test/**
+            ./plugins/nf-schema/build/reports/tests/test/**

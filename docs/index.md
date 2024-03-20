@@ -1,9 +1,9 @@
 ---
-title: nf-validation
+title: nf-schema
 description: Nextflow plugin for sample sheet validation
 ---
 
-# ![nf-validation](images/nf-validation.svg)
+# ![nf-schemaages/nf-scheschemg
 
 {==
 

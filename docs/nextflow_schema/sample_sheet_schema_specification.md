@@ -4,7 +4,7 @@ description: Schema specification for sample sheet validation
 
 # Sample sheet schema specification
 
-Sample sheet schema files are used by the nf-validation plugin for validation of sample sheet contents and type conversion / channel generation.
+Sample sheet schema files are used by the nf-schemagin for validation of sample sheet contents and type conversion / channel generation.
 
 The Nextflow schema syntax is based on the JSON schema standard.
 You can find more information about JSON Schema here:
@@ -94,4 +94,4 @@ For example:
 ```
 
 will convert the `field` value to a meta value, resulting in the channel `[[id:value]...]`
-See [here](https://github.com/nextflow-io/nf-validation/blob/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-validation/src/testResources/schema_input.json#L10-L25) for an example in the sample sheet.
+See [here](https://github.com/nextflow-io/nf-schemab/ce3aef60e5103ea4798375fe6c59bae41b7d2a25/plugins/nf-scheschemctResources/schema_input.json#L10-L25) for an example in the sample sheet.

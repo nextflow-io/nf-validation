@@ -22,7 +22,7 @@ You can find more information about JSON Schema here:
 
 !!! note
 
-    The nf-validation plugin, as well as several other interfaces using Nextflow schema, uses a stock JSON schema library for parameter validation.
+    The nf-schema plugin, as well as several other interfaces using Nextflow schema, uses a stock JSON schema library for parameter validation.
     As such, any valid JSON schema _should_ work for validation.
 
     However, please note that graphical UIs (docs, launch interfaces) are largely hand-written and may not expect JSON schema usage that is
@@ -247,7 +247,7 @@ and get:
 
 A boolean JSON flag that instructs anything using the schema that this parameter/field is deprecated and should not be used. This can be useful to generate messages telling the user that a parameter has changed between versions.
 
-JSON schema states that this is an informative key only, but in `nf-validation` this will cause a validation error if the parameter/field is used.
+JSON schema states that this is an informative key only, but in `nf-schema` this will cause a validation error if the parameter/field is used.
 
 !!! tip
 
@@ -401,7 +401,7 @@ Should only be set when `format` is `file-path`.
 
 !!! tip
 
-    Setting this field is key to working with sample sheet validation and channel generation, as described in the next section of the nf-validation docs.
+    Setting this field is key to working with sample sheet validation and channel generation, as described in the next section of the nf-schema docs.
 
 These schema files are typically stored in the pipeline `assets` directory, but can be anywhere.
 
@@ -442,7 +442,7 @@ Specify a minimum / maximum value for an integer or float number length with `mi
 !!! note
 
     The JSON schema doc also mention `exclusiveMinimum`, `exclusiveMaximum` and `multipleOf` keys.
-    Because nf-validation uses stock JSON schema validation libraries, these _should_ work for validating keys.
+    Because nf-schema uses stock JSON schema validation libraries, these _should_ work for validating keys.
     However, they are not officially supported within the Nextflow schema ecosystem and so some interfaces may not recognise them.
 
 ## Array-specific keys
@@ -481,4 +481,4 @@ The combination of all values in the given keys should be unique. For this key t
 }
 ```
 
-This schema tells `nf-validation` that the combination of `foo` and `bar` should be unique across all objects in the array.
+This schema tells `nf-schema` that the combination of `foo` and `bar` should be unique across all objects in the array.

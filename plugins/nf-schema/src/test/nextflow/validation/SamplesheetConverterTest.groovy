@@ -59,7 +59,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct.csv'
 
@@ -86,7 +86,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - quoted CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct_quoted.csv'
 
@@ -113,7 +113,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - TSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct.tsv'
 
@@ -140,7 +140,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct.yaml'
 
@@ -167,7 +167,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct.json'
 
@@ -194,7 +194,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct_arrays.yaml'
 
@@ -220,7 +220,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/correct_arrays.json'
 
@@ -246,7 +246,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/no_header.csv'
 
@@ -270,7 +270,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/no_header.yaml'
 
@@ -294,7 +294,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/no_header.json'
 
@@ -318,7 +318,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'extra field' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/extraFields.csv'
 
@@ -349,7 +349,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no meta' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/no_meta.csv'
 
@@ -373,7 +373,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/deeply_nested.yaml'
 
@@ -397,7 +397,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-validation'
+            include { fromSamplesheet } from 'plugin/nf-schema'
 
             params.input = 'src/testResources/deeply_nested.json'
 

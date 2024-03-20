@@ -1,6 +1,6 @@
 ---
 title: Migration guide
-description: Guide to migrate pipelines using nf-validation pre v2.0.0 to after v2.0.0
+description: Guide to migrate pipelines using nf-schema pre v2.0.0 to after v2.0.0
 hide:
   - toc
 ---
@@ -17,7 +17,7 @@ Following list shows the major breaking changes introduced in version 2.0.0:
 2. The `unique` keyword for samplesheet schemas has been removed. Please use [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems) or [`uniqueEntries`](nextflow_schema/nextflow_schema_specification.md#uniqueentries) now instead.
 3. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information
 
-A full list of changes can be found in the [changelog](https://github.com/nextflow-io/nf-validation/blob/master/CHANGELOG.md).
+A full list of changes can be found in the [changelog](https://github.com/nextflow-io/nf-schema/blob/master/CHANGELOG.md).
 
 ## Updating your pipeline
 

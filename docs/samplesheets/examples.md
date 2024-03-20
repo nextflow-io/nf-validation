@@ -7,7 +7,7 @@ description: Examples of advanced sample sheet creation techniques.
 
 ## Introduction
 
-Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-validation helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet`.
+Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-schema helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet`.
 
 ### Glossary
 

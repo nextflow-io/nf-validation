@@ -37,7 +37,7 @@ String now() {
 }
 
 List<String> allPlugins() {
-    return [new File(rootProject.rootDir, 'plugins/nf-validation')]
+    return [new File(rootProject.rootDir, 'plugins/nf-schema')]
 }
 
 String metaFromManifest(String meta, File file) {

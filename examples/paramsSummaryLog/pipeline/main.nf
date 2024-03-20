@@ -1,3 +1,3 @@
-include { paramsSummaryLog } from 'plugin/nf-validation'
+include { paramsSummaryLog } from 'plugin/nf-schema'
 
 log.info paramsSummaryLog(workflow)

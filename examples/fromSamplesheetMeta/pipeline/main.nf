@@ -1,4 +1,4 @@
-include { fromSamplesheet } from 'plugin/nf-validation'
+include { fromSamplesheet } from 'plugin/nf-schema'
 
 ch_input = Channel.fromSamplesheet("input")
 

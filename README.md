@@ -1,6 +1,6 @@
-# ![nf-validation](docs/images/nf-validation.svg)
+# ![nf-schema](docs/images/nf-schema.svg)
 
-## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-validation>
+## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-schema>
 
 **A Nextflow plugin to work with validation of pipeline parameters and sample sheets.**
 
@@ -22,7 +22,7 @@ Declare the plugin in your Nextflow pipeline configuration file:
 
 ```groovy title="nextflow.config"
 plugins {
-  id 'nf-validation'
+  id 'nf-schema'
 }
 ```
 
@@ -31,12 +31,12 @@ This is all that is needed - Nextflow will automatically fetch the plugin code a
 > [!NOTE]
 > The snippet above will always try to install the latest version, good to make sure
 > that the latest bug fixes are included! However, this can cause difficulties if running
-> offline. You can pin a specific release using the syntax `nf-validation@2.0.0`
+> offline. You can pin a specific release using the syntax `nf-schema@2.0.0`
 
 You can now include the plugin helper functions into your Nextflow pipeline:
 
 ```groovy title="main.nf"
-include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-schema'
 
 // Print help message, supply typical command line usage for the pipeline
 if (params.help) {

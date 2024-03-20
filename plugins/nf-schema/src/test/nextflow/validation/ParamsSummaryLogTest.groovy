@@ -62,7 +62,7 @@ class ParamsSummaryLogTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.outdir = "outDir"
-            include { paramsSummaryLog } from 'plugin/nf-validation'
+            include { paramsSummaryLog } from 'plugin/nf-schema'
             
             def summary_params = paramsSummaryLog(workflow, parameters_schema: '$schema')
             log.info summary_params

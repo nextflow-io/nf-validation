@@ -1,6 +1,6 @@
 ---
 title: Contribution instructions
-description: How to contribute to nf-validation
+description: How to contribute to nf-schema
 ---
 
 # Getting started with plugin development
@@ -39,7 +39,7 @@ Compile the plugin code
 Run nextflow with this command:
 
 ```bash
-./launch.sh run -plugins nf-validation <script/pipeline name> [pipeline params]
+./launch.sh run -plugins nf-schema <script/pipeline name> [pipeline params]
 ```
 
 ## Change and preview the docs
@@ -51,7 +51,7 @@ You can install the required packages as follows:
 pip install mkdocs-material pymdown-extensions pillow cairosvg
 ```
 
-To change the docs, edit the files in the [docs/](https://github.com/nextflow-io/nf-validation/tree/master/docs) folder and run the following command to generate the docs:
+To change the docs, edit the files in the [docs/](https://github.com/nextflow-io/nf-schema/tree/master/docs) folder and run the following command to generate the docs:
 
 ```bash
 mkdocs serve
