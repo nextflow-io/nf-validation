@@ -69,16 +69,24 @@ class SamplesheetConverter {
     */
     public static List validateAndConvertToList() {
 
+        // Logging
+        def Boolean useMonochromeLogs = this.options?.containsKey('monochrome_logs') ? this.options.monochrome_logs as Boolean :
+            this.params.monochrome_logs ? this.params.monochrome_logs as Boolean : 
+            this.params.monochromeLogs  ? this.params.monochromeLogs as Boolean :
+            false
+        def colors = Utils.logColours(useMonochromeLogs)
+
+        // Some checks before validating
+        if(!this.schemaFile.exists()) {
+            def msg = "${colors.red}JSON schema file ${this.schemaFile.toString()} does not exist\n${colors.reset}\n"
+            throw new SchemaValidationException(msg)
+        }
+
         // Validate
         final validator = new JsonSchemaValidator()
         def JSONArray samplesheet = Utils.fileToJsonArray(this.samplesheetFile, this.schemaFile)
         def List<String> validationErrors = validator.validate(samplesheet, this.schemaFile.text)
         if (validationErrors) {
-            def Boolean useMonochromeLogs = this.options?.containsKey('monochrome_logs') ? this.options.monochrome_logs as Boolean :
-                this.params.monochrome_logs ? this.params.monochrome_logs as Boolean : 
-                this.params.monochromeLogs  ? this.params.monochromeLogs as Boolean :
-                false
-            def colors = Utils.logColours(useMonochromeLogs)
             def msg = "${colors.red}The following errors have been detected in ${this.samplesheetFile.toString()}:\n\n" + validationErrors.join('\n').trim() + "\n${colors.reset}\n"
             log.error("Validation of samplesheet failed!")
             throw new SchemaValidationException(msg, validationErrors)
