@@ -82,6 +82,11 @@ class SamplesheetConverter {
             throw new SchemaValidationException(msg)
         }
 
+        if(!this.samplesheetFile.exists()) {
+            def msg = "${colors.red}Samplesheet file ${this.samplesheetFile.toString()} does not exist\n${colors.reset}\n"
+            throw new SchemaValidationException(msg)
+        }
+
         // Validate
         final validator = new JsonSchemaValidator()
         def JSONArray samplesheet = Utils.fileToJsonArray(this.samplesheetFile, this.schemaFile)

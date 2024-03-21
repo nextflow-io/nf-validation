@@ -135,6 +135,45 @@ class SchemaValidator extends PluginExtensionPoint {
         m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
     }
 
+    @Function
+    public List samplesheetToList(
+        final String samplesheet,
+        final String schema,
+        final Map options = null
+    ) {
+        return samplesheetToList(samplesheet as Path, schema, options)
+    }
+
+    @Function
+    public List samplesheetToList(
+        final Path samplesheet,
+        final String schema,
+        final Map options = null
+    ) {
+        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema)
+        def Path schemaFile = Nextflow.file(fullPathSchema) as Path
+        return samplesheetToList(samplesheet, schemaFile, options)
+    }
+
+    @Function
+    public List samplesheetToList(
+        final String samplesheet,
+        final Path schema,
+        final Map options = null
+    ) {
+        return samplesheetToList(samplesheet as Path, schema, options)
+    }
+
+    @Function
+    public List samplesheetToList(
+        final Path samplesheet,
+        final Path schema,
+        final Map options = null
+    ) {
+        def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, session.params, options)
+        return converter.validateAndConvertToList()
+    }
+
     @Operator
     public DataflowWriteChannel fromSamplesheet(
         final DataflowReadChannel source,
