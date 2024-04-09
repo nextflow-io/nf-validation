@@ -47,10 +47,10 @@ In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/
     --8<-- "examples/fromSamplesheetBasic/pipeline/main.nf"
     ```
 
-=== "sample sheet.csv"
+=== "samplesheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetBasic/sample sheet.csv"
+    --8<-- "examples/fromSamplesheetBasic/samplesheet.csv"
     ```
 
 === "nextflow.config"
