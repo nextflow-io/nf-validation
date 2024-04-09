@@ -1,4 +1,4 @@
-# ![nf-schema](docs/images/nf-schema.svg)
+# ![nf-schema](docs/images/nf-schema.png)
 
 ## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-schema>
 
