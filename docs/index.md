@@ -3,7 +3,7 @@ title: nf-schema
 description: Nextflow plugin for sample sheet validation
 ---
 
-# ![nf-schemaages/nf-scheschemg
+# ![nf-schema](images/nf-schema.svg)
 
 {==
 
