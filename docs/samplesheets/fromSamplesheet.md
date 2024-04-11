@@ -11,7 +11,6 @@ This channel operator validates and converts a sample sheet to ready-to-use chan
 
 The operator has one mandatory argument: the path of the JSON schema file corresponding to the samplesheet. This can be either a string with the relative path (from the root of the pipeline) or a file object of the schema.
 
-
 ```groovy
 Channel.of("path/to/samplesheet").fromSamplesheet("path/to/json/schema")
 ```
