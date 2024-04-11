@@ -26,4 +26,8 @@ See an example in the `input` field from the [example schema.json](https://raw.g
 }
 ```
 
+!!! warning
+
+    The `.fromSamplesheet` channel operator and `samplesheetToList` also validate the files before converting them. If you convert the samplesheet, you should not add a schema to the parameter corresponding to the samplesheet to keep your pipeline as efficient as possible.
+
 For more information about the sample sheet JSON schema refer to [sample sheet docs](../nextflow_schema/nextflow_schema_specification.md).

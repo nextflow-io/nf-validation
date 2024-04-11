@@ -7,7 +7,7 @@ description: Examples of advanced sample sheet creation techniques.
 
 ## Introduction
 
-Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-schema helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet`.
+Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-schema helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet()`.
 
 ### Glossary
 
@@ -104,7 +104,7 @@ val(meta), path(fastq_1), path(fastq_2)
 To manipulate each item within a channel, you should use the [Nextflow `.map()` operator](https://www.nextflow.io/docs/latest/operator.html#map). This will apply a function to each element of the channel in turn. Here, we convert the flat tuple into a tuple composed of a meta and a list of FASTQ files:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.of(params.input).fromSamplesheet("path/to/json/schema")
     .map { meta, fastq_1, fastq_2 -> tuple(meta, [ fastq_1, fastq_2 ]) }
     .set { input }
 
@@ -122,7 +122,7 @@ ZCAT_FASTQS(input)
 For example, to remove the BED file from the channel created above, we could not return it from the map. Note the absence of the `bed` item in the return of the closure below:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.of(params.input).fromSamplesheet("path/to/json/schema")
     .map { meta, fastq_1, fastq_2, bed -> tuple(meta, fastq_1, fastq_2) }
     .set { input }
 
@@ -136,7 +136,7 @@ In this way you can drop items from a channel.
 We could perform this twice to create one channel containing the FASTQs and one containing the BED files, however Nextflow has a native operator to separate channels called [`.multiMap()`](https://www.nextflow.io/docs/latest/operator.html#multimap). Here, we separate the FASTQs and BEDs into two separate channels using `multiMap`. Note, the channels are both contained in `input` and accessed as an attribute using dot notation:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.of(params.input).fromSamplesheet("path/to/json/schema")
     .multiMap { meta, fastq_1, fastq_2, bed ->
         fastq: tuple(meta, fastq_1, fastq_2)
         bed:   tuple(meta, bed)
@@ -163,7 +163,7 @@ This example shows a channel which can have entries for WES or WGS data. WES dat
 // Channel with four elements - see docs for examples
 params.input = "samplesheet.csv"
 
-Channel.fromSamplesheet("input")
+Channel.of(params.input).fromSamplesheet("path/to/json/schema")
     .branch { meta, fastq_1, fastq_2, bed ->
         // If BED does not exist
         WGS: !bed
@@ -211,7 +211,7 @@ This example contains a channel where multiple samples can be in the same family
 
 params.input = "sample sheet.csv"
 
-Channel.fromSamplesheet("input")
+Channel.of(params.input).fromSamplesheet("path/to/json/schema")
     .tap { ch_raw }                       // Create a copy of the original channel
     .map { meta, txt -> [ meta.family ] } // Isolate the value to count on
     .reduce([:]) { counts, family ->      // Creates a map like this: [family1:2, family2:1]

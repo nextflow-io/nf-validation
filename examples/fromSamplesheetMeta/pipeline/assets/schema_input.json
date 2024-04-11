@@ -20,16 +20,8 @@
       },
       "fastq_2": {
         "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
-        "anyOf": [
-          {
-            "type": "string",
-            "pattern": "^\\S+\\.f(ast)?q\\.gz$"
-          },
-          {
-            "type": "string",
-            "maxLength": 0
-          }
-        ]
+        "type": "string",
+        "pattern": "^\\S+\\.f(ast)?q\\.gz$"
       },
       "strandedness": {
         "type": "string",

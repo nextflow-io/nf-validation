@@ -1,36 +1,19 @@
 ---
 title: Create a channel
-description: Channel factory to create a channel from a sample sheet.
+description: Channel operator to create a channel from a sample sheet.
 ---
 
 # Create a channel from a sample sheet
 
 ## `fromSamplesheet`
 
-This function validates and converts a sample sheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
+This channel operator validates and converts a sample sheet to ready-to-use channel entries. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
 
-The function has one mandatory argument: the name of the parameter which specifies the input sample sheet. The parameter specified must have the format `file-path` and include additional field `schema`:
+The operator has one mandatory argument: the path of the JSON schema file corresponding to the samplesheet. This can be either a string with the relative path (from the root of the pipeline) or a file object of the schema.
 
-```json hl_lines="4"
-{
-  "type": "string",
-  "format": "file-path",
-  "schema": "assets/foo_schema.json"
-}
-```
-
-The path specified in the `schema` key determines the JSON used for validation of the sample sheet.
-
-When using the `.fromSamplesheet` channel factory, one optional arguments can be used:
-
-- `parameters_schema`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
 
 ```groovy
-Channel.fromSamplesheet('input')
-```
-
-```groovy
-Channel.fromSamplesheet('input', parameters_schema: 'custom_nextflow_schema.json')
+Channel.of("path/to/samplesheet").fromSamplesheet("path/to/json/schema")
 ```
 
 ## Basic example
@@ -59,12 +42,6 @@ In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/
     --8<-- "examples/fromSamplesheetBasic/pipeline/nextflow.config"
     ```
 
-=== "nextflow_schema.json"
-
-    ```json hl_lines="19"
-    --8<-- "examples/fromSamplesheetBasic/pipeline/nextflow_schema.json"
-    ```
-
 === "assets/schema_input.json"
 
     ```json
@@ -91,7 +68,7 @@ In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/
 
 === "assets/schema_input.json"
 
-    ```json hl_lines="10 15 20 33"
+    ```json hl_lines="10 15 20 25"
     --8<-- "examples/fromSamplesheetOrder/pipeline/assets/schema_input.json"
     ```
 
@@ -107,12 +84,6 @@ In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/
     --8<-- "examples/fromSamplesheetOrder/pipeline/nextflow.config"
     ```
 
-=== "nextflow_schema.json"
-
-    ```json
-    --8<-- "examples/fromSamplesheetOrder/pipeline/nextflow_schema.json"
-    ```
-
 ## Channel with meta map
 
 In [this example](https://github.com/nextflow-io/nf-schema/tree/master/examples/fromSamplesheetMeta), we use the schema to mark two columns as meta fields.
@@ -124,7 +95,7 @@ This returns a channel with a meta map.
 
 === "assets/schema_input.json"
 
-    ```json hl_lines="14 38"
+    ```json hl_lines="14 30"
     --8<-- "examples/fromSamplesheetMeta/pipeline/assets/schema_input.json"
     ```
 
@@ -144,10 +115,4 @@ This returns a channel with a meta map.
 
     ```groovy
     --8<-- "examples/fromSamplesheetMeta/pipeline/nextflow.config"
-    ```
-
-=== "nextflow_schema.json"
-
-    ```json
-    --8<-- "examples/fromSamplesheetMeta/pipeline/nextflow_schema.json"
     ```

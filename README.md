@@ -50,9 +50,8 @@ validateParameters()
 // Print summary of supplied parameters
 log.info paramsSummaryLog(workflow)
 
-// Create a new channel of metadata from a sample sheet
-// NB: `input` corresponds to `params.input` and associated sample sheet schema
-ch_input = Channel.fromSamplesheet("input")
+// Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
+ch_input = Channel.of(params.input).fromSamplesheet("assets/schema_input.json")
 ```
 
 ## Dependencies
@@ -62,7 +61,7 @@ ch_input = Channel.fromSamplesheet("input")
 
 ## Slack channel
 
-There is a dedicated [nf-validation Slack channel](https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace](nextflow.slack.com).
+There is a dedicated [nf-validation Slack channel](https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace](https://nextflow.slack.com).
 
 ## Credits
 
