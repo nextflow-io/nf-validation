@@ -141,7 +141,8 @@ class SchemaValidator extends PluginExtensionPoint {
         final String schema,
         final Map options = null
     ) {
-        return samplesheetToList(samplesheet as Path, schema, options)
+        def Path samplesheetFile = Nextflow.file(samplesheet) as Path
+        return samplesheetToList(samplesheetFile, schema, options)
     }
 
     @Function
@@ -161,7 +162,8 @@ class SchemaValidator extends PluginExtensionPoint {
         final Path schema,
         final Map options = null
     ) {
-        return samplesheetToList(samplesheet as Path, schema, options)
+        def Path samplesheetFile = Nextflow.file(samplesheet) as Path
+        return samplesheetToList(samplesheetFile, schema, options)
     }
 
     @Function
@@ -206,7 +208,11 @@ class SchemaValidator extends PluginExtensionPoint {
                 def msg = "${colors.red}The .fromSamplesheet operator only takes a channel with one value per entry (either a String or Path type)\n${colors.reset}\n"
                 throw new SchemaValidationException(msg)
             }
-            def SamplesheetConverter converter = new SamplesheetConverter(it as Path, schema, params, options)
+            def Path samplesheet = it as Path
+            if(it instanceof String) {
+                samplesheet = Nextflow.file(it) as Path
+            }
+            def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, params, options)
             def List arrayChannel = converter.validateAndConvertToList()
             arrayChannel.each { 
                 target.bind(it)
