@@ -338,7 +338,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("Found the following unidentified headers in src/testResources/extraFields.csv:")
+        stdout.contains("Found the following unidentified headers in ${getRootString()}/src/testResources/extraFields.csv:" as String)
         stdout.contains("\t- extraField")
         stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
