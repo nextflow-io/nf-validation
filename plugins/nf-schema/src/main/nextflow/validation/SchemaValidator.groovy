@@ -189,7 +189,7 @@ This would create a channel from params.input using the schema specified in the 
     ${e.getStackTrace().join("\n\t")}
 
 Please run validateParameters() first before trying to convert a samplesheet to a channel.
-Reference: https://nextflow-io.github.io/nf-validation/parameters/validation/
+Reference: https://nextflow-io.github.io/nf-schema/parameters/validation/
 
 Also make sure that the same schema is used for validation and conversion of the samplesheet
 """ as String

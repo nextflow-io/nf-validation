@@ -59,7 +59,7 @@ class NfValidationTest extends Dsl2Spec{
     def 'should import functions' () {
         given:
         def  SCRIPT_TEXT = '''
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
         '''
 
         when:

@@ -62,7 +62,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: 'src/testResources/nextflow_schema.json', monochrome_logs: params.monochrome_logs)
         """
@@ -93,7 +93,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters()
         """
@@ -119,7 +119,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -142,7 +142,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.tsv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -165,7 +165,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.yaml'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -188,7 +188,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/correct.json'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -211,7 +211,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/wrong.csv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -244,7 +244,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/wrong.tsv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -277,7 +277,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/wrong.yaml'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -310,7 +310,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/wrong.json'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -344,7 +344,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -370,7 +370,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
             params.validationSchemaIgnoreParams = 'xyz'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -396,7 +396,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
             params.validationFailUnrecognisedParams = true
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -421,7 +421,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.monochrome_logs = true
             params.input = 'src/testResources/correct.csv'
             params.outdir = 10
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -451,7 +451,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             params.max_memory = '10.GB'
             params.max_time = '10.day'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -475,7 +475,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.max_cpus = 12
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -501,7 +501,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.outdir = 'src/testResources/testDir'
             params.integer = 0
             params.number = 0
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -525,7 +525,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.monochrome_logs = true
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -552,7 +552,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.glob = 'src/testResources/*.csv'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -574,7 +574,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.glob = 'src/testResources/correct.csv'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -598,7 +598,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
             params.outdir = 1
             params.validationLenientMode = true
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -623,7 +623,7 @@ class ValidateParametersTest extends Dsl2Spec{
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.max_cpus = 1.2
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -647,7 +647,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.input = 'src/testResources/samplesheet.csv'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
@@ -670,7 +670,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
             params.input = 'src/testResources/samplesheet_wrong_pattern.csv'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -700,7 +700,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
             params.input = 'src/testResources/samplesheet_no_required.csv'
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
 
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -730,7 +730,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema = Path.of('src/testResources/nextflow_schema_draft7.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
 
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -753,7 +753,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
             params.outdir = "src/testResources/"
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
 
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """
@@ -781,7 +781,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def  SCRIPT_TEXT = """
             params.monochrome_logs = true
             params.input = "src/testResources/samplesheet_non_unique.csv"
-            include { validateParameters } from 'plugin/nf-validation'
+            include { validateParameters } from 'plugin/nf-schema'
 
             validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
         """

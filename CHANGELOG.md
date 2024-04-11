@@ -1,4 +1,4 @@
-# nextflow-io/nf-validation: Changelog
+# nextflow-io/nf-schema: Changelog
 
 # Version 2.0.0 - Kagoshima
 

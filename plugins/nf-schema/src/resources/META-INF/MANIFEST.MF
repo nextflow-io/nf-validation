@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Plugin-Id: nf-validation
+Plugin-Id: nf-schema
 Plugin-Version: 2.0.0
 Plugin-Class: nextflow.validation.ValidationPlugin
 Plugin-Provider: nextflow
