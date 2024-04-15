@@ -2,7 +2,7 @@
 
 # Version 2.0.0 - Kagoshima
 
-To migrate from nf-validation please follow the [migration guide](https://nextflow-io.github.io/nf-validation/latest/migration_guide/)
+To migrate from nf-validation please follow the [migration guide](https://nextflow-io.github.io/nf-schema/latest/migration_guide/)
 
 ## New features
 
