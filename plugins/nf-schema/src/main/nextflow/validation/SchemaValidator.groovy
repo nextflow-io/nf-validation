@@ -204,7 +204,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         final target = CH.createBy(source)
         final next = {
-            if(!(it instanceof String || it instanceof Path)) {
+            if(!(it instanceof String || it instanceof Path || it instanceof GString)) {
                 def msg = "${colors.red}The .fromSamplesheet operator only takes a channel with one value per entry (either a String or Path type)\n${colors.reset}\n"
                 throw new SchemaValidationException(msg)
             }
