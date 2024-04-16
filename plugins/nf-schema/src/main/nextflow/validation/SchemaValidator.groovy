@@ -137,8 +137,8 @@ class SchemaValidator extends PluginExtensionPoint {
 
     @Function
     public List samplesheetToList(
-        final String samplesheet,
-        final String schema,
+        final CharSequence samplesheet,
+        final CharSequence schema,
         final Map options = null
     ) {
         def Path samplesheetFile = Nextflow.file(samplesheet) as Path
@@ -148,17 +148,17 @@ class SchemaValidator extends PluginExtensionPoint {
     @Function
     public List samplesheetToList(
         final Path samplesheet,
-        final String schema,
+        final CharSequence schema,
         final Map options = null
     ) {
-        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema)
+        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema as String)
         def Path schemaFile = Nextflow.file(fullPathSchema) as Path
         return samplesheetToList(samplesheet, schemaFile, options)
     }
 
     @Function
     public List samplesheetToList(
-        final String samplesheet,
+        final CharSequence samplesheet,
         final Path schema,
         final Map options = null
     ) {
@@ -179,10 +179,10 @@ class SchemaValidator extends PluginExtensionPoint {
     @Operator
     public DataflowWriteChannel fromSamplesheet(
         final DataflowReadChannel source,
-        final String schema,
+        final CharSequence schema,
         final Map options = null
     ) {
-        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema)
+        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema as String)
         def Path schemaFile = Nextflow.file(fullPathSchema) as Path
         return fromSamplesheet(source, schemaFile, options)
     }
@@ -204,7 +204,7 @@ class SchemaValidator extends PluginExtensionPoint {
 
         final target = CH.createBy(source)
         final next = {
-            if(!(it instanceof String || it instanceof Path || it instanceof GString)) {
+            if(!(it instanceof CharSequence || it instanceof Path)) {
                 def msg = "${colors.red}The .fromSamplesheet operator only takes a channel with one value per entry (either a String or Path type)\n${colors.reset}\n"
                 throw new SchemaValidationException(msg)
             }
