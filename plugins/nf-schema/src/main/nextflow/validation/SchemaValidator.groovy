@@ -228,9 +228,6 @@ class SchemaValidator extends PluginExtensionPoint {
     // Initialise expected params if not present
     //
     Map initialiseExpectedParams(Map params) {
-        if( !params.containsKey("validationFailUnrecognisedParams") ) {
-            params.validationFailUnrecognisedParams = false
-        }
         if( !params.containsKey("help") ) {
             params.help = false
         }
@@ -253,7 +250,6 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     List addExpectedParams() {
         def List expectedParams = [
-            "validationFailUnrecognisedParams",
             "help",
             "validationShowHiddenParams",
             "validationSchemaIgnoreParams",
@@ -303,8 +299,6 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         //=====================================================================//
-        def Boolean failUnrecognisedParams = params.validationFailUnrecognisedParams ? params.validationFailUnrecognisedParams : false
-
         for (String specifiedParam in specifiedParamKeys) {
             // nextflow params
             if (NF_OPTIONS.contains(specifiedParam)) {
@@ -320,7 +314,7 @@ class SchemaValidator extends PluginExtensionPoint {
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
             if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
-                if (failUnrecognisedParams) {
+                if (config.failUnrecognisedParams) {
                     errors << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
                 } else {
                     warnings << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
