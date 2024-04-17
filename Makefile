@@ -1,5 +1,6 @@
 
 config ?= compileClasspath
+version ?= $(shell grep 'Plugin-Version' plugins/nf-schema/src/resources/META-INF/MANIFEST.MF | awk '{ print $$2 }')
 
 ifdef module 
 mm = :${module}:
@@ -45,6 +46,10 @@ else
 endif
 
 
+install:
+	./gradlew copyPluginZip
+	rm -rf ${HOME}/.nextflow/plugins/nf-schema-${version}
+	cp -r build/plugins/nf-schema-${version} ${HOME}/.nextflow/plugins/nf-schema-${version}
 
 #
 # Upload JAR artifacts to Maven Central
