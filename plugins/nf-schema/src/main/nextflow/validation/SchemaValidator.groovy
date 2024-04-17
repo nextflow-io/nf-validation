@@ -231,13 +231,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("help") ) {
             params.help = false
         }
-        if( !params.containsKey("validationShowHiddenParams") ) {
-            params.validationShowHiddenParams = false
-        }
-        if( !params.containsKey("validationS3PathCheck") ) {
-            params.validationS3PathCheck = false
-        }
-
         return params
     }
 
@@ -247,10 +240,7 @@ class SchemaValidator extends PluginExtensionPoint {
     //
     List addExpectedParams() {
         def List expectedParams = [
-            "help",
-            "validationShowHiddenParams",
-            "validationSkipDuplicateCheck",
-            "validationS3PathCheck",
+            "help"
         ]
 
         return expectedParams
@@ -267,7 +257,6 @@ class SchemaValidator extends PluginExtensionPoint {
 
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir.toString()
-        def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         log.debug "Starting parameters validation"
 
@@ -459,7 +448,7 @@ class SchemaValidator extends PluginExtensionPoint {
                 if (description_default.length() > dec_linewidth){
                     description_default = wrapText(description_default, dec_linewidth, desc_indent)
                 }
-                if (get_param.hidden && !params.validationShowHiddenParams) {
+                if (get_param.hidden && !config.showHiddenParams) {
                     num_hidden += 1
                     continue;
                 }
@@ -472,7 +461,7 @@ class SchemaValidator extends PluginExtensionPoint {
             }
         }
         if (num_hidden > 0){
-            output += "$colors.dim !! Hiding $num_hidden params, use --validationShowHiddenParams to show them !!\n$colors.reset"
+            output += "$colors.dim !! Hiding $num_hidden params, use the 'validation.showHiddenParams' config value to show them !!\n$colors.reset"
         }
         output += "-${colors.dim}----------------------------------------------------${colors.reset}-"
         return output

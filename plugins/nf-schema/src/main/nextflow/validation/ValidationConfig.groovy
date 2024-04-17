@@ -24,13 +24,17 @@ class ValidationConfig {
     final private Boolean lenientMode
     final private Boolean monochromeLogs
     final private Boolean failUnrecognisedParams
+    final private Boolean showHiddenParams
+
     final private List<String> ignoreParams
 
     ValidationConfig(Map map){
         def config = map ?: Collections.emptyMap()
-        lenientMode = config.lenientMode ?: false
-        monochromeLogs = config.monochromeLogs ?: false
-        failUnrecognisedParams = config.failUnrecognisedParams ?: false
+        lenientMode             = config.lenientMode            ?: false
+        monochromeLogs          = config.monochromeLogs         ?: false
+        failUnrecognisedParams  = config.failUnrecognisedParams ?: false
+        showHiddenParams        = config.showHiddenParams       ?: false
+
         if(config.ignoreParams && !(config.ignoreParams instanceof List<String>)) {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")
         }
