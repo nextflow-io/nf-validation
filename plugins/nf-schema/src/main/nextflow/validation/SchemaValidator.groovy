@@ -111,10 +111,14 @@ class SchemaValidator extends PluginExtensionPoint {
 
     private List<String> errors = []
     private List<String> warnings = []
+    private Session session
+    private ValidationConfig config
+
 
     @Override
     protected void init(Session session) {
-        // only called in operators
+        this.session = session
+        this.config = new ValidationConfig(session.config.navigate('validation') as Map)
     }
 
     Session getSession(){
@@ -172,7 +176,7 @@ class SchemaValidator extends PluginExtensionPoint {
         final Path schema,
         final Map options = null
     ) {
-        def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, session.params, options)
+        def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, config, options)
         return converter.validateAndConvertToList()
     }
 
@@ -194,13 +198,7 @@ class SchemaValidator extends PluginExtensionPoint {
         final Map options = null
     ) {
         // Logging
-        def params = session.params
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
-            params.monochrome_logs ? params.monochrome_logs as Boolean : 
-            params.monochromeLogs  ? params.monochromeLogs as Boolean :
-            false
-        
-        def colors = Utils.logColours(useMonochromeLogs)
+        def colors = Utils.logColours(config.monochromeLogs)
 
         final target = CH.createBy(source)
         final next = {
@@ -212,7 +210,7 @@ class SchemaValidator extends PluginExtensionPoint {
             if(it instanceof String) {
                 samplesheet = Nextflow.file(it) as Path
             }
-            def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, params, options)
+            def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, config, options)
             def List arrayChannel = converter.validateAndConvertToList()
             arrayChannel.each { 
                 target.bind(it)
@@ -248,12 +246,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationS3PathCheck") ) {
             params.validationS3PathCheck = false
         }
-        if( !params.containsKey("monochromeLogs") ) {
-            params.monochromeLogs = false
-        }
-        if( !params.containsKey("monochrome_logs") ) {
-            params.monochrome_logs = false
-        }
 
         return params
     }
@@ -271,8 +263,6 @@ class SchemaValidator extends PluginExtensionPoint {
             "validationSchemaIgnoreParams",
             "validationSkipDuplicateCheck",
             "validationS3PathCheck",
-            "monochromeLogs",
-            "monochrome_logs"
         ]
 
         return expectedParams
@@ -290,10 +280,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = initialiseExpectedParams(session.params)
         def String baseDir = session.baseDir.toString()
         def Boolean s3PathCheck = params.validationS3PathCheck ? params.validationS3PathCheck : false
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
-            params.monochrome_logs ? params.monochrome_logs as Boolean : 
-            params.monochromeLogs  ? params.monochromeLogs as Boolean :
-            false
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
         log.debug "Starting parameters validation"
 
@@ -358,7 +344,7 @@ class SchemaValidator extends PluginExtensionPoint {
         }
 
         // Colors
-        def colors = Utils.logColours(useMonochromeLogs)
+        def colors = Utils.logColours(config.monochromeLogs)
 
         // Validate
         List<String> validationErrors = validator.validate(paramsJSON, schema_string)
@@ -422,12 +408,8 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = initialiseExpectedParams(session.params)
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean : 
-            params.monochrome_logs ? params.monochrome_logs as Boolean : 
-            params.monochromeLogs  ? params.monochromeLogs as Boolean :
-            false
 
-        def colors = Utils.logColours(useMonochromeLogs)
+        def colors = Utils.logColours(config.monochromeLogs)
         Integer num_hidden = 0
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
@@ -602,12 +584,8 @@ class SchemaValidator extends PluginExtensionPoint {
         def Map params = session.params
 
         def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def Boolean useMonochromeLogs = options?.containsKey('monochrome_logs') ? options.monochrome_logs as Boolean :
-            params.monochrome_logs ? params.monochrome_logs as Boolean : 
-            params.monochromeLogs  ? params.monochromeLogs as Boolean :
-            false
 
-        def colors = Utils.logColours(useMonochromeLogs)
+        def colors = Utils.logColours(config.monochromeLogs)
         String output  = ''
         def LinkedHashMap params_map = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
         def max_chars  = paramsMaxChars(params_map)

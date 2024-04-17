@@ -21,13 +21,13 @@ class SamplesheetConverter {
 
     private static Path samplesheetFile
     private static Path schemaFile
-    private static nextflow.script.ScriptBinding$ParamsMap params
+    private static ValidationConfig config
     private static Map options
 
-    SamplesheetConverter(Path samplesheetFile, Path schemaFile, nextflow.script.ScriptBinding$ParamsMap params, Map options) {
+    SamplesheetConverter(Path samplesheetFile, Path schemaFile, ValidationConfig config, Map options) {
         this.samplesheetFile = samplesheetFile
         this.schemaFile = schemaFile
-        this.params = params
+        this.config = config
         this.options = options
     }
 
@@ -69,12 +69,7 @@ class SamplesheetConverter {
     */
     public static List validateAndConvertToList() {
 
-        // Logging
-        def Boolean useMonochromeLogs = this.options?.containsKey('monochrome_logs') ? this.options.monochrome_logs as Boolean :
-            this.params.monochrome_logs ? this.params.monochrome_logs as Boolean : 
-            this.params.monochromeLogs  ? this.params.monochromeLogs as Boolean :
-            false
-        def colors = Utils.logColours(useMonochromeLogs)
+        def colors = Utils.logColours(config.monochromeLogs)
 
         // Some checks before validating
         if(!this.schemaFile.exists()) {
