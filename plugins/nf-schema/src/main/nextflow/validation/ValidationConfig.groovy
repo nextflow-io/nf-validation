@@ -35,6 +35,10 @@ class ValidationConfig {
             throw new SchemaValidationException("Config value 'validation.ignoreParams' should be a list of String values")
         }
         ignoreParams = config.ignoreParams ?: []
+        if(config.defaultIgnoreParams && !(config.defaultIgnoreParams instanceof List<String>)) {
+            throw new SchemaValidationException("Config value 'validation.defaultIgnoreParams' should be a list of String values")
+        }
+        ignoreParams += config.defaultIgnoreParams ?: []
     }
 
     String getPrefix() { prefix }

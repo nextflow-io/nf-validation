@@ -234,9 +234,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationShowHiddenParams") ) {
             params.validationShowHiddenParams = false
         }
-        if( !params.containsKey("validationSchemaIgnoreParams") ) {
-            params.validationSchemaIgnoreParams = false
-        }
         if( !params.containsKey("validationS3PathCheck") ) {
             params.validationS3PathCheck = false
         }
@@ -252,7 +249,6 @@ class SchemaValidator extends PluginExtensionPoint {
         def List expectedParams = [
             "help",
             "validationShowHiddenParams",
-            "validationSchemaIgnoreParams",
             "validationSkipDuplicateCheck",
             "validationS3PathCheck",
         ]
@@ -305,15 +301,13 @@ class SchemaValidator extends PluginExtensionPoint {
                 errors << "You used a core Nextflow option with two hyphens: '--${specifiedParam}'. Please resubmit with '-${specifiedParam}'".toString()
             }
             // unexpected params
-            def String schemaIgnoreParams = params.validationSchemaIgnoreParams
-            def List params_ignore = schemaIgnoreParams ? schemaIgnoreParams.split(',') + 'schemaIgnoreParams' as List : []
             def expectedParamsLowerCase = expectedParams.collect{ it -> 
                 def String p = it
                 p.replace("-", "").toLowerCase() 
             }
             def specifiedParamLowerCase = specifiedParam.replace("-", "").toLowerCase()
             def isCamelCaseBug = (specifiedParam.contains("-") && !expectedParams.contains(specifiedParam) && expectedParamsLowerCase.contains(specifiedParamLowerCase))
-            if (!expectedParams.contains(specifiedParam) && !params_ignore.contains(specifiedParam) && !isCamelCaseBug) {
+            if (!expectedParams.contains(specifiedParam) && !config.ignoreParams.contains(specifiedParam) && !isCamelCaseBug) {
                 if (config.failUnrecognisedParams) {
                     errors << "* --${specifiedParam}: ${params[specifiedParam]}".toString()
                 } else {
