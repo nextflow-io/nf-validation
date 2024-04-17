@@ -83,7 +83,7 @@ class SamplesheetConverter {
         }
 
         // Validate
-        final validator = new JsonSchemaValidator()
+        final validator = new JsonSchemaValidator(config)
         def JSONArray samplesheet = Utils.fileToJsonArray(this.samplesheetFile, this.schemaFile)
         def List<String> validationErrors = validator.validate(samplesheet, this.schemaFile.text)
         if (validationErrors) {

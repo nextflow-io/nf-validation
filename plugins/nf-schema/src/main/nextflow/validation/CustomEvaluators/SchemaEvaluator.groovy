@@ -22,10 +22,12 @@ class SchemaEvaluator implements Evaluator {
 
     private final String schema
     private final String baseDir
+    private final ValidationConfig config
 
-    SchemaEvaluator(String schema, String baseDir) {
+    SchemaEvaluator(String schema, String baseDir, ValidationConfig config) {
         this.baseDir = baseDir
         this.schema = schema
+        this.config = config
     }
 
     @Override
@@ -50,7 +52,7 @@ class SchemaEvaluator implements Evaluator {
         def String schemaFull = Utils.getSchemaPath(this.baseDir, this.schema)
         def JSONArray arrayJSON = Utils.fileToJsonArray(file, Path.of(schemaFull))
         def String schemaContents = Files.readString( Path.of(schemaFull) )
-        def validator = new JsonSchemaValidator()
+        def validator = new JsonSchemaValidator(config)
 
         def List<String> validationErrors = validator.validate(arrayJSON, schemaContents)
         if (validationErrors) {

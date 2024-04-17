@@ -231,9 +231,6 @@ class SchemaValidator extends PluginExtensionPoint {
         if( !params.containsKey("validationFailUnrecognisedParams") ) {
             params.validationFailUnrecognisedParams = false
         }
-        if( !params.containsKey("validationLenientMode") ) {
-            params.validationLenientMode = false
-        }
         if( !params.containsKey("help") ) {
             params.help = false
         }
@@ -257,7 +254,6 @@ class SchemaValidator extends PluginExtensionPoint {
     List addExpectedParams() {
         def List expectedParams = [
             "validationFailUnrecognisedParams",
-            "validationLenientMode",
             "help",
             "validationShowHiddenParams",
             "validationSchemaIgnoreParams",
@@ -335,7 +331,7 @@ class SchemaValidator extends PluginExtensionPoint {
         //=====================================================================//
         // Validate parameters against the schema
         def String schema_string = Files.readString( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
-        def validator = new JsonSchemaValidator()
+        def validator = new JsonSchemaValidator(config)
 
         // check for warnings
         if( this.hasWarnings() ) {
