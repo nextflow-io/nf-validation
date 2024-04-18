@@ -6,15 +6,17 @@ import groovy.json.JsonGenerator
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import groovyx.gpars.dataflow.DataflowWriteChannel
+import groovyx.gpars.dataflow.DataflowReadChannel
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import nextflow.extension.CH
+import nextflow.extension.DataflowHelper
 import nextflow.Channel
 import nextflow.Global
 import nextflow.Nextflow
-import nextflow.plugin.extension.Factory
+import nextflow.plugin.extension.Operator
 import nextflow.plugin.extension.Function
 import nextflow.plugin.extension.PluginExtensionPoint
 import nextflow.script.WorkflowMetadata
@@ -133,78 +135,46 @@ class SchemaValidator extends PluginExtensionPoint {
         m.findResult { k, v -> v instanceof Map ? findDeep(v, key) : null }
     }
 
-    @Factory
-    public DataflowWriteChannel fromSamplesheet(
-        Map options = null,
-        String samplesheetParam
+    @Function
+    public List samplesheetToList(
+        final CharSequence samplesheet,
+        final CharSequence schema,
+        final Map options = null
     ) {
-        def Map params = session.params
-
-        // Set defaults for optional inputs
-        def String schemaFilename = options?.containsKey('parameters_schema') ? options.parameters_schema as String : 'nextflow_schema.json'
-        def String baseDir = session.baseDir.toString()
-
-        // Get the samplesheet schema from the parameters schema
-        def slurper = new JsonSlurper()
-        def Map parsed = (Map) slurper.parse( Path.of(Utils.getSchemaPath(baseDir, schemaFilename)) )
-        def Map samplesheetValue = (Map) findDeep(parsed, samplesheetParam)
-        def Path samplesheetFile = params[samplesheetParam] as Path
-
-        // Some safeguard to make sure the channel factory runs correctly
-        if (samplesheetValue == null) {
-            log.error """
-Parameter '--$samplesheetParam' was not found in the schema ($schemaFilename). 
-Unable to create a channel from it.
-
-Please make sure you correctly specified the inputs to `.fromSamplesheet`:
-
---------------------------------------------------------------------------------------
-Channel.fromSamplesheet("input")
---------------------------------------------------------------------------------------
-
-This would create a channel from params.input using the schema specified in the parameters JSON schema for this parameter.
-"""
-            throw new SchemaValidationException("", [])
-        }
-        else if (samplesheetFile == null) {
-            log.error "Parameter '--$samplesheetParam' was not provided. Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
-        }
-        else if (!samplesheetValue.containsKey('schema')) {
-            log.error "Parameter '--$samplesheetParam' does not contain a schema in the parameter schema ($schemaFilename). Unable to create a channel from it."
-            throw new SchemaValidationException("", [])
-        }
-        
-        // Convert to channel
-        final channel = CH.create()
-        def List arrayChannel = []
-        try {
-            def Path schemaFile = Path.of(Utils.getSchemaPath(baseDir, samplesheetValue['schema'].toString()))
-            def SamplesheetConverter converter = new SamplesheetConverter(samplesheetFile, schemaFile)
-            arrayChannel = converter.convertToList()
-        } catch (Exception e) {
-            log.error(
-                """ Following error has been found during samplesheet conversion:
-    ${e}
-    ${e.getStackTrace().join("\n\t")}
-
-Please run validateParameters() first before trying to convert a samplesheet to a channel.
-Reference: https://nextflow-io.github.io/nf-schema/parameters/validation/
-
-Also make sure that the same schema is used for validation and conversion of the samplesheet
-""" as String
-            )
-        }
-
-        session.addIgniter {
-            arrayChannel.each { 
-                channel.bind(it) 
-            }
-            channel.bind(Channel.STOP)
-        }
-        return channel
+        def Path samplesheetFile = Nextflow.file(samplesheet) as Path
+        return samplesheetToList(samplesheetFile, schema, options)
     }
 
+    @Function
+    public List samplesheetToList(
+        final Path samplesheet,
+        final CharSequence schema,
+        final Map options = null
+    ) {
+        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema as String)
+        def Path schemaFile = Nextflow.file(fullPathSchema) as Path
+        return samplesheetToList(samplesheet, schemaFile, options)
+    }
+
+    @Function
+    public List samplesheetToList(
+        final CharSequence samplesheet,
+        final Path schema,
+        final Map options = null
+    ) {
+        def Path samplesheetFile = Nextflow.file(samplesheet) as Path
+        return samplesheetToList(samplesheetFile, schema, options)
+    }
+
+    @Function
+    public List samplesheetToList(
+        final Path samplesheet,
+        final Path schema,
+        final Map options = null
+    ) {
+        def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, session.params, options)
+        return converter.validateAndConvertToList()
+    }
 
     //
     // Initialise expected params if not present
@@ -338,7 +308,7 @@ Also make sure that the same schema is used for validation and conversion of the
         }
 
         // Colors
-        def colors = logColours(useMonochromeLogs)
+        def colors = Utils.logColours(useMonochromeLogs)
 
         // Validate
         List<String> validationErrors = validator.validate(paramsJSON, schema_string)
@@ -407,7 +377,7 @@ Also make sure that the same schema is used for validation and conversion of the
             params.monochromeLogs  ? params.monochromeLogs as Boolean :
             false
 
-        def colors = logColours(useMonochromeLogs)
+        def colors = Utils.logColours(useMonochromeLogs)
         Integer num_hidden = 0
         String output  = ''
         output        += 'Typical pipeline command:\n\n'
@@ -587,7 +557,7 @@ Also make sure that the same schema is used for validation and conversion of the
             params.monochromeLogs  ? params.monochromeLogs as Boolean :
             false
 
-        def colors = logColours(useMonochromeLogs)
+        def colors = Utils.logColours(useMonochromeLogs)
         String output  = ''
         def LinkedHashMap params_map = paramsSummaryMap(workflow, parameters_schema: schemaFilename)
         def max_chars  = paramsMaxChars(params_map)
@@ -724,73 +694,5 @@ Also make sure that the same schema is used for validation and conversion of the
             }
         }
         return max_chars
-    }
-
-    //
-    // ANSII Colours used for terminal logging
-    //
-    private static Map logColours(Boolean monochrome_logs) {
-        Map colorcodes = [:]
-
-        // Reset / Meta
-        colorcodes['reset']      = monochrome_logs ? '' : "\033[0m"
-        colorcodes['bold']       = monochrome_logs ? '' : "\033[1m"
-        colorcodes['dim']        = monochrome_logs ? '' : "\033[2m"
-        colorcodes['underlined'] = monochrome_logs ? '' : "\033[4m"
-        colorcodes['blink']      = monochrome_logs ? '' : "\033[5m"
-        colorcodes['reverse']    = monochrome_logs ? '' : "\033[7m"
-        colorcodes['hidden']     = monochrome_logs ? '' : "\033[8m"
-
-        // Regular Colors
-        colorcodes['black']      = monochrome_logs ? '' : "\033[0;30m"
-        colorcodes['red']        = monochrome_logs ? '' : "\033[0;31m"
-        colorcodes['green']      = monochrome_logs ? '' : "\033[0;32m"
-        colorcodes['yellow']     = monochrome_logs ? '' : "\033[0;33m"
-        colorcodes['blue']       = monochrome_logs ? '' : "\033[0;34m"
-        colorcodes['purple']     = monochrome_logs ? '' : "\033[0;35m"
-        colorcodes['cyan']       = monochrome_logs ? '' : "\033[0;36m"
-        colorcodes['white']      = monochrome_logs ? '' : "\033[0;37m"
-
-        // Bold
-        colorcodes['bblack']     = monochrome_logs ? '' : "\033[1;30m"
-        colorcodes['bred']       = monochrome_logs ? '' : "\033[1;31m"
-        colorcodes['bgreen']     = monochrome_logs ? '' : "\033[1;32m"
-        colorcodes['byellow']    = monochrome_logs ? '' : "\033[1;33m"
-        colorcodes['bblue']      = monochrome_logs ? '' : "\033[1;34m"
-        colorcodes['bpurple']    = monochrome_logs ? '' : "\033[1;35m"
-        colorcodes['bcyan']      = monochrome_logs ? '' : "\033[1;36m"
-        colorcodes['bwhite']     = monochrome_logs ? '' : "\033[1;37m"
-
-        // Underline
-        colorcodes['ublack']     = monochrome_logs ? '' : "\033[4;30m"
-        colorcodes['ured']       = monochrome_logs ? '' : "\033[4;31m"
-        colorcodes['ugreen']     = monochrome_logs ? '' : "\033[4;32m"
-        colorcodes['uyellow']    = monochrome_logs ? '' : "\033[4;33m"
-        colorcodes['ublue']      = monochrome_logs ? '' : "\033[4;34m"
-        colorcodes['upurple']    = monochrome_logs ? '' : "\033[4;35m"
-        colorcodes['ucyan']      = monochrome_logs ? '' : "\033[4;36m"
-        colorcodes['uwhite']     = monochrome_logs ? '' : "\033[4;37m"
-
-        // High Intensity
-        colorcodes['iblack']     = monochrome_logs ? '' : "\033[0;90m"
-        colorcodes['ired']       = monochrome_logs ? '' : "\033[0;91m"
-        colorcodes['igreen']     = monochrome_logs ? '' : "\033[0;92m"
-        colorcodes['iyellow']    = monochrome_logs ? '' : "\033[0;93m"
-        colorcodes['iblue']      = monochrome_logs ? '' : "\033[0;94m"
-        colorcodes['ipurple']    = monochrome_logs ? '' : "\033[0;95m"
-        colorcodes['icyan']      = monochrome_logs ? '' : "\033[0;96m"
-        colorcodes['iwhite']     = monochrome_logs ? '' : "\033[0;97m"
-
-        // Bold High Intensity
-        colorcodes['biblack']    = monochrome_logs ? '' : "\033[1;90m"
-        colorcodes['bired']      = monochrome_logs ? '' : "\033[1;91m"
-        colorcodes['bigreen']    = monochrome_logs ? '' : "\033[1;92m"
-        colorcodes['biyellow']   = monochrome_logs ? '' : "\033[1;93m"
-        colorcodes['biblue']     = monochrome_logs ? '' : "\033[1;94m"
-        colorcodes['bipurple']   = monochrome_logs ? '' : "\033[1;95m"
-        colorcodes['bicyan']     = monochrome_logs ? '' : "\033[1;96m"
-        colorcodes['biwhite']    = monochrome_logs ? '' : "\033[1;97m"
-
-        return colorcodes
     }
 }

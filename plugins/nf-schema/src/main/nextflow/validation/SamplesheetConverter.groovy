@@ -3,8 +3,9 @@ package nextflow.validation
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-
 import java.nio.file.Path
+
+import org.json.JSONArray
 
 import nextflow.Nextflow
 
@@ -20,10 +21,14 @@ class SamplesheetConverter {
 
     private static Path samplesheetFile
     private static Path schemaFile
+    private static nextflow.script.ScriptBinding$ParamsMap params
+    private static Map options
 
-    SamplesheetConverter(Path samplesheetFile, Path schemaFile) {
+    SamplesheetConverter(Path samplesheetFile, Path schemaFile, nextflow.script.ScriptBinding$ParamsMap params, Map options) {
         this.samplesheetFile = samplesheetFile
         this.schemaFile = schemaFile
+        this.params = params
+        this.options = options
     }
 
     private static List<Map> rows = []
@@ -62,8 +67,37 @@ class SamplesheetConverter {
     /*
     Convert the samplesheet to a list of entries based on a schema
     */
-    public static List convertToList() {
+    public static List validateAndConvertToList() {
 
+        // Logging
+        def Boolean useMonochromeLogs = this.options?.containsKey('monochrome_logs') ? this.options.monochrome_logs as Boolean :
+            this.params.monochrome_logs ? this.params.monochrome_logs as Boolean : 
+            this.params.monochromeLogs  ? this.params.monochromeLogs as Boolean :
+            false
+        def colors = Utils.logColours(useMonochromeLogs)
+
+        // Some checks before validating
+        if(!this.schemaFile.exists()) {
+            def msg = "${colors.red}JSON schema file ${this.schemaFile.toString()} does not exist\n${colors.reset}\n"
+            throw new SchemaValidationException(msg)
+        }
+
+        if(!this.samplesheetFile.exists()) {
+            def msg = "${colors.red}Samplesheet file ${this.samplesheetFile.toString()} does not exist\n${colors.reset}\n"
+            throw new SchemaValidationException(msg)
+        }
+
+        // Validate
+        final validator = new JsonSchemaValidator()
+        def JSONArray samplesheet = Utils.fileToJsonArray(this.samplesheetFile, this.schemaFile)
+        def List<String> validationErrors = validator.validate(samplesheet, this.schemaFile.text)
+        if (validationErrors) {
+            def msg = "${colors.red}The following errors have been detected in ${this.samplesheetFile.toString()}:\n\n" + validationErrors.join('\n').trim() + "\n${colors.reset}\n"
+            log.error("Validation of samplesheet failed!")
+            throw new SchemaValidationException(msg, validationErrors)
+        }
+
+        // Convert
         def LinkedHashMap schemaMap = new JsonSlurper().parseText(this.schemaFile.text) as LinkedHashMap
         def List samplesheetList = Utils.fileToList(this.samplesheetFile, this.schemaFile)
 

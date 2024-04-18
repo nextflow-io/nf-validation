@@ -14,7 +14,7 @@ class SchemaValidationException extends AbortOperationException {
 
     List<String> getErrors() { errors }
 
-    SchemaValidationException(String message, List<String> errors) {
+    SchemaValidationException(String message, List<String> errors=[]) {
         super(message)
         this.errors = new ArrayList<>(errors)
     }

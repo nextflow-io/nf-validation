@@ -26,4 +26,8 @@ See an example in the `input` field from the [example schema.json](https://raw.g
 }
 ```
 
+!!! note
+
+    The `samplesheetToList` function also validate the files before converting them. If you convert the samplesheet, it's not necessary to add a schema to the parameter corresponding to the samplesheet.
+
 For more information about the sample sheet JSON schema refer to [sample sheet docs](../nextflow_schema/nextflow_schema_specification.md).

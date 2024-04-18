@@ -7,7 +7,7 @@ description: Examples of advanced sample sheet creation techniques.
 
 ## Introduction
 
-Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-schema helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `.fromSamplesheet`.
+Understanding channel structure and manipulation is critical for getting the most out of Nextflow. nf-schema helps initialise your channels from the text inputs to get you started, but further work might be required to fit your exact use case. In this page we run through some common cases for transforming the output of `samplesheetToList()`.
 
 ### Glossary
 
@@ -17,7 +17,7 @@ Understanding channel structure and manipulation is critical for getting the mos
 
 ## Default mode
 
-Each item in the channel emitted by `.fromSamplesheet()` is a tuple, corresponding with each row of the sample sheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the sample sheet, e.g.:
+Each item in the list emitted by `samplesheetToList()` is a tuple, corresponding with each row of the sample sheet. Each item will be composed of a meta value (if present) and any additional elements from columns in the sample sheet, e.g.:
 
 ```csv
 sample,fastq_1,fastq_2,bed
@@ -25,7 +25,7 @@ sample1,fastq1.R1.fq.gz,fastq1.R2.fq.gz,sample1.bed
 sample2,fastq2.R1.fq.gz,fastq2.R2.fq.gz,
 ```
 
-Might create a channel where each element consists of 4 items, a map value followed by three files:
+Might create a list where each element consists of 4 items, a map value followed by three files:
 
 ```groovy
 // Columns:
@@ -36,13 +36,13 @@ Might create a channel where each element consists of 4 items, a map value follo
 [ [ id: "sample2" ], fastq2.R1.fq.gz, fastq2.R2.fq.gz, [] ] // A missing value from the sample sheet is an empty list
 ```
 
-This channel can be used as input of a process where the input declaration is:
+This list can be converted to a channel that can be used as input of a process where the input declaration is:
 
 ```nextflow
 tuple val(meta), path(fastq_1), path(fastq_2), path(bed)
 ```
 
-It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `.fromSamplesheet()`.
+It may be necessary to manipulate this channel to fit your process inputs. For more documentation, check out the [Nextflow operator docs](https://www.nextflow.io/docs/latest/operator.html), however here are some common use cases with `samplesheetToList()`.
 
 ## Using a sample sheet with no headers
 
@@ -73,7 +73,7 @@ or this YAML file:
 - test_2
 ```
 
-The output of `.fromSamplesheet()` will look like this:
+The output of `samplesheetToList()` will look like this:
 
 ```bash
 test_1
@@ -82,7 +82,7 @@ test_2
 
 ## Changing the structure of channel items
 
-Each item in the channel will be a tuple, but some processes will use multiple files as a list in their input channel, this is common in nf-core modules. For example, consider the following input declaration in a process, where FASTQ could be > 1 file:
+Each item in the list will be a tuple, but some processes will use multiple files as a list in their input channel, this is common in nf-core modules. For example, consider the following input declaration in a process, where FASTQ could be > 1 file:
 
 ```groovy
 process ZCAT_FASTQS {
@@ -95,7 +95,7 @@ process ZCAT_FASTQS {
 }
 ```
 
-The output of `.fromSamplesheet()` can be used by default with a process with the following input declaration:
+The output of `samplesheetToList()` (converted to a channel) can be used by default with a process with the following input declaration:
 
 ```groovy
 val(meta), path(fastq_1), path(fastq_2)
@@ -104,7 +104,7 @@ val(meta), path(fastq_1), path(fastq_2)
 To manipulate each item within a channel, you should use the [Nextflow `.map()` operator](https://www.nextflow.io/docs/latest/operator.html#map). This will apply a function to each element of the channel in turn. Here, we convert the flat tuple into a tuple composed of a meta and a list of FASTQ files:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.fromList(samplesheetToList(params.input, "path/to/json/schema"))
     .map { meta, fastq_1, fastq_2 -> tuple(meta, [ fastq_1, fastq_2 ]) }
     .set { input }
 
@@ -122,7 +122,7 @@ ZCAT_FASTQS(input)
 For example, to remove the BED file from the channel created above, we could not return it from the map. Note the absence of the `bed` item in the return of the closure below:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.fromList(samplesheetToList(params.input, "path/to/json/schema"))
     .map { meta, fastq_1, fastq_2, bed -> tuple(meta, fastq_1, fastq_2) }
     .set { input }
 
@@ -136,7 +136,7 @@ In this way you can drop items from a channel.
 We could perform this twice to create one channel containing the FASTQs and one containing the BED files, however Nextflow has a native operator to separate channels called [`.multiMap()`](https://www.nextflow.io/docs/latest/operator.html#multimap). Here, we separate the FASTQs and BEDs into two separate channels using `multiMap`. Note, the channels are both contained in `input` and accessed as an attribute using dot notation:
 
 ```groovy
-Channel.fromSamplesheet("input")
+Channel.fromList(samplesheetToList(params.input, "path/to/json/schema"))
     .multiMap { meta, fastq_1, fastq_2, bed ->
         fastq: tuple(meta, fastq_1, fastq_2)
         bed:   tuple(meta, bed)
@@ -163,7 +163,7 @@ This example shows a channel which can have entries for WES or WGS data. WES dat
 // Channel with four elements - see docs for examples
 params.input = "samplesheet.csv"
 
-Channel.fromSamplesheet("input")
+Channel.fromList(samplesheetToList(params.input, "path/to/json/schema"))
     .branch { meta, fastq_1, fastq_2, bed ->
         // If BED does not exist
         WGS: !bed
@@ -178,13 +178,13 @@ input.WGS.view() // Channel has 3 elements: meta, fastq_1, fastq_2
 input.WES.view() // Channel has 4 elements: meta, fastq_1, fastq_2, bed
 ```
 
-Unlike `multiMap`, the outputs of `.branch()`, the resulting channels will contain a different number of items.
+Unlike `.multiMap()`, the outputs of `.branch()` will contain a different number of items.
 
 ## Combining a channel
 
 After splitting the channel, it may be necessary to rejoin the channel. There are many ways to join a channel, but here we will demonstrate the simplest which uses the [Nextflow join operator](https://www.nextflow.io/docs/latest/operator.html#join) to rejoin any of the channels from above based on the first element in each item, the `meta` value.
 
-```nextflow
+```groovy
 input.fastq.view() // Channel has 3 elements: meta, fastq_1, fastq_2
 input.bed.view()   // Channel has 2 elements: meta, bed
 
@@ -204,14 +204,14 @@ It's useful to determine the count of channel entries with similar values when y
 This example contains a channel where multiple samples can be in the same family. Later on in the pipeline we want to merge the analyzed files so one file gets created for each family. The result will be a channel with an extra meta field containing the count of channel entries with the same family name.
 
 ```groovy
-// channel created by fromSamplesheet() previous to modification:
+// channel created with samplesheetToList() previous to modification:
 // [[id:example1, family:family1], example1.txt]
 // [[id:example2, family:family1], example2.txt]
 // [[id:example3, family:family2], example3.txt]
 
 params.input = "sample sheet.csv"
 
-Channel.fromSamplesheet("input")
+Channel.fromList(samplesheetToList(params.input, "path/to/json/schema"))
     .tap { ch_raw }                       // Create a copy of the original channel
     .map { meta, txt -> [ meta.family ] } // Isolate the value to count on
     .reduce([:]) { counts, family ->      // Creates a map like this: [family1:2, family2:1]

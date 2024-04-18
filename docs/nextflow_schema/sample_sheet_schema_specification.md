@@ -59,7 +59,7 @@ Fields that are present in the sample sheet, but not in the schema will be ignor
 !!! warning
 
     The order of properties in the _schema_ **is** important.
-    This order defines the order of output channel properties when using the `fromSamplesheet` channel factory.
+    This order defines the order of output channel properties when using the `samplesheetToList()` function.
 
 ## Common keys
 
@@ -67,12 +67,6 @@ The majority of schema keys for sample sheet schema validation are identical to 
 For example: `type`, `pattern`, `format`, `errorMessage`, `exists` and so on.
 
 Please refer to the [Nextflow schema specification](../nextflow_schema/nextflow_schema_specification.md) docs for details.
-
-!!! tip
-
-    Sample sheets are commonly used to define input file paths.
-    Be sure to set `"type": "string"`, `exists: true`, `"format": "file-path"` and `"schema":"path/to/samplesheet/schema.json"` for these properties,
-    so that samplesheets are correctly validated and `fromSamplesheet` does not result in any errors.
 
 ## Sample sheet keys
 

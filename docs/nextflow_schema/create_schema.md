@@ -76,4 +76,6 @@ This web interface is where you should add detail to your schema, customising th
 
     There is currently no tooling to help you write sample sheet schema :anguished:
 
+    You can find an example in [Example sample sheet schema](sample_sheet_schema_examples.md)
+
     Watch this space..

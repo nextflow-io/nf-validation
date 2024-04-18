@@ -59,12 +59,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct.csv'
+            params.input = "src/testResources/correct.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view().first().map {println(it[0].getClass())}
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -86,12 +88,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - quoted CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct_quoted.csv'
+            params.input = "src/testResources/correct_quoted.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view().first().map {println(it[0].getClass())}
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -113,12 +117,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - TSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct.tsv'
+            params.input = "src/testResources/correct.tsv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -140,12 +146,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct.yaml'
+            params.input = "src/testResources/correct.yaml"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -167,12 +175,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct.json'
+            params.input = "src/testResources/correct.json"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -194,12 +204,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct_arrays.yaml'
+            params.input = "src/testResources/correct_arrays.yaml"
+            params.schema = "src/testResources/schema_input_with_arrays.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -220,12 +232,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/correct_arrays.json'
+            params.input = "src/testResources/correct_arrays.json"
+            params.schema = "src/testResources/schema_input_with_arrays.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter_arrays.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -246,12 +260,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/no_header.csv'
+            params.input = "src/testResources/no_header.csv"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_header.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -270,12 +286,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/no_header.yaml'
+            params.input = "src/testResources/no_header.yaml"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_header.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -294,12 +312,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/no_header.json'
+            params.input = "src/testResources/no_header.json"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_header.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -318,12 +338,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'extra field' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/extraFields.csv'
+            params.input = "src/testResources/extraFields.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_converter.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -338,7 +360,7 @@ class SamplesheetConverterTest extends Dsl2Spec{
 
         then:
         noExceptionThrown()
-        stdout.contains("Found the following unidentified headers in src/testResources/extraFields.csv:")
+        stdout.contains("Found the following unidentified headers in ${getRootString()}/src/testResources/extraFields.csv:" as String)
         stdout.contains("\t- extraField")
         stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, [], unique1, 1, itDoesExist]" as String)
         stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25, false, [], [], [], [], [], itDoesExist]")
@@ -349,12 +371,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no meta' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/no_meta.csv'
+            params.input = "src/testResources/no_meta.csv"
+            params.schema = "src/testResources/no_meta_schema.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_samplesheet_no_meta.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -373,12 +397,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/deeply_nested.yaml'
+            params.input = "src/testResources/deeply_nested.yaml"
+            params.schema = "src/testResources/samplesheet_schema_deeply_nested.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_deeply_nested_samplesheet.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -397,12 +423,14 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
 
-            params.input = 'src/testResources/deeply_nested.json'
+            params.input = "src/testResources/deeply_nested.json"
+            params.schema = "src/testResources/samplesheet_schema_deeply_nested.json"
 
             workflow {
-                Channel.fromSamplesheet("input", parameters_schema:"src/testResources/nextflow_schema_with_deeply_nested_samplesheet.json").view()
+                Channel.fromList(samplesheetToList(params.input, params.schema))
+                    .view()
             }
         '''
 
@@ -416,5 +444,97 @@ class SamplesheetConverterTest extends Dsl2Spec{
         then:
         noExceptionThrown()
         stdout.contains("[[mapMeta:this is in a map, arrayMeta:[metaString45, metaString478], otherArrayMeta:[metaString45, metaString478], meta:metaValue, metaMap:[entry1:entry1String, entry2:12.56]], [[string1, string2], string3, 1, 1, ${getRootString()}/file1.txt], [string4, string5, string6], [[string7, string8], [string9, string10]], test]" as String)
+    }
+
+    def 'samplesheetToList - String, String' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            println(samplesheetToList("src/testResources/correct.csv", "src/testResources/schema_input.json").join("\\n"))
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+    }
+
+    def 'samplesheetToList - Path, String' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            println(samplesheetToList(file("src/testResources/correct.csv", checkIfExists:true), "src/testResources/schema_input.json").join("\\n"))
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+    }
+
+    def 'samplesheetToList - String, Path' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            println(samplesheetToList("src/testResources/correct.csv", file("src/testResources/schema_input.json", checkIfExists:true)).join("\\n"))
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
+    }
+
+    def 'samplesheetToList - Path, Path' () {
+        given:
+        def SCRIPT_TEXT = '''
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            println(samplesheetToList(file("src/testResources/correct.csv", checkIfExists:true), file("src/testResources/schema_input.json", checkIfExists:true)).join("\\n"))
+        '''
+
+        when:
+        dsl_eval(SCRIPT_TEXT)
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.startsWith('[[') ? it : null }
+
+        then:
+        noExceptionThrown()
+        stdout.contains("[[string1:fullField, string2:fullField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25.12, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/test.txt, unique1, 1, itDoesExist]" as String)
+        stdout.contains("[[string1:value, string2:value, integer1:0, integer2:0, boolean1:true, boolean2:true], string1, 25.08, false, [], [], [], [], [], itDoesExist]")
+        stdout.contains("[[string1:dependentRequired, string2:dependentRequired, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, [], [], [], unique2, 1, itDoesExist]")
+        stdout.contains("[[string1:extraField, string2:extraField, integer1:10, integer2:10, boolean1:true, boolean2:true], string1, 25, false, ${getRootString()}/src/testResources/test.txt, ${getRootString()}/src/testResources/testDir, ${getRootString()}/src/testResources/testDir, unique3, 1, itDoesExist]" as String)
     }
 }
