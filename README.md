@@ -36,7 +36,7 @@ This is all that is needed - Nextflow will automatically fetch the plugin code a
 You can now include the plugin helper functions into your Nextflow pipeline:
 
 ```groovy title="main.nf"
-include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-schema'
+include { validateParameters; paramsHelp; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
 
 // Print help message, supply typical command line usage for the pipeline
 if (params.help) {
@@ -51,7 +51,7 @@ validateParameters()
 log.info paramsSummaryLog(workflow)
 
 // Create a new channel of metadata from a sample sheet passed to the pipeline through the --input parameter
-ch_input = Channel.of(params.input).fromSamplesheet("assets/schema_input.json")
+ch_input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
 ```
 
 ## Dependencies
@@ -61,7 +61,7 @@ ch_input = Channel.of(params.input).fromSamplesheet("assets/schema_input.json")
 
 ## Slack channel
 
-There is a dedicated [nf-validation Slack channel](https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace](https://nextflow.slack.com).
+There is a dedicated [nf-schema Slack channel](https://nfcore.slack.com/archives/C056RQB10LU) in the [Nextflow Slack workspace](https://nextflow.slack.com).
 
 ## Credits
 

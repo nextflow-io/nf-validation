@@ -180,50 +180,6 @@ class SchemaValidator extends PluginExtensionPoint {
         return converter.validateAndConvertToList()
     }
 
-    @Operator
-    public DataflowWriteChannel fromSamplesheet(
-        final DataflowReadChannel source,
-        final CharSequence schema,
-        final Map options = null
-    ) {
-        def String fullPathSchema = Utils.getSchemaPath(session.baseDir.toString(), schema as String)
-        def Path schemaFile = Nextflow.file(fullPathSchema) as Path
-        return fromSamplesheet(source, schemaFile, options)
-    }
-
-    @Operator
-    public DataflowWriteChannel fromSamplesheet(
-        final DataflowReadChannel source,
-        final Path schema,
-        final Map options = null
-    ) {
-        // Logging
-        def colors = Utils.logColours(config.monochromeLogs)
-
-        final target = CH.createBy(source)
-        final next = {
-            if(!(it instanceof CharSequence || it instanceof Path)) {
-                def msg = "${colors.red}The .fromSamplesheet operator only takes a channel with one value per entry (either a String or Path type)\n${colors.reset}\n"
-                throw new SchemaValidationException(msg)
-            }
-            def Path samplesheet = it as Path
-            if(it instanceof String) {
-                samplesheet = Nextflow.file(it) as Path
-            }
-            def SamplesheetConverter converter = new SamplesheetConverter(samplesheet, schema, config, options)
-            def List arrayChannel = converter.validateAndConvertToList()
-            arrayChannel.each { 
-                target.bind(it)
-            }
-        }
-        final done = {
-            target.bind(Channel.STOP)
-        }
-        DataflowHelper.subscribeImpl(source, [onNext: next, onComplete: done])
-        return target
-    }
-
-
     //
     // Initialise expected params if not present
     //

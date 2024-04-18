@@ -59,11 +59,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.of("src/testResources/correct.csv")
-                    .fromSamplesheet("src/testResources/schema_input.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -86,11 +88,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - quoted CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct_quoted.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.fromPath('src/testResources/correct_quoted.csv')
-                    .fromSamplesheet("src/testResources/schema_input.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -113,11 +117,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - TSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct.tsv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.of('src/testResources/correct.tsv')
-                    .fromSamplesheet(file("src/testResources/schema_input.json", checkIfExists:true))
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -140,11 +146,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct.yaml"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.of('src/testResources/correct.yaml')
-                    .fromSamplesheet("src/testResources/schema_input.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -167,11 +175,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct.json"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.of('src/testResources/correct.json')
-                    .fromSamplesheet("src/testResources/schema_input.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -194,11 +204,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct_arrays.yaml"
+            params.schema = "src/testResources/schema_input_with_arrays.json"
 
             workflow {
-                Channel.of('src/testResources/correct_arrays.yaml')
-                    .fromSamplesheet("src/testResources/schema_input_with_arrays.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -220,11 +232,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'arrays should work fine - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/correct_arrays.json"
+            params.schema = "src/testResources/schema_input_with_arrays.json"
 
             workflow {
-                Channel.of('src/testResources/correct_arrays.json')
-                    .fromSamplesheet("src/testResources/schema_input_with_arrays.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -246,11 +260,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - CSV' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/no_header.csv"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.of('src/testResources/no_header.csv')
-                    .fromSamplesheet("src/testResources/no_header_schema.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -270,11 +286,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/no_header.yaml"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.of('src/testResources/no_header.yaml')
-                    .fromSamplesheet("src/testResources/no_header_schema.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -294,11 +312,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no header - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/no_header.json"
+            params.schema = "src/testResources/no_header_schema.json"
 
             workflow {
-                Channel.of('src/testResources/no_header.json')
-                    .fromSamplesheet("src/testResources/no_header_schema.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -318,11 +338,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'extra field' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/extraFields.csv"
+            params.schema = "src/testResources/schema_input.json"
 
             workflow {
-                Channel.of('src/testResources/extraFields.csv')
-                    .fromSamplesheet("src/testResources/schema_input.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -349,11 +371,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'no meta' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/no_meta.csv"
+            params.schema = "src/testResources/no_meta_schema.json"
 
             workflow {
-                Channel.of('src/testResources/no_meta.csv')
-                    .fromSamplesheet("src/testResources/no_meta_schema.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -373,11 +397,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - YAML' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/deeply_nested.yaml"
+            params.schema = "src/testResources/samplesheet_schema_deeply_nested.json"
 
             workflow {
-                Channel.of('src/testResources/deeply_nested.yaml')
-                    .fromSamplesheet("src/testResources/samplesheet_schema_deeply_nested.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
@@ -397,11 +423,13 @@ class SamplesheetConverterTest extends Dsl2Spec{
     def 'deeply nested samplesheet - JSON' () {
         given:
         def SCRIPT_TEXT = '''
-            include { fromSamplesheet } from 'plugin/nf-schema'
+            include { samplesheetToList } from 'plugin/nf-schema'
+
+            params.input = "src/testResources/deeply_nested.json"
+            params.schema = "src/testResources/samplesheet_schema_deeply_nested.json"
 
             workflow {
-                Channel.of('src/testResources/deeply_nested.json')
-                    .fromSamplesheet("src/testResources/samplesheet_schema_deeply_nested.json")
+                Channel.fromList(samplesheetToList(params.input, params.schema))
                     .view()
             }
         '''
