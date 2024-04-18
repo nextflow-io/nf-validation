@@ -20,6 +20,10 @@ These can be either a string with the relative path (from the root of the pipeli
 samplesheetToList("path/to/samplesheet", "path/to/json/schema")
 ```
 
+!!! note
+
+    All data points in the CSV and TSV samplesheets will be converted to their derived type. (e.g. `"true"` will be converted to the Boolean `true` and `"2"` will be converted to the Integer `2`). You can still convert these types back to a String if this is not the expected behaviour with `.map { val -> val.toString() }`
+
 This function can be used together with existing channel factories/operators to create one channel entry per samplesheet entry.
 
 ### Use as a channel factory
