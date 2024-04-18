@@ -7,9 +7,6 @@ import groovy.transform.PackageScope
 /**
  * This class allows model an specific configuration, extracting values from a map and converting
  *
- *
- * when the plugin reverse a String it will append '>>' at the beginning instead the default 'Mr.'
- *
  * We anotate this class as @PackageScope to restrict the access of their methods only to class in the
  * same package
  *
