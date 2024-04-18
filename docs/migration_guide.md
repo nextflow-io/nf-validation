@@ -14,7 +14,7 @@ This guide is intended to help you migrate your pipeline from [nf-validation](ht
 Following list shows the major breaking changes introduced in nf-schema:
 
 1. The JSON schema draft has been updated from `draft-07` to `draft-2020-12`. See [JSON Schema draft 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) and [JSON schema draft 2019-09 release notes](https://json-schema.org/draft/2019-09/release-notes) for more information.
-2. The `fromSamplesheet` channel factory has been converted to a channel operator. See [updating `fromSamplesheet`](#updating-fromsamplesheet) for more information.
+2. The `fromSamplesheet` channel factory has been converted to a function called `samplesheetToList`. See [updating `fromSamplesheet`](#updating-fromsamplesheet) for more information.
 3. The `unique` keyword for samplesheet schemas has been removed. Please use [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems) or [`uniqueEntries`](nextflow_schema/nextflow_schema_specification.md#uniqueentries) now instead.
 4. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information
 
@@ -35,18 +35,20 @@ This will replace the old schema draft specification (`draft-07`) by the new one
     Repeat this command for every JSON schema you use in your pipeline. e.g. for the default samplesheet schema in nf-core pipelines:
     `bash sed -i -e 's/http:\/\/json-schema.org\/draft-07\/schema/https:\/\/json-schema.org\/draft\/2020-12\/schema/g' -e 's/definitions/defs/g' assets/schema_input.json `
 
-Next you should update the `.fromSamplesheet` channel factory to the channel operator. Following tabs shows the difference between the versions:
+Next you should update the `.fromSamplesheet` channel factory to the `samplesheetToList` function. Following tabs shows the difference between the versions:
 
 === "nf-validation"
 
     ```groovy
+    include { fromSamplesheet } from 'plugin/nf-validation'
     Channel.fromSamplesheet("input")
     ```
 
 === "nf-schema"
 
     ```groovy
-    Channel.of(params.input).fromSamplesheet("path/to/samplesheet/schema")
+    include { samplesheetToList } from 'plugin/nf-schema'
+    Channel.fromList(samplesheetToList(params.input, "path/to/samplesheet/schema"))
     ```
 
 !!! note
