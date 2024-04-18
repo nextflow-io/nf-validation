@@ -114,15 +114,10 @@ class SchemaValidator extends PluginExtensionPoint {
     private Session session
     private ValidationConfig config
 
-
     @Override
     protected void init(Session session) {
         this.session = session
         this.config = new ValidationConfig(session.config.navigate('validation') as Map)
-    }
-
-    Session getSession(){
-        Global.getSession() as Session
     }
 
     boolean hasErrors() { errors.size()>0 }
