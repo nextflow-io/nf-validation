@@ -118,6 +118,25 @@ class SchemaValidator extends PluginExtensionPoint {
     protected void init(Session session) {
         this.session = session
         this.config = new ValidationConfig(session.config.navigate('validation') as Map)
+        def plugins = session.config.navigate("plugins") as ArrayList
+        if(plugins.contains("nf-schema")) {
+            log.warn("""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                 !
+!                            WARNING!                             !
+!                                                                 !
+!                You just entered the danger zone!                !
+!         Please pin the nf-schema version in your config!        !
+!   Not pinning your version can't guarantee the reproducibility  !
+!       and the functionality of this pipeline in the future      !
+!                                                                 !
+!                    plugins {                                    !
+!                        id "nf-schema@2.0.0"                     !
+!                    }                                            !
+!                                                                 !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            """)
+        }
     }
 
     boolean hasErrors() { errors.size()>0 }
