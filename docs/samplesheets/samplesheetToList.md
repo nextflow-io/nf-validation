@@ -142,4 +142,3 @@ This returns a channel with a meta map.
     ```groovy
     --8<-- "examples/samplesheetToListMeta/pipeline/nextflow.config"
     ```
-
