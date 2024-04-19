@@ -205,8 +205,8 @@ validation {
 
 See this table for an overview of what the new configuration options are for the old parameters
 
-| Old parameter                                | New config option(s)                                                             |
-| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| Old parameter                                         | New config option(s)                                                             |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `params.validationMonochromeLogs = <boolean>`         | `validation.monochromeLogs = <boolean>`                                          |
 | `params.validationLenientMode = <boolean>`            | `validation.lenientMode = <boolean>`                                             |
 | `params.validationFailUnrecognisedParams = <boolean>` | `validation.failUnrecognisedParams = <boolean>`                                  |

@@ -10,6 +10,7 @@ The plugin can be configured using several configuration options. These options 
 ```groovy
 validation.<option> = <value>
 ```
+
 OR
 
 ```groovy
