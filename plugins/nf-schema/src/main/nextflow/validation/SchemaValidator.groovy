@@ -119,7 +119,7 @@ class SchemaValidator extends PluginExtensionPoint {
         this.session = session
         this.config = new ValidationConfig(session.config.navigate('validation') as Map)
         def plugins = session.config.navigate("plugins") as ArrayList
-        if(plugins.contains("nf-schema")) {
+        if(plugins?.contains("nf-schema")) {
             log.warn("""
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                 !
