@@ -11,6 +11,7 @@ import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
+import test.MockScriptRunner
 
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
@@ -60,15 +61,17 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate when no params' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: 'src/testResources/nextflow_schema.json', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: 'src/testResources/nextflow_schema.json')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -90,7 +93,7 @@ class ValidateParametersTest extends Dsl2Spec{
         def schema_dest   = new File('nextflow_schema.json')
         schema_dest << schema_source.text
 
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -99,7 +102,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -116,7 +120,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema - CSV' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -125,7 +129,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -139,7 +144,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema - TSV' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.tsv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -148,7 +153,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -162,7 +168,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema - YAML' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.yaml'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -171,7 +177,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -185,7 +192,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema - JSON' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.json'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -194,7 +201,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -208,7 +216,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema with failures - CSV' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/wrong.csv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -217,7 +225,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -241,7 +250,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema with failures - TSV' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/wrong.tsv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -250,7 +259,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -274,7 +284,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema with failures - YAML' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/wrong.yaml'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -283,7 +293,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -307,7 +318,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema with failures - JSON' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/wrong.json'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
@@ -316,7 +327,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -340,7 +352,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should find unexpected params' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
@@ -350,7 +362,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -365,18 +378,47 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should ignore unexpected param' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
-            params.validationSchemaIgnoreParams = 'xyz'
             include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "ignoreParams": ['xyz']
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
+        def stdout = capture
+                .toString()
+                .readLines()
+                .findResults {it.contains('WARN nextflow.validation.SchemaValidator') || it.startsWith('* --') ? it : null }
+
+        then:
+        noExceptionThrown()
+        !stdout
+    }
+
+    def 'should ignore default unexpected param' () {
+        given:
+        def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
+        def SCRIPT = """
+            params.input = 'src/testResources/correct.csv'
+            params.outdir = 'src/testResources/testDir'
+            params.xyz = '/some/path'
+            include { validateParameters } from 'plugin/nf-schema'
+            
+            validateParameters(parameters_schema: '$schema')
+        """
+
+        when:
+        def config = ["validation": [
+            "defaultIgnoreParams": ['xyz']
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -390,19 +432,21 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail for unexpected param' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.xyz = '/some/path'
-            params.validationFailUnrecognisedParams = true
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "failUnrecognisedParams": true,
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -417,17 +461,19 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should find validation errors' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 10
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -446,7 +492,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should correctly validate duration and memory objects' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def  SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.max_memory = '10.GB'
@@ -457,7 +503,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -471,7 +518,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'correct validation of integers' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.max_cpus = 12
@@ -481,7 +528,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -495,19 +543,21 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'correct validation of numerics - 0' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_required_numerics.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.integer = 0
             params.number = 0
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -521,17 +571,19 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'fail validation of numerics - null' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_required_numerics.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -550,7 +602,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'correct validation of file-path-pattern - glob' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.glob = 'src/testResources/*.csv'
             include { validateParameters } from 'plugin/nf-schema'
             
@@ -558,7 +610,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -572,7 +625,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'correct validation of file-path-pattern - single file' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.glob = 'src/testResources/correct.csv'
             include { validateParameters } from 'plugin/nf-schema'
             
@@ -580,7 +633,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -594,17 +648,19 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'correct validation of numbers with lenient mode' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 1
-            params.validationLenientMode = true
             include { validateParameters } from 'plugin/nf-schema'
             
             validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "lenientMode": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -618,18 +674,20 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of incorrect integer' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/correct.csv'
             params.outdir = 'src/testResources/testDir'
             params.max_cpus = 1.2
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -645,7 +703,7 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should validate a schema from an input file' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             params.input = 'src/testResources/samplesheet.csv'
             include { validateParameters } from 'plugin/nf-schema'
             
@@ -653,7 +711,8 @@ class ValidateParametersTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = [:]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -667,16 +726,18 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of wrong file pattern' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/samplesheet_wrong_pattern.csv'
             include { validateParameters } from 'plugin/nf-schema'
             
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -697,16 +758,18 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of missing required value' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = 'src/testResources/samplesheet_no_required.csv'
             include { validateParameters } from 'plugin/nf-schema'
 
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -728,15 +791,17 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of wrong draft' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_draft7.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             include { validateParameters } from 'plugin/nf-schema'
 
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -750,16 +815,18 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of existing file' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_exists_false.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.outdir = "src/testResources/"
             include { validateParameters } from 'plugin/nf-schema'
 
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -778,16 +845,18 @@ class ValidateParametersTest extends Dsl2Spec{
     def 'should fail because of non-unique entries' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet_uniqueEntries.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
-            params.monochrome_logs = true
+        def SCRIPT = """
             params.input = "src/testResources/samplesheet_non_unique.csv"
             include { validateParameters } from 'plugin/nf-schema'
 
-            validateParameters(parameters_schema: '$schema', monochrome_logs: params.monochrome_logs)
+            validateParameters(parameters_schema: '$schema')
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "monochromeLogs": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
