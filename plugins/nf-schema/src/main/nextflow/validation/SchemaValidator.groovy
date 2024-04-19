@@ -111,14 +111,10 @@ class SchemaValidator extends PluginExtensionPoint {
 
     private List<String> errors = []
     private List<String> warnings = []
-    private Session session
-    private ValidationConfig config
 
     @Override
     protected void init(Session session) {
-        this.session = session
-        this.config = new ValidationConfig(session.config.navigate('validation') as Map)
-        def plugins = session.config.navigate("plugins") as ArrayList
+        def plugins = session?.config?.navigate("plugins") as ArrayList
         if(plugins?.contains("nf-schema")) {
             log.warn("""
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -137,6 +133,14 @@ class SchemaValidator extends PluginExtensionPoint {
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             """)
         }
+    }
+
+    Session getSession(){
+        Global.getSession() as Session
+    }  
+
+    ValidationConfig getConfig() {
+        new ValidationConfig(session.config.navigate('validation') as Map)
     }
 
     boolean hasErrors() { errors.size()>0 }
