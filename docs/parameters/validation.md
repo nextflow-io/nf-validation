@@ -73,17 +73,7 @@ This is because user-specific institutional configuration profiles may make use 
 
 The down-side of this is that warnings about typos in parameters can go unnoticed.
 
-To force the pipeline execution fail with an error instead, you can provide the `validationFailUnrecognisedParams` parameter:
-
-```bash
-nextflow run my_pipeline --validationFailUnrecognisedParams
-```
-
-or specify it in the configuration file
-
-```groovy
-params.validationFailUnrecognisedParams = true
-```
+To force the pipeline execution to fail with an error instead, you can provide the `validation.failUnrecognisedParams = true` configuration option:
 
 === ":material-check: Default"
 
@@ -114,7 +104,7 @@ params.validationFailUnrecognisedParams = true
 
     === "nextflow.config"
 
-        ```groovy hl_lines="6"
+        ```groovy hl_lines="5"
         --8<-- "examples/validationFailUnrecognisedParams/pipeline/nextflow.config"
         ```
     === "main.nf"
@@ -147,14 +137,4 @@ For example, providing an integer as a string will no longer fail validation.
     The validation does not affect the parameter variable types in your pipeline.
     It attempts to cast a temporary copy of the params only, during the validation step.
 
-To enable lenient validation mode, set `params.validationLenientMode`:
-
-```bash
-nextflow run my_pipeline --validationLenientMode
-```
-
-or specify it in the configuration file
-
-```groovy
-params.validationLenientMode = true
-```
+To enable lenient validation mode, set `validation.lenientMode = true` in your configuration file.

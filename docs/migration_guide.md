@@ -16,7 +16,8 @@ Following list shows the major breaking changes introduced in nf-schema:
 1. The JSON schema draft has been updated from `draft-07` to `draft-2020-12`. See [JSON Schema draft 2020-12 release notes](https://json-schema.org/draft/2020-12/release-notes) and [JSON schema draft 2019-09 release notes](https://json-schema.org/draft/2019-09/release-notes) for more information.
 2. The `fromSamplesheet` channel factory has been converted to a function called `samplesheetToList`. See [updating `fromSamplesheet`](#updating-fromsamplesheet) for more information.
 3. The `unique` keyword for samplesheet schemas has been removed. Please use [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array#uniqueItems) or [`uniqueEntries`](nextflow_schema/nextflow_schema_specification.md#uniqueentries) now instead.
-4. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information
+4. The `dependentRequired` keyword now works as it's supposed to work in JSON schema. See [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals#dependentRequired) for more information.
+5. All configuration parameters have been converted to Nextflow configuration options. See [Updating configuration](#updating-configuration) for more information.
 
 A full list of changes can be found in the [changelog](https://github.com/nextflow-io/nf-schema/blob/master/CHANGELOG.md).
 
@@ -184,3 +185,34 @@ When you use `dependentRequired` in your schemas, you should update it like this
         }
     }
     ```
+
+### Updating configuration
+
+The configuration parameters have been converted to a Nextflow configuration option. You can now access these options using the `validation` config scope:
+
+```groovy
+validation.<option> = <value>
+```
+
+OR
+
+```groovy
+validation {
+    <option1> = <value1>
+    <option2> = <value2>
+}
+```
+
+See this table for an overview of what the new configuration options are for the old parameters
+
+| Old parameter                                | New config option(s)                                                             |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `params.validationMonochromeLogs = <boolean>`         | `validation.monochromeLogs = <boolean>`                                          |
+| `params.validationLenientMode = <boolean>`            | `validation.lenientMode = <boolean>`                                             |
+| `params.validationFailUnrecognisedParams = <boolean>` | `validation.failUnrecognisedParams = <boolean>`                                  |
+| `params.validationShowHiddenParams = <boolean>`       | `validation.showHiddenParams = <boolean>`                                        |
+| `params.validationIgnoreParams = <string>`            | `validation.defaultIgnoreParams = <list>` and `validation.ignoreParams = <list>` |
+
+!!! note
+
+    `defaultIgnoreParams` is meant to be used by pipeline developers to set the parameters which should always be ignored. `ignoreParams` is meant for the pipeline user to ignore certain parameters.
