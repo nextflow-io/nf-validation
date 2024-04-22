@@ -6,6 +6,9 @@
 
 ## Introduction
 
+> [!IMPORTANT]
+> nf-schema is the new version of the now deprecated [nf-validation](https://github.com/nextflow-io/nf-validation). Please follow the [migration guide](https://nextflow-io.github.io/nf-schema/latest/migration_guide/) to migrate your code to this new version.
+
 This [Nextflow plugin](https://www.nextflow.io/docs/latest/plugins.html#plugins) provides a number of functions that can be included into a Nextflow pipeline script to work with parameter and sample sheet schema. Using these functions you can:
 
 - 📖 Print usage instructions to the terminal (for use with `--help`)
@@ -22,7 +25,7 @@ Declare the plugin in your Nextflow pipeline configuration file:
 
 ```groovy title="nextflow.config"
 plugins {
-  id 'nf-schema'
+  id 'nf-schema@2.0.0'
 }
 ```
 
