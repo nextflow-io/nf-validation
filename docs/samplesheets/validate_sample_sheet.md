@@ -7,7 +7,7 @@ description: Validate the contents of a sample sheet file.
 
 When a parameter provides the `schema` field, the `validateParameters()` function will automatically
 parse and validate the provided file contents using this JSON schema.
-It can validate CSV, TSV, JSON and YAML files.
+It can validate CSV, TSV and simple YAML files.
 
 The path of the schema file must be relative to the root of the pipeline directory.
 See an example in the `input` field from the [example schema.json](https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/nextflow_schema_with_samplesheet.json#L20).
@@ -26,4 +26,4 @@ See an example in the `input` field from the [example schema.json](https://raw.g
 }
 ```
 
-For more information about the sample sheet JSON schema refer to [sample sheet docs](../nextflow_schema/nextflow_schema_specification.md).
+For more information about the samplesheet JSON schema refer to [samplesheet docs](../nextflow_schema/nextflow_schema_specification.md).

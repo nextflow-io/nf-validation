@@ -129,7 +129,7 @@ Sometimes, a parameter that you want to set may not be described in the pipeline
 Maybe it's something you're using in your Nextflow configuration setup for your compute environment,
 or it's a complex parameter that cannot be handled in the schema, such as [nested parameters](../nextflow_schema/nextflow_schema_specification.md#nested-parameters).
 
-In these cases, to avoid getting warnings when an unrecognised parameter is set,
+In these cases, to avoid getting warnings when that unrecognised parameter is set,
 you can use `--validationSchemaIgnoreParams` / `params.validationSchemaIgnoreParams`.
 
 This should be a comma-separated list of strings that correspond to parameter names.
@@ -146,6 +146,8 @@ For example, providing an integer as a string will no longer fail validation.
 
     The validation does not affect the parameter variable types in your pipeline.
     It attempts to cast a temporary copy of the params only, during the validation step.
+
+    You can find more information about how this works in the [JSON schema validation library docs](https://github.com/everit-org/json-schema#lenient-mode).
 
 To enable lenient validation mode, set `params.validationLenientMode`:
 

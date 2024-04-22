@@ -20,7 +20,7 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
 
 ```json
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://raw.githubusercontent.com/nf-core/rnaseq/master/assets/schema_input.json",
   "title": "nf-core/rnaseq pipeline - params.input schema",
   "description": "Schema for the file provided with params.input",
@@ -42,9 +42,17 @@ You can see this, used for validating sample sheets with `--input` here: [`asset
       },
       "fastq_2": {
         "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
-        "type": "string",
-        "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-        "format": "file-path"
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+            "format": "file-path"
+          },
+          {
+            "type": "string",
+            "maxLength": 0
+          }
+        ]
       },
       "strandedness": {
         "type": "string",

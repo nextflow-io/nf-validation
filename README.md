@@ -14,7 +14,7 @@ This [Nextflow plugin](https://www.nextflow.io/docs/latest/plugins.html#plugins)
 - 📋 Validate the contents of supplied sample sheet files
 - 🛠️ Create a Nextflow channel with a parsed sample sheet
 
-Supported sample sheet formats are CSV, TSV, JSON and YAML.
+Supported sample sheet formats are CSV, TSV and YAML (simple).
 
 ## Quick Start
 
@@ -31,7 +31,7 @@ This is all that is needed - Nextflow will automatically fetch the plugin code a
 > [!NOTE]
 > The snippet above will always try to install the latest version, good to make sure
 > that the latest bug fixes are included! However, this can cause difficulties if running
-> offline. You can pin a specific release using the syntax `nf-validation@2.0.0`
+> offline. You can pin a specific release using the syntax `nf-validation@0.3.2`
 
 You can now include the plugin helper functions into your Nextflow pipeline:
 
@@ -58,7 +58,7 @@ ch_input = Channel.fromSamplesheet("input")
 ## Dependencies
 
 - Java 11 or later
-- <https://github.com/harrel56/json-schema>
+- <https://github.com/everit-org/json-schema>
 
 ## Slack channel
 
@@ -75,4 +75,3 @@ We would like to thank the key contributors who include (but are not limited to)
 - Nicolas Vannieuwkerke ([@nvnieuwk](https://github.com/nvnieuwk))
 - Kevin Menden ([@KevinMenden](https://github.com/KevinMenden))
 - Phil Ewels ([@ewels](https://github.com/ewels))
-- Arthur ([@awgymer](https://github.com/awgymer))

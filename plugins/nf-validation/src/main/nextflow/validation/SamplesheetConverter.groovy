@@ -1,237 +1,325 @@
 package nextflow.validation
 
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
+import groovyx.gpars.dataflow.DataflowReadChannel
+import groovyx.gpars.dataflow.DataflowWriteChannel
 
 import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 
+import org.yaml.snakeyaml.Yaml
+import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.PrimitiveValidationStrategy
+import org.everit.json.schema.ValidationException
+import org.everit.json.schema.SchemaException
+import org.everit.json.schema.Schema
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
+
+import nextflow.Channel
+import nextflow.Global
 import nextflow.Nextflow
+import nextflow.plugin.extension.Function
+import nextflow.Session
 
-/**
- * @author : mirpedrol <mirp.julia@gmail.com>
- * @author : nvnieuwk <nicolas.vannieuwkerke@ugent.be>
- * @author : awgymer
- */
 
 @Slf4j
 @CompileStatic
 class SamplesheetConverter {
 
-    private static Path samplesheetFile
-    private static Path schemaFile
-
-    SamplesheetConverter(Path samplesheetFile, Path schemaFile) {
-        this.samplesheetFile = samplesheetFile
-        this.schemaFile = schemaFile
-    }
+    private static List<String> errors = []
+    private static List<String> schemaErrors = []
+    private static List<String> warnings = []
 
     private static List<Map> rows = []
-    private static Map meta = [:]
 
-    private static Map getMeta() {
-        this.meta
-    }
+    static boolean hasErrors() { errors.size()>0 }
+    static Set<String> getErrors() { errors.sort().collect { "\t${it}".toString() } as Set }
 
-    private static Map resetMeta() {
-        this.meta = [:]
-    }
+    static boolean hasSchemaErrors() { schemaErrors.size()>0 }
+    static Set<String> getSchemaErrors() { schemaErrors.sort().collect { "\t${it}".toString() } as Set }
 
-    private static addMeta(Map newEntries) {
-        this.meta = this.meta + newEntries
-    }
+    static boolean hasWarnings() { warnings.size()>0 }
+    static Set<String> getWarnings() { warnings.sort().collect { "\t${it}".toString() } as Set }
 
-    private static Boolean isMeta() {
-        this.meta.size() > 0
-    }
+    private static Integer sampleCount = 0
 
-    private static List unusedHeaders = []
+    static resetCount(){ sampleCount = 0 }
+    static increaseCount(){ sampleCount++ }
+    static Integer getCount(){ sampleCount }
 
-    private static addUnusedHeader (String header) {
-        this.unusedHeaders.add(header)
-    }
 
-    private static logUnusedHeadersWarning(String fileName) {
-        def Set unusedHeaders = this.unusedHeaders as Set
-        if(unusedHeaders.size() > 0) {
-            def String processedHeaders = unusedHeaders.collect { "\t- ${it}" }.join("\n")
-            log.warn("Found the following unidentified headers in ${fileName}:\n${processedHeaders}" as String)
+    static List convertToList(
+        Path samplesheetFile, 
+        Path schemaFile,
+        Boolean skipDuplicateCheck
+        ) {
+
+        def Map schemaMap = (Map) new JsonSlurper().parseText(schemaFile.text)
+        def Map<String, Map<String, String>> schemaFields = (Map) schemaMap["items"]["properties"]
+        def Set<String> allFields = schemaFields.keySet()
+        def List<String> requiredFields = (List) schemaMap["items"]["required"]
+        def Boolean containsHeader = !(allFields.size() == 1 && allFields[0] == "")
+
+        def String fileType = getFileType(samplesheetFile)
+        def String delimiter = fileType == "csv" ? "," : fileType == "tsv" ? "\t" : null
+        def List<Map<String,String>> samplesheetList
+
+        if(fileType == "yaml"){
+            samplesheetList = new Yaml().load((samplesheetFile.text)).collect {
+                if(containsHeader) {
+                    return it as Map
+                }
+                return ["empty": it] as Map
+            }
         }
-    }
+        else {
+            Path fileSamplesheet = Nextflow.file(samplesheetFile) as Path
+            samplesheetList = fileSamplesheet.splitCsv(header:containsHeader ?: ["empty"], strip:true, sep:delimiter, quote:'\"')
+        }
 
-    /*
-    Convert the samplesheet to a list of entries based on a schema
-    */
-    public static List convertToList() {
-
-        def LinkedHashMap schemaMap = new JsonSlurper().parseText(this.schemaFile.text) as LinkedHashMap
-        def List samplesheetList = Utils.fileToList(this.samplesheetFile, this.schemaFile)
-
+        // Field checks + returning the channels
+        def Map<String,List<String>> booleanUniques = [:]
+        def Map<String,List<Map<String,String>>> listUniques = [:]
+        def Boolean headerCheck = true
         this.rows = []
+        resetCount()
+        def List outputs = samplesheetList.collect { Map<String,String> fullRow ->
+            increaseCount()
 
-        def List channelFormat = samplesheetList.collect { entry ->
-            resetMeta()
-            def Object result = formatEntry(entry, schemaMap["items"] as LinkedHashMap)
-            if(isMeta()) {
-                if(result instanceof List) {
-                    result.add(0,getMeta())
-                } else {
-                    result = [getMeta(), result]
+            Map<String,String> row = fullRow.findAll { it.value != "" }
+            def Set rowKeys = containsHeader ? row.keySet() : ["empty"].toSet()
+            def String yamlInfo = fileType == "yaml" ? " for entry ${this.getCount()}." : ""
+
+            // Check the header (CSV/TSV) or present fields (YAML)
+            if(headerCheck) {
+                def unexpectedFields = containsHeader ? rowKeys - allFields : []
+                if(unexpectedFields.size() > 0) {
+                    this.warnings << "The samplesheet contains following unchecked field(s): ${unexpectedFields}${yamlInfo}".toString()
+                }
+
+                if(fileType != 'yaml'){
+                    headerCheck = false
                 }
             }
-            return result
-        }
-        logUnusedHeadersWarning(this.samplesheetFile.toString())
-        return channelFormat
-    }
 
-    /*
-    This function processes an input value based on a schema. 
-    The output will be created for addition to the output channel.
-    */
-    private static Object formatEntry(Object input, LinkedHashMap schema, String headerPrefix = "") {
+            // Check for row uniqueness
+            if(!skipDuplicateCheck && this.rows.contains(row)) {
+                def Integer firstDuplicate = this.rows.findIndexOf { it == row }
+                this.errors << "The samplesheet contains duplicate rows for entry ${firstDuplicate + 1} and entry ${getCount()} (${row})".toString()
+            }
+            this.rows.add(row)
 
-        // Add default values for missing entries
-        input = input != null ? input : schema.containsKey("default") ? schema.default : []
+            def Map meta = [:]
+            def ArrayList output = []
 
-        if (input instanceof Map) {
-            def List result = []
-            def LinkedHashMap properties = schema["properties"]
-            def Set unusedKeys = input.keySet() - properties.keySet()
-            
-            // Check for properties in the samplesheet that have not been defined in the schema
-            unusedKeys.each{addUnusedHeader("${headerPrefix}${it}" as String)}
+            for( Map.Entry<String, Map> field : schemaFields ){
+                def String key = containsHeader ? field.key : "empty"
+                def String input = row[key]
 
-            // Loop over every property to maintain the correct order
-            properties.each { property, schemaValues ->
-                def value = input[property]
-                def List metaIds = schemaValues["meta"] instanceof List ? schemaValues["meta"] as List : schemaValues["meta"] instanceof String ? [schemaValues["meta"]] : []
-                def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
+                // Check if the field is deprecated
+                if(field['value']['deprecated']){
+                    this.warnings << "The '${key}' field is deprecated and will no longer be used in the future. Please check the official documentation of the pipeline for more information.".toString()
+                }
+
+                // Check required dependencies
+                def List<String> dependencies = field['value']["dependentRequired"] as List<String>
+                if(input && dependencies) {
+                    def List<String> missingValues = []
+                    for( dependency in dependencies ){
+                        if(row[dependency] == "" || !(row[dependency])) {
+                            missingValues.add(dependency)
+                        }
+                    }
+                    if (missingValues) {
+                        this.errors << addSample("${dependencies} field(s) should be defined when '${key}' is specified, but the field(s) ${missingValues} is/are not defined.".toString())
+                    }
+                }
                 
-                // Add the value to the meta map if needed
-                if (metaIds) {
-                    metaIds.each {
-                        meta["${it}"] = processMeta(value, schemaValues as LinkedHashMap, prefix)
+                // Check if the field is unique
+                def unique = field['value']['unique']
+                def Boolean uniqueIsList = unique instanceof ArrayList
+                if(unique && !uniqueIsList){
+                    if(!(key in booleanUniques)){
+                        booleanUniques[key] = []
                     }
-                } 
-                // return the correctly casted value
+                    if(input in booleanUniques[key] && input){
+                        this.errors << addSample("The '${key}' value needs to be unique. '${input}' was found at least twice in the samplesheet.".toString())
+                    }
+                    booleanUniques[key].add(input)
+                }
+                else if(unique && uniqueIsList) {
+                    def Map<String,String> newMap = (Map) row.subMap((List) [key] + (List) unique)
+                    if(!(key in listUniques)){
+                        listUniques[key] = []
+                    }
+                    if(newMap in listUniques[key] && input){
+                        this.errors << addSample("The combination of '${key}' with fields ${unique} needs to be unique. ${newMap} was found at least twice.".toString())
+                    }
+                    listUniques[key].add(newMap)
+                }
+
+                // Convert field to a meta field or add it as an input to the channel
+                def List<String> metaNames = field['value']['meta'] as List<String>
+                if(metaNames) {
+                    for(name : metaNames) {
+                        meta[name] = (input != '' && input) ? 
+                                castToType(input, field) : 
+                            field['value']['default'] != null ? 
+                                castToType(field['value']['default'] as String, field) : 
+                                null
+                    }
+                }
                 else {
-                    result.add(formatEntry(value, schemaValues as LinkedHashMap, prefix))
+                    def inputFile = (input != '' && input) ? 
+                            castToType(input, field) : 
+                        field['value']['default'] != null ? 
+                            castToType(field['value']['default'] as String, field) : 
+                            []
+                    output.add(inputFile)
                 }
             }
-            return result
-        } else if (input instanceof List) {
-            def List result = []
-            def Integer count = 0
-            input.each {
-                // return the correctly casted value
-                def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
-                result.add(formatEntry(it, schema["items"] as LinkedHashMap, prefix))
-                count++
-            }
-            return result
-        } else {
-            // Cast value to path type if needed and return the value
-            return processValue(input, schema)
+            // Add meta to the output when a meta field has been created
+            if(meta != [:]) { output.add(0, meta) }
+            return output
         }
 
+        // check for samplesheet errors
+        if (this.hasErrors()) {
+            String message = "Samplesheet errors:\n" + this.getErrors().join("\n")
+            throw new SchemaValidationException(message, this.getErrors() as List)
+        }
+
+        // check for schema errors
+        if (this.hasSchemaErrors()) {
+            String message = "Samplesheet schema errors:\n" + this.getSchemaErrors().join("\n")
+            throw new SchemaValidationException(message, this.getSchemaErrors() as List)
+        }
+
+        // check for warnings
+        if( this.hasWarnings() ) {
+            def msg = "Samplesheet warnings:\n" + this.getWarnings().join('\n')
+            log.warn(msg)
+        }
+
+        return outputs
     }
 
-    private static List validPathFormats = ["file-path", "path", "directory-path", "file-path-pattern"]
-    private static List schemaOptions = ["anyOf", "oneOf", "allOf"]
-
-    /*
-    This function processes a value that's not a map or list and casts it to a file type if necessary.
-    When there is uncertainty if the value should be a path, some simple logic is applied that tries
-    to guess if it should be a file type
-    */
-    private static Object processValue(Object value, Map schemaEntry) {
-        if(!(value instanceof String)) {
-            return value
+    // Function to infer the file type of the samplesheet
+    public static String getFileType(
+        Path samplesheetFile
+    ) {
+        def String extension = samplesheetFile.getExtension()
+        if (extension in ["csv", "tsv", "yml", "yaml"]) {
+            return extension == "yml" ? "yaml" : extension
         }
 
-        def String defaultFormat = schemaEntry.format ?: ""
+        def String header = getHeader(samplesheetFile)
 
-        // A valid path format has been found in the schema
-        def Boolean foundStringFileFormat = false
+        def Integer commaCount = header.count(",")
+        def Integer tabCount = header.count("\t")
 
-        // Type string has been found without a valid path format
-        def Boolean foundStringNoFileFormat = false
-
-        if ((schemaEntry.type ?: "") == "string") {
-            if (validPathFormats.contains(schemaEntry.format ?: defaultFormat)) {
-                foundStringFileFormat = true
-            } else {
-                foundStringNoFileFormat = true
-            }
+        if ( commaCount == tabCount ){
+            throw new Exception("Could not derive file type from ${samplesheetFile}. Please specify the file extension (CSV, TSV, YML and YAML are supported).".toString())
         }
-
-        schemaOptions.each { option ->
-            schemaEntry[option]?.each { subSchema ->
-                if ((subSchema["type"] ?: "" ) == "string") {
-                    if (validPathFormats.contains(subSchema["format"] ?: defaultFormat)) {
-                        foundStringFileFormat = true
-                    } else {
-                        foundStringNoFileFormat = true
-                    }
-                }
-            }
+        if ( commaCount > tabCount ){
+            return "csv"
         }
-
-        if(foundStringFileFormat && !foundStringNoFileFormat) {
-            return Nextflow.file(value)
-        } else if(foundStringFileFormat && foundStringNoFileFormat) {
-            // Do a simple check if the object could be a path
-            // This check looks for / in the filename or if a dot is
-            // present in the last 7 characters (possibly indicating an extension)
-            if(
-                value.contains("/") || 
-                (value.size() >= 7 && value[-7..-1].contains(".")) || 
-                (value.size() < 7 && value.contains("."))
-            ) {
-                return Nextflow.file(value)
-            }
+        else {
+            return "tsv"
         }
-        return value
     }
 
-    /*
-    This function processes an input value based on a schema. 
-    The output will be created for addition to the meta map.
-    */
-    private static Object processMeta(Object input, LinkedHashMap schema, String headerPrefix) {
-        // Add default values for missing entries
-        input = input != null ? input : schema.containsKey("default") ? schema.default : []
+    // Function to get the header from a CSV or TSV file
+    public static String getHeader(
+        Path samplesheetFile
+    ) {
+        def String header
+        samplesheetFile.withReader { header = it.readLine() }
+        return header
+    }
 
-        if (input instanceof Map) {
-            def Map result = [:]
-            def LinkedHashMap properties = schema["properties"]
-            def Set unusedKeys = input.keySet() - properties.keySet()
+    // Function to transform an input field from the samplesheet to its desired type
+    private static castToType(
+        String input,
+        Map.Entry<String, Map> field
+    ) {
+        def String type = field['value']['type']
+        def String key = field.key
+
+        // Convert string values
+        if(type == "string" || !type) {
+            def String result = input as String
             
-            // Check for properties in the samplesheet that have not been defined in the schema
-            unusedKeys.each{addUnusedHeader("${headerPrefix}${it}" as String)}
+            // Check and convert to the desired format
+            def String format = field['value']['format']
+            if(format) {
+                if(format == "file-path-pattern") {
+                    def ArrayList inputFiles = Nextflow.file(input) as ArrayList
+                    return inputFiles
+                }
+                if(format.contains("path")) {
+                    def Path inputFile = Nextflow.file(input) as Path
+                    return inputFile
+                }
+            }
+            
 
-            // Loop over every property to maintain the correct order
-            properties.each { property, schemaValues ->
-                def value = input[property]
-                def String prefix = headerPrefix ? "${headerPrefix}${property}." : "${property}."
-                result[property] = processMeta(value, schemaValues as LinkedHashMap, prefix)
-            }
+            // Return the plain string value
             return result
-        } else if (input instanceof List) {
-            def List result = []
-            def Integer count = 0
-            input.each {
-                // return the correctly casted value
-                def String prefix = headerPrefix ? "${headerPrefix}${count}." : "${count}."
-                result.add(processMeta(it, schema["items"] as LinkedHashMap, prefix))
-                count++
+        }
+
+        // Convert number values
+        else if(type == "number") {
+            try {
+                def int result = input as int
+                return result
             }
+            catch (NumberFormatException e) {
+                log.debug("Could not convert ${input} to an integer. Trying to convert to a float.")
+            }
+
+            try {
+                def float result = input as float
+                return result
+            }
+            catch (NumberFormatException e) {
+                log.debug("Could not convert ${input} to a float. Trying to convert to a double.")
+            }
+            
+            def double result = input as double
             return result
-        } else {
-            // Cast value to path type if needed and return the value
-            return processValue(input, schema)
+        }
+
+        // Convert integer values
+        else if(type == "integer") {
+
+            def int result = input as int
+            return result
+        }
+
+        // Convert boolean values
+        else if(type == "boolean") {
+
+            if(input.toLowerCase() == "true") {
+                return true
+            }
+            return false
+        }
+
+        else if(type == "null") {
+            return null
         }
     }
 
+    private static String addSample (
+        String message
+    ) {
+        return "Entry ${this.getCount()}: ${message}".toString()
+    }
 }

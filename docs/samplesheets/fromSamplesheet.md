@@ -7,9 +7,9 @@ description: Channel factory to create a channel from a sample sheet.
 
 ## `fromSamplesheet`
 
-This function validates and converts a sample sheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
+This function validates and converts a samplesheet to a ready-to-use Nextflow channel. This is done using information encoded within a sample sheet schema (see the [docs](../nextflow_schema/sample_sheet_schema_specification.md)).
 
-The function has one mandatory argument: the name of the parameter which specifies the input sample sheet. The parameter specified must have the format `file-path` and include additional field `schema`:
+The function has one mandatory argument: the name of the parameter which specifies the input samplesheet. The parameter specified must have the format `file-path` and include additional field `schema`:
 
 ```json hl_lines="4"
 {
@@ -19,23 +19,28 @@ The function has one mandatory argument: the name of the parameter which specifi
 }
 ```
 
-The path specified in the `schema` key determines the JSON used for validation of the sample sheet.
+The path specified in the `schema` key determines the JSON used for validation of the samplesheet.
 
-When using the `.fromSamplesheet` channel factory, one optional arguments can be used:
+When using the `.fromSamplesheet` channel factory, some additional optional arguments can be used:
 
 - `parameters_schema`: File name for the pipeline parameters schema. (Default: `nextflow_schema.json`)
+- `skip_duplicate_check`: Skip the checking for duplicates. Can also be skipped with the `--validationSkipDuplicateCheck` parameter. (Default: `false`)
 
 ```groovy
 Channel.fromSamplesheet('input')
 ```
 
 ```groovy
-Channel.fromSamplesheet('input', parameters_schema: 'custom_nextflow_schema.json')
+Channel.fromSamplesheet(
+  'input',
+  parameters_schema: 'custom_nextflow_schema.json',
+  skip_duplicate_check: false
+)
 ```
 
 ## Basic example
 
-In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetBasic), we create a simple channel from a CSV sample sheet.
+In [this example](../../examples/fromSamplesheetBasic/), we create a simple channel from a CSV samplesheet.
 
 ```
 --8<-- "examples/fromSamplesheetBasic/log.txt"
@@ -47,10 +52,10 @@ In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examp
     --8<-- "examples/fromSamplesheetBasic/pipeline/main.nf"
     ```
 
-=== "sample sheet.csv"
+=== "samplesheet.csv"
 
     ```csv
-    --8<-- "examples/fromSamplesheetBasic/sample sheet.csv"
+    --8<-- "examples/fromSamplesheetBasic/samplesheet.csv"
     ```
 
 === "nextflow.config"
@@ -73,11 +78,11 @@ In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examp
 
 ## Order of fields
 
-[This example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetOrder) demonstrates that the order of columns in the sample sheet file has no effect.
+[This example](../../examples/fromSamplesheetOrder/) demonstrates that the order of columns in the sample sheet file has no effect.
 
 !!! danger
 
-    It is the order of fields **in the sample sheet JSON schema** which defines the order of items in the channel returned by `fromSamplesheet()`, _not_ the order of fields in the sample sheet file.
+    It is the order of fields **in the sample sheet JSON schema** which defines the order of items in the channel returned by `fromSamplesheet()`, _not_ the order of fields in the CSV file.
 
 ```
 --8<-- "examples/fromSamplesheetOrder/log.txt"
@@ -115,7 +120,7 @@ In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examp
 
 ## Channel with meta map
 
-In [this example](https://github.com/nextflow-io/nf-validation/tree/master/examples/fromSamplesheetMeta), we use the schema to mark two columns as meta fields.
+In [this example](../../examples/fromSamplesheetMeta/), we use the schema to mark two columns as meta fields.
 This returns a channel with a meta map.
 
 ```
