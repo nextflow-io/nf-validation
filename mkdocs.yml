@@ -28,6 +28,7 @@ nav:
 
 theme:
   name: material
+  custom_dir: overrides
   icon:
     logo: octicons/checklist-16
     repo: fontawesome/brands/github
