@@ -2,6 +2,10 @@
 
 ## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-validation>
 
+!!! warning
+
+<div class="admonition warning" markdown>
+
 <!-- prettier-ignore -->
 > [!IMPORTANT]
 > **`nf-validation` has now been renamed to `nf-schema`. The `nf-validation` plugin will not receive any future updates.**
@@ -12,6 +16,8 @@
 > ```nextflow
 > plugins { id 'nf-schema@2.0.0' }
 > ```
+
+</div>
 
 **A Nextflow plugin to work with validation of pipeline parameters and sample sheets.**
 
