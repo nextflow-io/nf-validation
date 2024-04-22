@@ -45,6 +45,13 @@ The name and the version of the plugin should be updated from `nf-validation` to
     }
     ```
 
+Additionally, all includes from `nf-validation` should be updated to `nf-schema`. This can easily be done with the following command:
+
+```bash
+find . -type f -name "*.nf" -exec sed -i -e "s/from 'plugin\/nf-validation'/from 'plugin\/nf-schema'/g" -
+e 's/from "plugin\/nf-validation"/from "plugin\/nf-schema"/g' {} +
+```
+
 ### Updating the JSON schema files
 
 If you aren't using any special features in your schemas, you can simply update your `nextflow_schema.json` file using the following command:
