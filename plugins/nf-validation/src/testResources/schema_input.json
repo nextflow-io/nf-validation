@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/nextflow-io/nf-validation/master/plugins/nf-validation/src/testResources/schema_input.json",
     "title": "Samplesheet validation schema",
     "description": "Schema for the samplesheet used in this pipeline",
@@ -10,7 +10,8 @@
             "field_1": {
                 "type": "string",
                 "meta": ["string1","string2"],
-                "default": "value"
+                "default": "value",
+                "dependentRequired": ["field_2", "field_3"]
             },
             "field_2": {
                 "type": "integer",
@@ -46,25 +47,20 @@
                 "type": "string",
                 "format": "path",
                 "exists": true
-            },
+                },
             "field_10": {
-                "type": "string"
+                "type": "string",
+                "unique": true
             },
             "field_11": {
-                "type": "integer"
+                "type": "integer",
+                "unique": ["field_10"]
             },
             "field_12": {
                 "type": "string",
                 "default": "itDoesExist"
             }
         },
-        "required": ["field_4", "field_6"],
-        "dependentRequired": {
-            "field_1": ["field_2", "field_3"]
-        }
-    },
-    "allOf": [
-        {"uniqueEntries": ["field_11", "field_10"]},
-        {"uniqueEntries": ["field_10"]}
-    ]
+        "required": ["field_4", "field_6"]
+    }
 }

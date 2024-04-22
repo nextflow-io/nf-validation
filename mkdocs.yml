@@ -8,7 +8,6 @@ nav:
   - Home:
       - index.md
       - background.md
-      - migration_guide.md
   - Schema:
       - nextflow_schema/index.md
       - nextflow_schema/create_schema.md
@@ -20,7 +19,7 @@ nav:
       - parameters/validation.md
       - parameters/help_text.md
       - parameters/summary_log.md
-  - Samplesheets:
+  - Sample sheets:
       - samplesheets/validate_sample_sheet.md
       - samplesheets/fromSamplesheet.md
       - samplesheets/examples.md
@@ -70,8 +69,8 @@ markdown_extensions:
   - def_list
   - md_in_html
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -88,7 +87,3 @@ plugins:
   - search
   - social:
       cards: !ENV [CARDS, true]
-
-extra:
-  version:
-    provider: mike
