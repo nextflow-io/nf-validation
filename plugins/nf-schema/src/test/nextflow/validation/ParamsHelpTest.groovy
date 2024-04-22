@@ -11,6 +11,7 @@ import org.pf4j.PluginDescriptorFinder
 import spock.lang.Shared
 import test.Dsl2Spec
 import test.OutputCapture
+import test.MockScriptRunner
 
 /**
  * @author : mirpedrol <mirp.julia@gmail.com>
@@ -58,9 +59,9 @@ class ParamsHelpTest extends Dsl2Spec{
     }
 
     def 'should print a help message' () {
-        given:
+        when:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             include { paramsHelp } from 'plugin/nf-schema'
 
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
@@ -69,8 +70,8 @@ class ParamsHelpTest extends Dsl2Spec{
             log.info help_msg
         """
 
-        when:
-        dsl_eval(SCRIPT_TEXT)
+        and:
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -94,9 +95,8 @@ class ParamsHelpTest extends Dsl2Spec{
     def 'should print a help message with argument options' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             include { paramsHelp } from 'plugin/nf-schema'
-            params.validationShowHiddenParams = true
             def command = "nextflow run <pipeline> --input samplesheet.csv --outdir <OUTDIR> -profile docker"
             
             def help_msg = paramsHelp(command, parameters_schema: '$schema')
@@ -104,7 +104,10 @@ class ParamsHelpTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def config = ["validation": [
+            "showHiddenParams": true
+        ]]
+        def result = new MockScriptRunner(config).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -120,7 +123,7 @@ class ParamsHelpTest extends Dsl2Spec{
     def 'should print a help message of one parameter' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             include { paramsHelp } from 'plugin/nf-schema'
             params.help = 'publish_dir_mode'
 
@@ -131,7 +134,7 @@ class ParamsHelpTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()
@@ -153,7 +156,7 @@ class ParamsHelpTest extends Dsl2Spec{
     def 'should fail when help param doesnt exist' () {
         given:
         def schema = Path.of('src/testResources/nextflow_schema.json').toAbsolutePath().toString()
-        def  SCRIPT_TEXT = """
+        def SCRIPT = """
             include { paramsHelp } from 'plugin/nf-schema'
             params.help = 'no_exist'
 
@@ -164,7 +167,7 @@ class ParamsHelpTest extends Dsl2Spec{
         """
 
         when:
-        dsl_eval(SCRIPT_TEXT)
+        def result = new MockScriptRunner([:]).setScript(SCRIPT).execute()
         def stdout = capture
                 .toString()
                 .readLines()

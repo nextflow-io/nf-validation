@@ -24,12 +24,14 @@ public class JsonSchemaValidator {
 
     private static ValidatorFactory validator
     private static Pattern uriPattern = Pattern.compile('^#/(\\d*)?/?(.*)$')
+    private static ValidationConfig config
 
-    JsonSchemaValidator() {
+    JsonSchemaValidator(ValidationConfig config) {
         this.validator = new ValidatorFactory()
             .withJsonNodeFactory(new OrgJsonNode.Factory())
             // .withDialect() // TODO define the dialect
-            .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(), new FormatEvaluatorFactory()))
+            .withEvaluatorFactory(EvaluatorFactory.compose(new CustomEvaluatorFactory(config), new FormatEvaluatorFactory()))
+        this.config = config
     }
 
     private static List<String> validateObject(JsonNode input, String validationType, Object rawJson, String schemaString) {

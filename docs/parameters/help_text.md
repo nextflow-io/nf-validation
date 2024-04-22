@@ -63,17 +63,7 @@ nextflow run my_pipeline --help outdir
 ## Hidden parameters
 
 Params that are set as `hidden` in the JSON Schema are not shown in the help message.
-To show these parameters, set the `validationShowHiddenParams` parameter:
-
-```bash
-nextflow run my_pipeline --help --validationShowHiddenParams
-```
-
-or specifying it in the configuration file
-
-```groovy
-params.validationShowHiddenParams = true
-```
+To show these parameters, set the `validation.showHiddenParams = true` configuration option
 
 ## Coloured logs
 

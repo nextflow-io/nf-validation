@@ -22,8 +22,10 @@ nav:
       - parameters/summary_log.md
   - Samplesheets:
       - samplesheets/validate_sample_sheet.md
-      - samplesheets/fromSamplesheet.md
+      - samplesheets/samplesheetToList.md
       - samplesheets/examples.md
+  - Configuration:
+      - configuration/configuration.md
   - Contributing:
       - contributing/setup.md
 

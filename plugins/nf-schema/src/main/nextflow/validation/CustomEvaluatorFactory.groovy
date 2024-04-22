@@ -13,12 +13,12 @@ import dev.harrel.jsonschema.JsonNode
 
 class CustomEvaluatorFactory implements EvaluatorFactory {
 
-    private Boolean lenientMode
+    private ValidationConfig config
     private String baseDir
 
-    CustomEvaluatorFactory() {
+    CustomEvaluatorFactory(ValidationConfig config) {
         def Session session = Global.getSession()
-        this.lenientMode = session.params.validationLenientMode ?: false
+        this.config = config
         this.baseDir = session.baseDir.toString()
     }
 
@@ -39,10 +39,10 @@ class CustomEvaluatorFactory implements EvaluatorFactory {
         } else if (fieldName == "exists" && schemaNode.isBoolean()) {
             return Optional.of(new ExistsEvaluator(schemaNode.asBoolean()))
         } else if (fieldName == "schema" && schemaNode.isString()) {
-            return Optional.of(new SchemaEvaluator(schemaNode.asString(), this.baseDir))
+            return Optional.of(new SchemaEvaluator(schemaNode.asString(), this.baseDir, this.config))
         } else if (fieldName == "uniqueEntries" && schemaNode.isArray()) {
             return Optional.of(new UniqueEntriesEvaluator(schemaNode.asArray()))
-        } else if (fieldName == "type" && (schemaNode.isString() || schemaNode.isArray()) && lenientMode) {
+        } else if (fieldName == "type" && (schemaNode.isString() || schemaNode.isArray()) && config.lenientMode) {
             return Optional.of(new LenientTypeEvaluator(schemaNode))
         } else if (fieldName == "deprecated" && schemaNode.isBoolean()) {
             return Optional.of(new DeprecatedEvaluator(schemaNode.asBoolean()))
