@@ -2,6 +2,7 @@
 
 ## 📚 Docs 👉🏻 <https://nextflow-io.github.io/nf-validation>
 
+<!-- prettier-ignore -->
 > [!IMPORTANT]
 > **`nf-validation` has now been renamed to `nf-schema`. The `nf-validation` plugin will not receive any future updates.**
 > **Please update your pipelines to use [`nf-schema`](https://github.com/nextflow-io/nf-schema) instead.**
