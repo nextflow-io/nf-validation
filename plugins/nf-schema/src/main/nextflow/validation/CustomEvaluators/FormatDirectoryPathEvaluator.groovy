@@ -25,9 +25,9 @@ class FormatDirectoryPathEvaluator implements Evaluator {
 
         def String value = node.asString()
 
-        // Skip validation of S3 paths for now
-        if (value.startsWith('s3://')) {
-            log.debug("S3 paths are not supported by 'FormatDirectoryPathEvaluator': '${value}'")
+        // Skip validation of blob storage paths
+        if (value.startsWith('s3://') || value.startsWith('az://') || value.startsWith('gs://')) {
+            log.debug("Cloud blob storage paths are not supported by 'FormatDirectoryPathEvaluator': '${value}'")
             return Evaluator.Result.success()
         }
        
