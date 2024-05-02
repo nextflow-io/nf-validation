@@ -26,7 +26,7 @@ class FormatFilePathEvaluator implements Evaluator {
         def String value = node.asString()
 
         // Skip validation of S3 paths for now
-        if (value.startsWith('s3://')) {
+        if (value.startsWith('s3://') || value.startsWith('az://') || value.startsWith('gs://')) {
             log.debug("S3 paths are not supported by 'FormatFilePathEvaluator': '${value}'")
             return Evaluator.Result.success()
         }
