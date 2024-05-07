@@ -38,7 +38,7 @@ Channel.fromList(samplesheetToList("path/to/samplesheet", "path/to/json/schema")
 
     This will mimic the `fromSamplesheet` channel factory as it was in [nf-validation](https://github.com/nextflow-io/nf-validation).
 
-### Use as a channel oprator
+### Use as a channel operator
 
 The function can be used with the `.flatMap` channel operator to create a channel from samplesheets that are already in a channel:
 
