@@ -447,9 +447,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should ignore s3 path' () {
         given:
-        def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.glob = 's3://fake/path'
+            params.input = 's3://fake/path'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters(parameters_schema: '$schema')
@@ -469,9 +469,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should ignore az path' () {
         given:
-        def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.glob = 'az://fake/path'
+            params.input = 'az://fake/path'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters(parameters_schema: '$schema')
@@ -491,9 +491,9 @@ class PluginExtensionMethodsTest extends Dsl2Spec{
 
     def 'should ignore gs path' () {
         given:
-        def schema = Path.of('src/testResources/nextflow_schema_file_path_pattern.json').toAbsolutePath().toString()
+        def schema = Path.of('src/testResources/nextflow_schema_with_samplesheet.json').toAbsolutePath().toString()
         def  SCRIPT_TEXT = """
-            params.glob = 'gs://fake/path'
+            params.input = 'gs://fake/path'
             include { validateParameters } from 'plugin/nf-validation'
             
             validateParameters(parameters_schema: '$schema')
