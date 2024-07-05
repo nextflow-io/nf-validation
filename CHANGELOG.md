@@ -4,7 +4,7 @@
 
 ## Improvements
 
-- No longer does false validation on Azure and GCP cloud storage paths.
+- No longer does false validation on Azure and GCP cloud storage paths ([#171](https://github.com/nextflow-io/nf-validation/pull/171))
 
 # Version 1.1.3 - Asahikawa
 
