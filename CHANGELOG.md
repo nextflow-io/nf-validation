@@ -1,5 +1,11 @@
 # nextflow-io/nf-validation: Changelog
 
+# Version 1.1.4
+
+## Vulnerability fix
+
+- Updated the org.json package to version `20240303`.
+
 # Version 1.1.3 - Asahikawa
 
 ## Improvements
