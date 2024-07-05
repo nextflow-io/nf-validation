@@ -615,7 +615,7 @@ class SchemaValidator extends PluginExtensionPoint {
     // Function to check if a file or directory exists
     //
     List pathExists(String path, String paramName, Boolean s3PathCheck) {
-        if (path.startsWith('s3://') && !s3PathCheck) {
+        if (path.matches("(s3://|az://|gs://).*") && !s3PathCheck) {
             log.debug "Ignoring validation of S3 URL path '${path}'".toString()
         } else {
             def Path file = Nextflow.file(path) as Path

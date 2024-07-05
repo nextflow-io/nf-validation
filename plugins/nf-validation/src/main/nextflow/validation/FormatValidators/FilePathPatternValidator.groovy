@@ -11,7 +11,7 @@ public class FilePathPatternValidator implements FormatValidator {
 
     @Override
     public Optional<String> validate(final String subject) {
-        if (subject.startsWith('s3://')) {
+        if (subject.matches("(s3://|az://|gs://).*")) {
             log.debug("S3 paths are not supported by 'FilePathPatternValidator': '${subject}'")
             return Optional.empty()
         }
