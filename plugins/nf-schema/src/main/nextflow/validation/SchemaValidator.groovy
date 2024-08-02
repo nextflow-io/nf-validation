@@ -23,6 +23,7 @@ import nextflow.script.WorkflowMetadata
 import nextflow.Session
 import nextflow.util.Duration
 import nextflow.util.MemoryUnit
+import nextflow.config.ConfigMap
 import org.json.JSONException
 import org.json.JSONArray
 import org.json.JSONObject
@@ -127,7 +128,7 @@ class SchemaValidator extends PluginExtensionPoint {
 !       and the functionality of this pipeline in the future      !
 !                                                                 !
 !                    plugins {                                    !
-!                        id "nf-schema@2.0.0"                     !
+!                        id "nf-schema@<version>"                 !
 !                    }                                            !
 !                                                                 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -572,6 +573,10 @@ class SchemaValidator extends PluginExtensionPoint {
             // Cast LinkedHashMap to String
             if (p['value'] instanceof LinkedHashMap) {
                 new_params.replace(p.key, p['value'].toString())
+            }
+            // Parsed nested parameters
+            if (p['value'] instanceof Map) {
+                new_params.replace(p.key, cleanParameters(p['value'] as Map))
             }
         }
         return new_params
