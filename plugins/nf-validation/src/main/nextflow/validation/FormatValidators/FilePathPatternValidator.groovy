@@ -11,8 +11,8 @@ public class FilePathPatternValidator implements FormatValidator {
 
     @Override
     public Optional<String> validate(final String subject) {
-        if (subject.startsWith('s3://')) {
-            log.debug("S3 paths are not supported by 'FilePathPatternValidator': '${subject}'")
+        if (subject.matches("(s3://|az://|gs://).*")) {
+            log.debug("Cloud storage paths are not supported by 'FilePathPatternValidator': '${subject}'")
             return Optional.empty()
         }
         ArrayList files = Nextflow.files(subject)
